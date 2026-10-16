@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "EasyShop Client",
+        "request": "launch",
+        "type": "dart",
+        "program": "lib/main_client.dart",
+        "args": ["--flavor", "client"]
+      },
+      {
+        "name": "EasyShop Admin",
+        "request": "launch",
+        "type": "dart",
+        "program": "lib/main_admin.dart",
+        "args": ["--flavor", "admin"]
+      }
+    ]
+  }
