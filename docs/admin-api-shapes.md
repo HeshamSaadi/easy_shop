@@ -1,6 +1,6 @@
 # EasyShop: Admin API Response Shapes
 
-Source: tested in Postman on 2026-10-16 (admin account, one client order). Complements `endpoints.md`, which lists the requests. This file lists what the server **returns**.
+Source: tested in Postman on 2026-10-16 (admin account, one client order). Register and login details were added on 2026-10-17 from A's tests. Complements `endpoints.md`, which lists the requests. This file lists what the server **returns**.
 
 No real emails, tokens, keys or base URLs are in this file. Hosts are shown as `<host>`.
 
@@ -38,6 +38,7 @@ No real emails, tokens, keys or base URLs are in this file. Hosts are shown as `
 | - | `POST /admin/otp/resend` (`email`) | Resends the code by email (response body not recorded yet) |
 
 - Login **never** returns a token. Every sign-in goes through an OTP.
+- Login sends the OTP both for an account that was never verified and for one that was (same message, `data: null`).
 - The OTP has 6 digits and is valid for 10 minutes. The SMS part is not working yet (the mentor will fix it), so email is the only channel.
 - **The token is a JWT valid for 1 hour (3600 seconds).** No refresh endpoint exists in the collection. After it expires the user must log in again, with a new OTP.
 
@@ -49,10 +50,23 @@ Register response (`data`):
 | `name`, `email`, `phone`, `national_id`, `business_name` | string | |
 | `address` | string? | optional |
 | `latitude`, `longitude` | **string** here | numbers in the verify and profile responses |
-| `picture_url`, `commercial_register_url`, `tax_card_url` | string? | what comes back when no file was uploaded: **not tested yet** |
+| `picture_url`, `commercial_register_url`, `tax_card_url` | string | the default image URL (`/assets/images/default.png`) when no file was uploaded (seen in the verify response of an account registered without files) |
 | `created_at`, `updated_at` | string | |
 
 Verify response (`data`): the same fields, with `latitude` and `longitude` as **numbers**.
+
+Register validation (**422**, `message` is a map of field to list of messages):
+
+```json
+{ "data": null, "message": { "email": ["The email has already been taken."] } }
+```
+
+Rules found so far:
+- Required: `name`, `email`, `phone`, `password`, `national_id`, `business_name`.
+- `email` must be a valid email.
+- `password` has at least 6 characters and must match `password_confirmation`.
+- `national_id` has a format rule (the exact rule is not known yet).
+- `email`, `phone` and `national_id` must be unique.
 
 ### Profile: `GET /admin/profile`
 
@@ -192,7 +206,8 @@ Important notes for the orders screens:
 
 - Profile update with `POST` + `_method` = `PUT` (the same workaround as products).
 - Category update and delete.
-- Which URL fields come back when no document or picture was uploaded.
+- Does register itself send an OTP email? Do uploaded files appear in the `*_url` fields right after register?
+- File type and size limits for uploads, and the exact `national_id` rule.
 - Whether the admin products list contains only the logged-in admin's products.
 - Order statuses other than `pending`, and the `payment` object after paying.
 - The response of `POST /admin/otp/resend`.
