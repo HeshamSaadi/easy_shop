@@ -1,5 +1,7 @@
-import '../../../../../easy_shop_old/lib/core/utils/app_config.dart';
-import 'api_consumer.dart';
+import 'package:dio/dio.dart';
+import 'package:easy_shop/core/utils/app_config.dart';
+import 'package:easy_shop/core/databases/api/api_consumer.dart';
+
 
 class DioConsumer implements ApiConsumer {
   DioConsumer({required Dio dio}) : _dio = dio {
