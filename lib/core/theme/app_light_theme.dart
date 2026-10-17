@@ -1,7 +1,7 @@
 //!ألوان وتنسيقات الوضع الفاتح: الخلفيات، النصوص، الحقول والبطاقات.
-import 'package:easyshop/core/theme/app_color.dart';
-import 'package:easyshop/core/theme/app_radius.dart';
-import 'package:easyshop/core/theme/app_text_styles.dart';
+import 'package:easy_shop/core/theme/app_colors.dart';
+import 'package:easy_shop/core/theme/app_radius.dart';
+import 'package:easy_shop/core/theme/app_text_styles.dart';
 import 'package:flutter/material.dart';
 
 class AppLightTheme {
@@ -53,48 +53,26 @@ class AppLightTheme {
           color: AppColors.textSecondary,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(
-            AppRadius.md,
-          ),
+          borderRadius: BorderRadius.circular(AppRadius.md),
 
-          borderSide: const BorderSide(
-            color: AppColors.border,
-          ),
+          borderSide: const BorderSide(color: AppColors.border),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(
-            AppRadius.md,
-          ),
-          borderSide: const BorderSide(
-            color: AppColors.border,
-          ),
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderSide: const BorderSide(color: AppColors.border),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(
-            AppRadius.md,
-          ),
-          borderSide: const BorderSide(
-            color: AppColors.error,
-          ),
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderSide: const BorderSide(color: AppColors.error),
         ),
 
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(
-            AppRadius.md,
-          ),
-          borderSide: const BorderSide(
-            color: AppColors.primary,
-            width: 1.5,
-          ),
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(
-            AppRadius.md,
-          ),
-          borderSide: const BorderSide(
-            color: AppColors.error,
-            width: 1.5,
-          ),
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
         ),
       ),
 
@@ -106,19 +84,11 @@ class AppLightTheme {
           disabledBackgroundColor: AppColors.primaryLight,
           disabledForegroundColor: Colors.white,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 14,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              AppRadius.md,
-            ),
+            borderRadius: BorderRadius.circular(AppRadius.md),
           ),
-          textStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
 
@@ -129,9 +99,7 @@ class AppLightTheme {
         margin: EdgeInsets.zero,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(
-            AppRadius.md,
-          ),
+          borderRadius: BorderRadius.circular(AppRadius.md),
         ),
       ),
 

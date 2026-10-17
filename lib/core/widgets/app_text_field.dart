@@ -1,10 +1,8 @@
-import 'package:easyshop/core/theme/app_spacing.dart';
-import 'package:easyshop/core/utils/app_strings.dart';
+import 'package:easy_shop/core/theme/app_spacing.dart';
+import 'package:easy_shop/core/utils/app_strings.dart';
 import 'package:flutter/material.dart';
 
-class AppTextField
-    extends
-        StatefulWidget {
+class AppTextField extends StatefulWidget {
   const AppTextField({
     super.key,
     required this.label,
@@ -25,10 +23,7 @@ class AppTextField
   final String label;
   final String? hint;
   final TextEditingController? controller;
-  final FormFieldValidator<
-    String
-  >?
-  validator;
+  final FormFieldValidator<String>? validator;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
   final bool isPassword;
@@ -36,23 +31,13 @@ class AppTextField
   final IconData? prefixIcon;
   final int maxLines;
   final bool enabled;
-  final ValueChanged<
-    String
-  >?
-  onChanged;
+  final ValueChanged<String>? onChanged;
 
   @override
-  State<
-    AppTextField
-  >
-  createState() => _AppTextFieldState();
+  State<AppTextField> createState() => _AppTextFieldState();
 }
 
-class _AppTextFieldState
-    extends
-        State<
-          AppTextField
-        > {
+class _AppTextFieldState extends State<AppTextField> {
   late bool _isObscured;
 
   @override
@@ -62,18 +47,12 @@ class _AppTextFieldState
   }
 
   void _toggleVisibility() {
-    setState(
-      () => _isObscured = !_isObscured,
-    );
+    setState(() => _isObscured = !_isObscured);
   }
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
-    final textTheme = Theme.of(
-      context,
-    ).textTheme;
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,9 +60,7 @@ class _AppTextFieldState
         Text.rich(
           TextSpan(
             text: widget.label,
-            style: textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
             children: [
               if (widget.isOptional)
                 TextSpan(
@@ -93,9 +70,7 @@ class _AppTextFieldState
             ],
           ),
         ),
-        const SizedBox(
-          height: AppSpacing.sm,
-        ),
+        const SizedBox(height: AppSpacing.sm),
         TextFormField(
           controller: widget.controller,
           validator: widget.validator,
@@ -103,20 +78,14 @@ class _AppTextFieldState
           textInputAction: widget.textInputAction,
           obscureText: _isObscured,
           // A password field must stay on one line
-          maxLines: widget.isPassword
-              ? 1
-              : widget.maxLines,
+          maxLines: widget.isPassword ? 1 : widget.maxLines,
           enabled: widget.enabled,
           onChanged: widget.onChanged,
           decoration: InputDecoration(
             hintText: widget.hint,
-            prefixIcon:
-                widget.prefixIcon ==
-                    null
+            prefixIcon: widget.prefixIcon == null
                 ? null
-                : Icon(
-                    widget.prefixIcon,
-                  ),
+                : Icon(widget.prefixIcon),
             suffixIcon: widget.isPassword
                 ? IconButton(
                     onPressed: _toggleVisibility,
