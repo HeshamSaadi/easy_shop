@@ -2,9 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:easy_shop/core/utils/app_config.dart';
 import 'package:easy_shop/core/databases/api/api_consumer.dart';
 
-
 class DioConsumer implements ApiConsumer {
-  DioConsumer({required Dio dio}) : _dio = dio {
+  DioConsumer({required this._dio}) {
     _dio.options
       ..baseUrl = AppConfig.baseUrl
       ..connectTimeout = AppConfig.connectTimeout
