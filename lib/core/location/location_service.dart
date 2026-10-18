@@ -1,4 +1,5 @@
 import 'location_permission_status.dart';
+import 'picked_location.dart';
 
 /// Contract for permission handling. Screens and Cubits depend on this,
 /// never on the geolocator package directly.
@@ -14,4 +15,8 @@ abstract class LocationService {
 
   /// Opens the phone's location settings (for `serviceDisabled`).
   Future<void> openLocationSettings();
+
+  /// Current GPS position, or null if it could not be read.
+  /// Call this only after the permission is granted.
+  Future<PickedLocation?> getCurrentLocation();
 }
