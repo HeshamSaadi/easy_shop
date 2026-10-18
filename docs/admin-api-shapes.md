@@ -1,6 +1,6 @@
 # EasyShop: Admin API Response Shapes
 
-Source: tested in Postman on 2026-10-16 (admin account, one client order). Register and login details were added on 2026-10-17 from A's tests. Complements `endpoints.md`, which lists the requests. This file lists what the server **returns**.
+Source: tested in Postman on 2026-10-16 (admin account, one client order). Register and login details were added on 2026-10-17, and the auth and profile tests on 2026-10-18, from A's tests. Complements `endpoints.md`, which lists the requests. This file lists what the server **returns**.
 
 No real emails, tokens, keys or base URLs are in this file. Hosts are shown as `<host>`.
 
@@ -32,15 +32,21 @@ No real emails, tokens, keys or base URLs are in this file. Hosts are shown as `
 
 | Step | Request | Result |
 |---|---|---|
-| 1 | `POST /admin/register` (form-data) | **201**. `data` = the new admin. **No token.** |
+| 1 | `POST /admin/register` (form-data) | **201**, message `"Account created successfully"`. `data` = the new admin. **No token**, and **no OTP is sent**. |
 | 2 | `POST /admin/login` (`email`, `password`) | 200. `data: null`, `message: "OTP sent to your email and phone"` |
-| 3 | `POST /admin/otp/verify` (`email`, `otp_code`) | 200. `data` = admin, plus a top-level **`token`** |
-| - | `POST /admin/otp/resend` (`email`) | Resends the code by email (response body not recorded yet) |
+| 3 | `POST /admin/otp/verify` (`email`, `otp_code`) | 200, message `"OTP verified successfully"`. `data` = admin, plus a top-level **`token`** |
+| - | `POST /admin/otp/resend` (`email`) | 200. `data: null`, message `"OTP resent to your email"` |
+| - | `POST /admin/logout` (token) | 200. `data: null`, message `"Account logged out successfully"` |
 
 - Login **never** returns a token. Every sign-in goes through an OTP.
 - Login sends the OTP both for an account that was never verified and for one that was (same message, `data: null`).
 - The OTP has 6 digits and is valid for 10 minutes. The SMS part is not working yet (the mentor will fix it), so email is the only channel.
 - **The token is a JWT valid for 1 hour (3600 seconds).** No refresh endpoint exists in the collection. After it expires the user must log in again, with a new OTP.
+- **Register does not send an OTP.** Only login does (tested 2026-10-18). After a successful register, go to the login screen.
+- **Every login sends a new OTP**, even for an account that is already verified. Being verified once is not remembered, so a new sign-in always needs login, then OTP.
+- **The OTP is single-use.** Verifying the same code a second time returns `"Invalid or expired OTP"`.
+- The `token` field is at the top level of the verify response, next to `data`, not inside it.
+- Logout is a `POST` with the token and no body. Whether the server invalidates the token after logout is **not tested yet** (see section 5).
 
 Register response (`data`):
 
@@ -50,7 +56,7 @@ Register response (`data`):
 | `name`, `email`, `phone`, `national_id`, `business_name` | string | |
 | `address` | string? | optional |
 | `latitude`, `longitude` | **string** here | numbers in the verify and profile responses |
-| `picture_url`, `commercial_register_url`, `tax_card_url` | string | the default image URL (`/assets/images/default.png`) when no file was uploaded (seen in the verify response of an account registered without files) |
+| `picture_url`, `commercial_register_url`, `tax_card_url` | string | the default image URL (`/assets/images/default.png`) when no file was uploaded. When files are sent, the uploaded URLs (under `/uploads/users/`) appear **immediately** in the register response. `.jfif` is accepted for all three |
 | `created_at`, `updated_at` | string | |
 
 Verify response (`data`): the same fields, with `latitude` and `longitude` as **numbers**.
@@ -65,14 +71,22 @@ Rules found so far:
 - Required: `name`, `email`, `phone`, `password`, `national_id`, `business_name`.
 - `email` must be a valid email.
 - `password` has at least 6 characters and must match `password_confirmation`.
-- `national_id` has a format rule (the exact rule is not known yet).
+- `national_id`: 14 digits is accepted, 12 digits is rejected (`"The national id field format is invalid."`). Most likely exactly 14 digits, but 13, 15 and letters are not tested yet.
+- `phone`: `+20` followed by 10 digits is accepted (for example `+201013114901`). Rejected with `"The phone field format is invalid."`: the local format `01013114002`, `+20` followed by only 9 digits, and numbers with another country code (`+100...`, `+1001...`). Spaces inside the number are **not tested yet**, so remove them before sending.
 - `email`, `phone` and `national_id` must be unique.
+- Optional fields: `address`, `latitude`, `longitude`, `commercial_register`, `tax_card`, `picture`.
 
 ### Profile: `GET /admin/profile`
 
 Same fields as the verify `data`, plus `products` (a list, empty for a new admin).
 
-`PUT /admin/profile/update` (form-data): a real `PUT` with form-data does not work in Postman. Same cause as the product update below (the server does not read the form on `PUT`). The `POST` + `_method` workaround is **not tested yet** on this endpoint.
+`PUT /admin/profile/update` (form-data), tested 2026-10-18:
+- A **real `PUT` with form-data fails**: 422, and `message` lists `name`, `email`, `phone`, `national_id` and `business_name` as required even though they were filled in. Same cause as the product update below (the server does not read the form on `PUT`).
+- A plain `POST` to the same URL **without** `_method` returns **405** with an HTML page.
+- **The workaround works:** `POST` to the same URL with the same form-data plus a text field `_method` = `PUT`. It returns **201 Created**, message `"Account updated successfully"`. Treat any 2xx as success.
+- `data` has the register fields, with `latitude` and `longitude` as **strings** and **no `products` key**.
+- Sending your own `email`, `phone` and `national_id` again is accepted (no "already taken").
+- Sending **no files** keeps the old `picture_url`, `commercial_register_url` and `tax_card_url`. Sending files **replaces** them (new URLs).
 
 ### Categories
 
@@ -169,11 +183,14 @@ Important notes for the orders screens:
 | Product not found | `"Product is not found"` | string |
 | Wrong password | `"Invalid email or password"` | string |
 | Wrong or expired OTP | `"Invalid or expired OTP"` | string |
+| OTP already used | `"Invalid or expired OTP"` | string |
 
 - `message` is a `String` **or** a `Map<String, List<String>>`. The error parser must check which one it received.
 - An expired token and a missing token give the same message, so both mean "go to login".
 - A wrong OTP and an expired OTP give the same message.
 - A wrong HTTP method (a `POST` to `/store` carrying `_method=PUT`) returned **405** with an **HTML page**, not JSON. The error handler must not assume the body is a JSON map.
+- A `POST` to `/admin/profile/update` without `_method` also returned **405** with an HTML page.
+- `POST /admin/logout` returned 401 twice on 2026-10-18 when called with a missing or expired token. The cause was not isolated.
 - Status codes seen for each case:
 
 | Case | Status code |
@@ -192,22 +209,27 @@ Important notes for the orders screens:
 | Quirk | What to do |
 |---|---|
 | Same field is `150` in one response and `"150"` in another | Tolerant number parsing in all models |
-| `latitude` / `longitude` are strings in register, numbers elsewhere | Same |
+| `latitude` / `longitude` are strings in register and profile update, numbers in verify and `GET /admin/profile` | Same |
+| Verified once does not mean logged in: every login sends a new OTP | After login success always go to the OTP screen |
+| OTP is single-use | After a failed verify, send the user to resend instead of retrying the same code |
+| Register does not return a token or send an OTP | After register go to login |
+| Phone must be `+20` plus 10 digits | Validate and strip spaces before sending |
+| Omitting file fields keeps old files, sending replaces them | Send a file field only when the user picked a new file |
 | Product store has no `category` object | Don't rely on it after creating |
 | `message` can be a string or an object | Parse by type in the error handler |
 | `date` is local time, `created_at` is UTC | Pick one for display and convert to the device time zone |
 | Categories are shared by all admins | Don't edit or delete categories you did not create |
-| Form-data updates fail on a real `PUT` | Send `POST` + form field `_method` = `PUT` (confirmed for products) |
+| Form-data updates fail on a real `PUT` | Send `POST` + form field `_method` = `PUT` (confirmed for products and profile) |
 | Update returns 201, not 200 | Accept any 2xx as success |
 | Renaming a product changes its slug | Use the slug from the update response, then refetch the list |
 | Errors can come back as an HTML page (405) | Recommended: send `Accept: application/json` by default (not tested yet) and handle a non-JSON body without crashing |
 
 ## 5. Not tested yet
 
-- Profile update with `POST` + `_method` = `PUT` (the same workaround as products).
+- `GET /admin/profile` with the same token right after logout (does the server invalidate the token?).
+- Spaces inside `phone` (for example `+20 101 311 4002`). Other `national_id` lengths (13, 15) and letters.
+- Upload limits: PDF files, large images, other extensions (only `.jfif` was tested).
+- Status code of verifying an already-used OTP (the body is known, the code was not recorded).
 - Category update and delete.
-- Does register itself send an OTP email? Do uploaded files appear in the `*_url` fields right after register?
-- File type and size limits for uploads, and the exact `national_id` rule.
 - Whether the admin products list contains only the logged-in admin's products.
 - Order statuses other than `pending`, and the `payment` object after paying.
-- The response of `POST /admin/otp/resend`.
