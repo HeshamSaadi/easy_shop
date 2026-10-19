@@ -9,19 +9,23 @@ import 'package:easy_shop/core/utils/app_config.dart';
 class DioConsumer implements ApiConsumer {
   DioConsumer({
     required this._dio,
+    required AppConfig config,
     required TokenStorage tokenStorage,
     required SessionEvents sessionEvents,
   }) {
     _dio.options
-      ..baseUrl = AppConfig.baseUrl
+      ..baseUrl = config.baseUrl
       ..connectTimeout = AppConfig.connectTimeout
       ..receiveTimeout = AppConfig.receiveTimeout
-      ..headers = {'x-api-key': AppConfig.apiKey, 'Accept': 'application/json'};
+      ..headers = {'x-api-key': config.apiKey, 'Accept': 'application/json'};
 
     _dio.interceptors.add(
       AuthInterceptor(tokenStorage: tokenStorage, sessionEvents: sessionEvents),
     );
   }
+
+  static const String _methodOverrideField = '_method';
+  static const String _putMethod = 'PUT';
 
   final Dio _dio;
 
@@ -47,6 +51,10 @@ class DioConsumer implements ApiConsumer {
     Object? data,
     Map<String, dynamic>? queryParameters,
   }) {
+    if (data is FormData) {
+      data.fields.add(const MapEntry(_methodOverrideField, _putMethod));
+      return post(path, data: data, queryParameters: queryParameters);
+    }
     return _request(
       () => _dio.put(path, data: data, queryParameters: queryParameters),
     );

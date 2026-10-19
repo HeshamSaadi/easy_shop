@@ -1,21 +1,29 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConfig {
-  AppConfig._();
+  const AppConfig({required this.baseUrl, required this.apiKey});
 
-  static const Duration connectTimeout = Duration(seconds: 20);
-  static const Duration receiveTimeout = Duration(seconds: 20);
+  final String baseUrl;
+  final String apiKey;
 
-  static Future<void> load() => dotenv.load(fileName: '.env');
+  static const Duration connectTimeout = Duration(seconds: 15);
+  static const Duration receiveTimeout = Duration(seconds: 15);
 
-  static String get baseUrl => _require('BASE_URL');
-  static String get apiKey => _require('API_KEY');
+  static const String _envFile = '.env';
+  static const String _baseUrlKey = 'BASE_URL';
+  static const String _apiKeyKey = 'API_KEY';
 
-  static String _require(String key) {
-    final value = dotenv.maybeGet(key);
-    if (value == null || value.isEmpty) {
-      throw StateError('Missing "$key" in .env');
+  static Future<AppConfig> load() async {
+    await dotenv.load(fileName: _envFile);
+    final baseUrl = dotenv.maybeGet(_baseUrlKey);
+    final apiKey = dotenv.maybeGet(_apiKeyKey);
+
+    if (baseUrl == null ||
+        baseUrl.isEmpty ||
+        apiKey == null ||
+        apiKey.isEmpty) {
+      throw StateError('Missing $_baseUrlKey or $_apiKeyKey in $_envFile');
     }
-    return value;
+    return AppConfig(baseUrl: baseUrl, apiKey: apiKey);
   }
 }

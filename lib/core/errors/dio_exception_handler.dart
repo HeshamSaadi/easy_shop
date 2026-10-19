@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+
 import 'error_model.dart';
 import 'error_messages.dart';
 import 'exceptions.dart';
@@ -26,7 +27,7 @@ Never handleDioException(DioException e) {
 AppException _fromResponse(Response<dynamic>? response) {
   final code = response?.statusCode;
   switch (code) {
-       case HttpStatus.badRequest:
+    case HttpStatus.badRequest:
     case HttpStatus.unprocessableEntity:
       return BadRequestException(
         ErrorModel.fromJson(response?.data).message ?? ErrorMessages.unknown,

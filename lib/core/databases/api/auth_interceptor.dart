@@ -6,10 +6,7 @@ import '../cache/token_storage.dart';
 import 'session_events.dart';
 
 class AuthInterceptor extends Interceptor {
-  AuthInterceptor({
-    required this._tokenStorage,
-    required this._sessionEvents,
-  });
+  AuthInterceptor({required this._tokenStorage, required this._sessionEvents});
 
   static const _bearerPrefix = 'Bearer ';
 
