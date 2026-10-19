@@ -10,6 +10,15 @@ class AuthInterceptor extends Interceptor {
 
   static const _bearerPrefix = 'Bearer ';
 
+  static const _publicPaths = [
+    '/login',
+    '/register',
+    '/otp/verify',
+    '/otp/resend',
+  ];
+
+  bool _isPublic(String path) => _publicPaths.any(path.endsWith);
+
   final TokenStorage _tokenStorage;
   final SessionEvents _sessionEvents;
 
@@ -19,7 +28,7 @@ class AuthInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     final token = await _tokenStorage.readToken();
-    if (token != null && token.isNotEmpty) {
+    if (!_isPublic(options.path) && token != null && token.isNotEmpty) {
       options.headers[HttpHeaders.authorizationHeader] = '$_bearerPrefix$token';
     }
     handler.next(options);
