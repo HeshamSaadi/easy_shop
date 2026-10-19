@@ -16,7 +16,13 @@ class NoInternetException extends AppException {
 }
 
 class BadRequestException extends AppException {
-  const BadRequestException(super.message, {super.statusCode});
+  const BadRequestException(
+    super.message, {
+    super.statusCode,
+    this.fieldErrors = const {},
+  });
+
+  final Map<String, List<String>> fieldErrors;
 }
 
 class UnauthorizedException extends AppException {

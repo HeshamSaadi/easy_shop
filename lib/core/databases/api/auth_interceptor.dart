@@ -17,10 +17,10 @@ class AuthInterceptor extends Interceptor {
     '/otp/resend',
   ];
 
-  bool _isPublic(String path) => _publicPaths.any(path.endsWith);
-
   final TokenStorage _tokenStorage;
   final SessionEvents _sessionEvents;
+
+  bool _isPublic(String path) => _publicPaths.any(path.endsWith);
 
   @override
   Future<void> onRequest(
