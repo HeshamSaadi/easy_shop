@@ -200,6 +200,7 @@ Important notes for the orders screens:
 |---|---|---|
 | Missing or edited token | `"Please login first"` | string |
 | Expired token | `"Access token expired"` | string |
+| Token invalidated by logout | `"Invalid access token"` | string |
 | Validation (empty `name`) | `{ "name": ["The name field is required."] }` | **object**: field to list of strings |
 | Product not found | `"Product is not found"` | string |
 | Category not found | `"Category is not found"` | string |
@@ -247,11 +248,19 @@ Important notes for the orders screens:
 | Renaming a product or a category changes its slug | Use the slug from the update response, then refetch the list |
 | Errors can come back as an HTML page (405) | Recommended: send `Accept: application/json` by default (not tested yet) and handle a non-JSON body without crashing |
 
-## 5. Not tested yet
+## 5. Tested 2026-10-20
 
-- `GET /admin/profile` with the same token right after logout (does the server invalidate the token?).
+- `POST /admin/login` and `POST /admin/otp/verify` accept raw JSON (form-data is not required).
+- Login with empty fields: 422, `message` = `{ "email": [...], "password": [...] }`.
+- Reusing an OTP: 401, `"Invalid or expired OTP"`.
+- Logout with a valid token: 200.
+- `GET /admin/profile` right after logout: 401, `"Invalid access token"`. This suggests the server invalidates the token on logout, but the control test (200 before logout) is still pending.
+- Register with all fields and 3 `.jfif` files: 201 (confirmed).
+
+## 6. Not tested yet
+
+- The control test for logout: `GET /admin/profile` with the same token returns 200 before logout.
 - Spaces inside `phone` (for example `+20 101 311 4002`). Other `national_id` lengths (13, 15) and letters.
-- Upload limits: PDF files, large images, other extensions (only `.jfif` was tested).
-- Status code of verifying an already-used OTP (the body is known, the code was not recorded).
+- Upload limits: large images and other extensions (only `.jfif` was tested here).
 - Whether the admin products list contains only the logged-in admin's products.
 - Order statuses other than `pending`, and the `payment` object after paying.
