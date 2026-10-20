@@ -15,4 +15,6 @@ abstract class AuthRepository {
   });
 
   Future<Either<Failure, Unit>> resendOtp({required String email});
+
+  Future<Either<Failure, Unit>> logout();
 }

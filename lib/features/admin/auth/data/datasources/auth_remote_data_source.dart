@@ -12,6 +12,8 @@ abstract class AuthRemoteDataSource {
   Future<String> verifyOtp({required String email, required String otpCode});
 
   Future<void> resendOtp({required String email});
+
+  Future<void> logout();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -54,6 +56,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> resendOtp({required String email}) async {
     await _api.post(EndPoints.adminResendOtp, data: {'email': email});
+  }
+
+  @override
+  Future<void> logout() async {
+    await _api.post(EndPoints.adminLogout);
   }
 
   Future<FormData> _buildRegisterForm(RegisterParams params) async {

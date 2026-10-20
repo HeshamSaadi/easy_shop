@@ -37,6 +37,18 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, Unit>> logout() {
+    return _guard(() async {
+      try {
+        await _remote.logout();
+      } on AppException catch(_) {
+      } finally {
+        await _tokenStorage.clearToken();
+      }
+    });
+  }
+
+  @override
   Future<Either<Failure, Unit>> resendOtp({required String email}) {
     return _guard(() => _remote.resendOtp(email: email));
   }
