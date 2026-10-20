@@ -233,3 +233,12 @@ Important notes for the orders screens:
 - Category update and delete.
 - Whether the admin products list contains only the logged-in admin's products.
 - Order statuses other than `pending`, and the `payment` object after paying.
+
+Tested 2026-10-20:
+- /admin/login and /admin/otp/verify accept raw JSON (form-data not required).
+- Login with empty fields: 422, message = {"email": [...], "password": [...]}.
+- Reusing an OTP: 401 "Invalid or expired OTP".
+- Logout with a valid token: 200.
+- GET /admin/profile right after logout: 401, message "Invalid access token"
+  (new message, different from "Please login first"). Control test (200 before logout) pending.
+- Register with all fields and 3 .jfif files: 201 (confirmed).
