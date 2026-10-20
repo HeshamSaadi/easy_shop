@@ -42,12 +42,15 @@ class AuthRepositoryImpl implements AuthRepository {
       _sessionEvents.reset();
     });
   }
+
   @override
   Future<Either<Failure, Unit>> logout() {
     return _guard(() async {
       try {
         await _remote.logout();
-      } on AppException catch(_) {
+      } on AppException {
+        // The server call can fail (expired token, no internet).
+        // The user must still be logged out on this device.
       } finally {
         await _tokenStorage.clearToken();
       }
