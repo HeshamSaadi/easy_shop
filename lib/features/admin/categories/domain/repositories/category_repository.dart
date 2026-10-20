@@ -1,4 +1,4 @@
-import 'package:easy_shop/features/admin/categories/domain/category_entity.dart';
+import 'package:easy_shop/features/admin/categories/domain/entities/category_entity.dart';
 
 abstract class CategoryRepository {
   Future<List<CategoryEntity>> getCategories();
