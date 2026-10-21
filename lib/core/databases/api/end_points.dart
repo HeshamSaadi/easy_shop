@@ -16,4 +16,8 @@ abstract final class EndPoints {
 
   static String adminProductDelete(String slug) =>
       '/admin/products/destroy/$slug';
+
+  static const String adminOrders = '/admin/orders';
+
+  static String adminOrderDetails(String code) => '/admin/orders/show/$code';
 }
