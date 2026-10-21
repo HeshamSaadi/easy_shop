@@ -13,3 +13,11 @@ Future<Either<Failure, T>> guardedCall<T>(Future<T> Function() action) async {
     return Left(Failure.fromException(const UnknownException()));
   }
 }
+
+/// Same as [guardedCall] for actions that return nothing.
+Future<Either<Failure, Unit>> guardedUnitCall(Future<void> Function() action) {
+  return guardedCall(() async {
+    await action();
+    return unit;
+  });
+}
