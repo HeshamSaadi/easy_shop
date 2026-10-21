@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:easy_shop/core/databases/api/api_consumer.dart';
 import 'package:easy_shop/core/databases/api/end_points.dart';
-import 'package:easy_shop/core/errors/exceptions.dart';
+import 'package:easy_shop/core/databases/api/multipart_helper.dart';
+import 'package:easy_shop/core/databases/api/response_reader.dart';
 import 'package:easy_shop/features/admin/products/data/models/product_model.dart';
 import 'package:easy_shop/features/admin/products/domain/params/product_params.dart';
 
@@ -20,7 +21,6 @@ abstract class ProductsRemoteDataSource {
 class ProductsRemoteDataSourceImpl implements ProductsRemoteDataSource {
   const ProductsRemoteDataSourceImpl(this._api);
 
-  static const String _dataKey = 'data';
   static const int _visibleValue = 1;
   static const int _hiddenValue = 0;
 
@@ -29,20 +29,20 @@ class ProductsRemoteDataSourceImpl implements ProductsRemoteDataSource {
   @override
   Future<List<ProductModel>> getProducts() async {
     final response = await _api.get(EndPoints.adminProducts);
-    return _readList(response).map(ProductModel.fromJson).toList();
+    return ResponseReader.list(response).map(ProductModel.fromJson).toList();
   }
 
   @override
   Future<ProductModel> getProduct(String slug) async {
     final response = await _api.get(EndPoints.adminProductDetails(slug));
-    return ProductModel.fromJson(_readObject(response));
+    return ProductModel.fromJson(ResponseReader.object(response));
   }
 
   @override
   Future<ProductModel> createProduct(ProductParams params) async {
     final form = await _buildForm(params);
     final response = await _api.post(EndPoints.adminProductStore, data: form);
-    return ProductModel.fromJson(_readObject(response));
+    return ProductModel.fromJson(ResponseReader.object(response));
   }
 
   @override
@@ -53,7 +53,7 @@ class ProductsRemoteDataSourceImpl implements ProductsRemoteDataSource {
       EndPoints.adminProductUpdate(slug),
       data: form,
     );
-    return ProductModel.fromJson(_readObject(response));
+    return ProductModel.fromJson(ResponseReader.object(response));
   }
 
   @override
@@ -62,7 +62,7 @@ class ProductsRemoteDataSourceImpl implements ProductsRemoteDataSource {
   }
 
   Future<FormData> _buildForm(ProductParams params) async {
-    final image = await _fileOrNull(params.imagePath);
+    final image = await multipartFileOrNull(params.imagePath);
 
     return FormData.fromMap({
       'name': params.name,
@@ -75,22 +75,5 @@ class ProductsRemoteDataSourceImpl implements ProductsRemoteDataSource {
       'description': params.description ?? '',
       'image': ?image,
     });
-  }
-
-  Future<MultipartFile?> _fileOrNull(String? path) async {
-    if (path == null) return null;
-    return MultipartFile.fromFile(path);
-  }
-
-  Map<String, dynamic> _readObject(dynamic response) {
-    final data = response is Map<String, dynamic> ? response[_dataKey] : null;
-    if (data is! Map<String, dynamic>) throw const ServerException();
-    return data;
-  }
-
-  List<Map<String, dynamic>> _readList(dynamic response) {
-    final data = response is Map<String, dynamic> ? response[_dataKey] : null;
-    if (data is! List) throw const ServerException();
-    return data.whereType<Map<String, dynamic>>().toList();
   }
 }

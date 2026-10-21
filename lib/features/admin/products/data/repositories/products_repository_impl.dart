@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:easy_shop/core/errors/exceptions.dart';
 import 'package:easy_shop/core/errors/failure.dart';
+import 'package:easy_shop/core/errors/guarded_call.dart';
 import 'package:easy_shop/features/admin/products/data/datasources/products_remote_data_source.dart';
 import 'package:easy_shop/features/admin/products/domain/entities/product_entity.dart';
 import 'package:easy_shop/features/admin/products/domain/params/product_params.dart';
@@ -13,17 +13,17 @@ class ProductsRepositoryImpl implements ProductsRepository {
 
   @override
   Future<Either<Failure, List<ProductEntity>>> getProducts() {
-    return _guard(_remote.getProducts);
+    return guardedCall(_remote.getProducts);
   }
 
   @override
   Future<Either<Failure, ProductEntity>> getProduct(String slug) {
-    return _guard(() => _remote.getProduct(slug));
+    return guardedCall(() => _remote.getProduct(slug));
   }
 
   @override
   Future<Either<Failure, ProductEntity>> createProduct(ProductParams params) {
-    return _guard(() => _remote.createProduct(params));
+    return guardedCall(() => _remote.createProduct(params));
   }
 
   @override
@@ -31,24 +31,14 @@ class ProductsRepositoryImpl implements ProductsRepository {
     String slug,
     ProductParams params,
   ) {
-    return _guard(() => _remote.updateProduct(slug, params));
+    return guardedCall(() => _remote.updateProduct(slug, params));
   }
 
   @override
   Future<Either<Failure, Unit>> deleteProduct(String slug) {
-    return _guard(() async {
+    return guardedCall(() async {
       await _remote.deleteProduct(slug);
       return unit;
     });
-  }
-
-  Future<Either<Failure, T>> _guard<T>(Future<T> Function() action) async {
-    try {
-      return Right(await action());
-    } on AppException catch (e) {
-      return Left(Failure.fromException(e));
-    } catch (_) {
-      return Left(Failure.fromException(const UnknownException()));
-    }
   }
 }

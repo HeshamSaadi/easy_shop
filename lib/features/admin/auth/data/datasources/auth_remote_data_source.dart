@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:easy_shop/core/databases/api/api_consumer.dart';
 import 'package:easy_shop/core/databases/api/end_points.dart';
+import 'package:easy_shop/core/databases/api/multipart_helper.dart';
 import 'package:easy_shop/core/errors/exceptions.dart';
 import 'package:easy_shop/features/admin/auth/domain/params/register_params.dart';
 
@@ -64,9 +65,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   Future<FormData> _buildRegisterForm(RegisterParams params) async {
-    final picture = await _fileOrNull(params.picturePath);
-    final commercialRegister = await _fileOrNull(params.commercialRegisterPath);
-    final taxCard = await _fileOrNull(params.taxCardPath);
+    final picture = await multipartFileOrNull(params.picturePath);
+    final commercialRegister = await multipartFileOrNull(
+      params.commercialRegisterPath,
+    );
+    final taxCard = await multipartFileOrNull(params.taxCardPath);
 
     return FormData.fromMap({
       'name': params.name,
@@ -83,10 +86,5 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       'commercial_register': ?commercialRegister,
       'tax_card': ?taxCard,
     });
-  }
-
-  Future<MultipartFile?> _fileOrNull(String? path) async {
-    if (path == null) return null;
-    return MultipartFile.fromFile(path);
   }
 }
