@@ -1,8 +1,8 @@
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
 
-//! Asks the user to confirm a delete. Returns true only if they confirm.
-//! Reusable for categories, products and anything else that can be deleted.
+/// Asks the user to confirm a delete. Returns true only if they confirm.
+/// Reusable for categories, products and anything else that can be deleted.
 Future<bool> showConfirmDeleteDialog(
   BuildContext context, {
   required String title,
