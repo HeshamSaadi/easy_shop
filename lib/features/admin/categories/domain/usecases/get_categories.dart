@@ -1,8 +1,15 @@
-import 'package:easy_shop/features/admin/categories/domain/entities/category_entity.dart';
-import 'package:easy_shop/features/admin/categories/domain/repositories/category_repository.dart';
+import '../entities/category_entity.dart';
+import '../repositories/category_repository.dart';
 
 class GetCategories {
   const GetCategories(this._repository);
+
   final CategoryRepository _repository;
-  Future<List<CategoryEntity>> call() => _repository.getCategories();
+
+  Future<List<CategoryEntity>> call() async {
+    final categories = await _repository.getCategories();
+    final sorted = [...categories]
+      ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    return sorted;
+  }
 }
