@@ -150,13 +150,21 @@ Category errors:
 - **The workaround works:** send a `POST` to the **same update URL**, with the same form-data plus one extra field `_method` = `PUT`.
 - Success returns **201 Created** (not 200). Treat any 2xx as success. Message: `"Product updated successfully"`.
 - `data` has the same shape as the **store** response: `price`, `quantity`, `category_id` and `visible` as **strings**, and **no `category` object**. Refetch the list after an update.
-- Required fields: `name`, `price`, `quantity`, `category_id`. `visible` was not reported as required (its default when omitted is unknown, so always send it).
+- Required fields: `name`, `price`, `quantity`, `category_id`. `visible` is required.
 - **Renaming a product changes its `slug`**, and the old slug stops working. After an update, use the `slug` from the response.
 - Sending **no `image`** keeps the product's existing image.
 
 `POST /admin/products/store` **with an image** (tested): 201, same response as without an image, but `image_url` is the uploaded file (an absolute URL under `/uploads/products/`).
 
 `DELETE /admin/products/destroy/{slug}`: 200, `data: null`, message `"Product deleted successfully"`.
+
+Tested 2026-10-21:
+- `GET /admin/products` returns only the **logged-in admin's** products. A second account got `[]`. Unlike categories, products are not global.
+- `show/{slug}` for another admin's product returns `"Product is not found"` (status code not recorded).
+- Slugs are unique across **all** admins. A second admin creating "Desc Test" got `desc-test-1`. Always use the slug from the response.
+- Required fields: `name`, `price`, `quantity`, `category_id`, `visible`. Optional: `description`, `image`.
+- `description` sent as an empty value on update is saved as `null`. What happens when the key is omitted is **not tested**, so the app always sends `description`.
+- Store validation (422, `message` is a map): unknown `category_id` gives `"The selected category id is invalid."`, and an empty `name` gives `"The name field is required."` (an empty value counts as missing).
 
 ### Orders
 
@@ -200,6 +208,7 @@ Important notes for the orders screens:
 |---|---|---|
 | Missing or edited token | `"Please login first"` | string |
 | Expired token | `"Access token expired"` | string |
+| Token invalidated by logout | `"Invalid access token"` | string |
 | Validation (empty `name`) | `{ "name": ["The name field is required."] }` | **object**: field to list of strings |
 | Product not found | `"Product is not found"` | string |
 | Category not found | `"Category is not found"` | string |
@@ -247,11 +256,18 @@ Important notes for the orders screens:
 | Renaming a product or a category changes its slug | Use the slug from the update response, then refetch the list |
 | Errors can come back as an HTML page (405) | Recommended: send `Accept: application/json` by default (not tested yet) and handle a non-JSON body without crashing |
 
-## 5. Not tested yet
+## 5. Tested 2026-10-20
 
-- `GET /admin/profile` with the same token right after logout (does the server invalidate the token?).
+- `POST /admin/login` and `POST /admin/otp/verify` accept raw JSON (form-data is not required).
+- Login with empty fields: 422, `message` = `{ "email": [...], "password": [...] }`.
+- Reusing an OTP: 401, `"Invalid or expired OTP"`.
+- Logout with a valid token: 200.
+- `GET /admin/profile` right after logout: 401, `"Invalid access token"`. This suggests the server invalidates the token on logout, but the control test (200 before logout) is still pending.
+- Register with all fields and 3 `.jfif` files: 201 (confirmed).
+
+## 6. Not tested yet
+
+- The control test for logout: `GET /admin/profile` with the same token returns 200 before logout.
 - Spaces inside `phone` (for example `+20 101 311 4002`). Other `national_id` lengths (13, 15) and letters.
-- Upload limits: PDF files, large images, other extensions (only `.jfif` was tested).
-- Status code of verifying an already-used OTP (the body is known, the code was not recorded).
-- Whether the admin products list contains only the logged-in admin's products.
+- Upload limits: large images and other extensions (only `.jfif` was tested here).
 - Order statuses other than `pending`, and the `payment` object after paying.
