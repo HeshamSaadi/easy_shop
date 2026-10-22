@@ -1,5 +1,6 @@
 import 'package:easy_shop/core/databases/api/api_consumer.dart';
-import 'package:easy_shop/core/errors/exceptions.dart';
+import 'package:easy_shop/core/databases/api/end_points.dart';
+import 'package:easy_shop/core/databases/api/response_reader.dart';
 import 'package:easy_shop/features/admin/categories/data/models/category_model.dart';
 
 abstract class CategoryRemoteDataSource {
@@ -21,26 +22,18 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
 
   final ApiConsumer _api;
 
-  static const String _base = '/admin/categories';
-  static const String _store = '$_base/store';
-  static const String _update = '$_base/update';
-  static const String _destroy = '$_base/destroy';
-
   @override
   Future<List<CategoryModel>> getCategories() async {
-    final response = await _api.get(_base);
-    final data = response is Map<String, dynamic> ? response['data'] : null;
-    if (data is! List) throw const UnknownException();
-
-    return data
-        .whereType<Map<String, dynamic>>()
-        .map(CategoryModel.fromJson)
-        .toList();
+    final response = await _api.get(EndPoints.adminCategories);
+    return ResponseReader.list(response).map(CategoryModel.fromJson).toList();
   }
 
   @override
   Future<void> addCategory({required String name, String? description}) async {
-    await _api.post(_store, data: _body(name, description));
+    await _api.post(
+      EndPoints.adminCategoryStore,
+      data: _body(name, description),
+    );
   }
 
   @override
@@ -49,17 +42,19 @@ class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
     required String name,
     String? description,
   }) async {
+    // JSON body, so a plain PUT works (only FormData needs POST + _method).
     await _api.put(
-      '$_update/${Uri.encodeComponent(slug)}',
+      EndPoints.adminCategoryUpdate(slug),
       data: _body(name, description),
     );
   }
 
   @override
   Future<void> deleteCategory(String slug) async {
-    await _api.delete('$_destroy/${Uri.encodeComponent(slug)}');
+    await _api.delete(EndPoints.adminCategoryDelete(slug));
   }
 
+  // An empty description is saved as null by the server.
   Map<String, dynamic> _body(String name, String? description) {
     return {'name': name.trim(), 'description': description?.trim() ?? ''};
   }

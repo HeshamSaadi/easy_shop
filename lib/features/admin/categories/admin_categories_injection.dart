@@ -11,7 +11,7 @@ import 'package:easy_shop/features/admin/categories/presentation/cubit/category_
 import 'package:get_it/get_it.dart';
 
 /// Call after `initCore`, from the admin app only.
-void initCategories(GetIt sl) {
+void registerAdminCategories(GetIt sl) {
   sl
     ..registerLazySingleton<CategoryRemoteDataSource>(
       () => CategoryRemoteDataSourceImpl(sl<ApiConsumer>()),

@@ -1,5 +1,3 @@
-import 'package:easy_shop/core/errors/error_messages.dart';
-import 'package:easy_shop/core/errors/exceptions.dart';
 import 'package:easy_shop/features/admin/categories/domain/usecases/add_category.dart';
 import 'package:easy_shop/features/admin/categories/domain/usecases/update_category.dart';
 import 'package:easy_shop/features/admin/categories/presentation/cubit/category_form_state.dart';
@@ -20,17 +18,18 @@ class CategoryFormCubit extends Cubit<CategoryFormState> {
   }) async {
     if (state is CategoryFormSubmitting) return;
     emit(const CategoryFormSubmitting());
-    try {
-      if (slug == null) {
-        await _addCategory(name: name, description: description);
-      } else {
-        await _updateCategory(slug: slug, name: name, description: description);
-      }
-      emit(const CategoryFormSuccess());
-    } on AppException catch (e) {
-      emit(CategoryFormFailure(e.message));
-    } catch (_) {
-      emit(const CategoryFormFailure(ErrorMessages.unknown));
-    }
+
+    final result = slug == null
+        ? await _addCategory(name: name, description: description)
+        : await _updateCategory(
+            slug: slug,
+            name: name,
+            description: description,
+          );
+
+    result.fold(
+      (failure) => emit(CategoryFormFailure(failure.message)),
+      (_) => emit(const CategoryFormSuccess()),
+    );
   }
 }

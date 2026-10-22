@@ -9,6 +9,7 @@ import 'package:easy_shop/features/admin/categories/presentation/cubit/category_
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:easy_shop/features/admin/categories/presentation/constants/categories_strings.dart';
 
 /// One screen for both add and edit.
 /// Pass [category] to edit, leave it null to add.
@@ -72,7 +73,9 @@ class _CategoryFormViewState extends State<_CategoryFormView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppTopBar(
-        title: _isEdit ? 'Edit category' : 'Add category',
+        title: _isEdit
+            ? CategoriesStrings.editTitle
+            : CategoriesStrings.addTitle,
         showBack: true,
       ),
       body: BlocConsumer<CategoryFormCubit, CategoryFormState>(
@@ -95,18 +98,20 @@ class _CategoryFormViewState extends State<_CategoryFormView> {
                 child: Column(
                   children: [
                     AppTextField(
-                      label: 'Name',
-                      hint: 'e.g. Electronics',
+                      label: CategoriesStrings.nameLabel,
+                      hint: CategoriesStrings.nameHint,
                       controller: _nameController,
                       enabled: !isSubmitting,
                       textInputAction: TextInputAction.next,
-                      validator: (value) =>
-                          Validators.notEmpty(value, fieldName: 'Name'),
+                      validator: (value) => Validators.notEmpty(
+                        value,
+                        fieldName: CategoriesStrings.nameLabel,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     AppTextField(
-                      label: 'Description',
-                      hint: 'What is in this category?',
+                      label: CategoriesStrings.descriptionLabel,
+                      hint: CategoriesStrings.descriptionHint,
                       controller: _descriptionController,
                       isOptional: true,
                       maxLines: 3,
@@ -114,7 +119,9 @@ class _CategoryFormViewState extends State<_CategoryFormView> {
                     ),
                     const SizedBox(height: AppSpacing.xxl),
                     AppButton(
-                      text: _isEdit ? 'Save changes' : 'Add category',
+                      text: _isEdit
+                          ? CategoriesStrings.saveChanges
+                          : CategoriesStrings.addAction,
                       isLoading: isSubmitting,
                       onPressed: _submit,
                     ),
