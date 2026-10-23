@@ -9,6 +9,15 @@ abstract final class ProductsStrings {
 
   static const String visible = 'Visible';
   static const String hidden = 'Hidden';
+  static const String detailsTitle = 'Product Details';
+  static const String priceLabel = 'Price';
+  static const String stockLabel = 'In Stock';
+  static const String descriptionTitle = 'Description';
+  static const String detailsSection = 'Details';
+  static const String categoryLabel = 'Category';
+  static const String addedLabel = 'Added';
+  static const String visibilityLabel = 'Visibility';
+  static const String editAction = 'Edit Product';
 
   static String quantity(int value) => 'Qty $value';
 }
