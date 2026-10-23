@@ -81,4 +81,18 @@ class Validators {
     }
     return null;
   }
+
+  //! Whole number, zero allowed (stock)
+  static String? nonNegativeInteger(
+    String? value, {
+    String fieldName = 'Value',
+  }) {
+    final text = value?.trim() ?? '';
+    if (text.isEmpty) return '$fieldName is required';
+    final number = int.tryParse(text);
+    if (number == null || number < 0) {
+      return '$fieldName must be a whole number, 0 or more';
+    }
+    return null;
+  }
 }
