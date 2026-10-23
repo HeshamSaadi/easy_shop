@@ -6,6 +6,7 @@ import 'package:easy_shop/features/admin/products/domain/usecases/delete_product
 import 'package:easy_shop/features/admin/products/domain/usecases/get_product_details.dart';
 import 'package:easy_shop/features/admin/products/domain/usecases/get_products.dart';
 import 'package:easy_shop/features/admin/products/domain/usecases/update_product.dart';
+import 'package:easy_shop/features/admin/products/presentation/cubit/product_details_cubit.dart';
 import 'package:easy_shop/features/admin/products/presentation/cubit/products_cubit.dart';
 import 'package:get_it/get_it.dart';
 
@@ -25,5 +26,8 @@ void registerAdminProducts(GetIt sl) {
     ..registerLazySingleton(() => CreateProduct(sl()))
     ..registerLazySingleton(() => UpdateProduct(sl()))
     ..registerLazySingleton(() => DeleteProduct(sl()))
-    ..registerFactory(() => ProductsCubit(getProducts: sl()));
+    ..registerFactory(() => ProductsCubit(getProducts: sl()))
+    ..registerFactoryParam<ProductDetailsCubit, String, void>(
+      (slug, _) => ProductDetailsCubit(getProductDetails: sl(), slug: slug),
+    );
 }
