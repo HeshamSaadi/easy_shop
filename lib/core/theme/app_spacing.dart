@@ -1,5 +1,3 @@
-//!المسافات الموحدة
-// Shared spacing scale. Use these instead of raw numbers in padding and gaps.
 class AppSpacing {
   AppSpacing._();
 

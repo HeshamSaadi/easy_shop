@@ -44,7 +44,6 @@ class _OtpInputState extends State<OtpInput> {
   }
 
   void _onBoxChanged(int index, String value) {
-    // The whole code was pasted into one box
     if (value.length >= widget.length) {
       _fillAll(value);
       return;
@@ -90,7 +89,6 @@ class _OtpInputState extends State<OtpInput> {
 
     return Row(
       children: List.generate(widget.length * 2 - 1, (i) {
-        // Odd positions are the gaps between boxes
         if (i.isOdd) {
           return const SizedBox(width: AppSpacing.sm);
         }
