@@ -12,7 +12,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 Future<void> initCore(GetIt sl, AppConfig config) async {
   final prefs = await SharedPreferences.getInstance();
 
