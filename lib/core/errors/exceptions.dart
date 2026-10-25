@@ -1,10 +1,16 @@
 import 'error_messages.dart';
 
 abstract class AppException implements Exception {
-  const AppException(this.message, {this.statusCode});
+  const AppException(
+    this.message, {
+    this.statusCode,
+    this.fieldErrors = const {},
+  });
 
   final String message;
   final int? statusCode;
+
+  final Map<String, List<String>> fieldErrors;
 }
 
 class ConnectionTimeoutException extends AppException {
@@ -16,7 +22,11 @@ class NoInternetException extends AppException {
 }
 
 class BadRequestException extends AppException {
-  const BadRequestException(super.message, {super.statusCode});
+  const BadRequestException(
+    super.message, {
+    super.statusCode,
+    super.fieldErrors,
+  });
 }
 
 class UnauthorizedException extends AppException {

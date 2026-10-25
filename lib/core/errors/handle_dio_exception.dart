@@ -29,9 +29,11 @@ AppException _fromResponse(Response<dynamic>? response) {
   switch (code) {
     case HttpStatus.badRequest:
     case HttpStatus.unprocessableEntity:
+      final error = ErrorModel.fromJson(response?.data);
       return BadRequestException(
-        ErrorModel.fromJson(response?.data).message ?? ErrorMessages.unknown,
+        error.message ?? ErrorMessages.unknown,
         statusCode: code,
+        fieldErrors: error.fieldErrors,
       );
     case HttpStatus.unauthorized:
       return UnauthorizedException(ErrorModel.fromJson(response?.data).message);

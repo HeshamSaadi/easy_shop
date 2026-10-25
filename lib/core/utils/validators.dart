@@ -81,4 +81,16 @@ class Validators {
     }
     return null;
   }
+
+  static final RegExp _whitespace = RegExp(r'\s+');
+  static final RegExp _egyptianPhoneRegex = RegExp(r'^\+20[0-9]{10}$');
+
+  static String? egyptianPhone(String? value) {
+    final text = value?.replaceAll(_whitespace, '') ?? '';
+    if (text.isEmpty) return 'Phone number is required';
+    if (!_egyptianPhoneRegex.hasMatch(text)) {
+      return 'Phone must start with +20 followed by 10 digits';
+    }
+    return null;
+  }
 }

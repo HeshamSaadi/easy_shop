@@ -9,6 +9,7 @@ import 'package:easy_shop/features/admin/auth/domain/usecases/resend_otp.dart';
 import 'package:easy_shop/features/admin/auth/domain/usecases/restore_session.dart';
 import 'package:easy_shop/features/admin/auth/domain/usecases/verify_otp.dart';
 import 'package:easy_shop/features/admin/auth/presentation/cubit/login_cubit.dart';
+import 'package:easy_shop/features/admin/auth/presentation/cubit/register_cubit.dart';
 import 'package:get_it/get_it.dart';
 
 void initAdmin(GetIt sl) {
@@ -29,6 +30,7 @@ void _initAuth(GetIt sl) {
     ..registerLazySingleton(() => ResendOtp(sl()))
     ..registerLazySingleton(() => LogoutAdmin(sl()))
     ..registerFactory(() => LoginCubit(sl()))
+    ..registerFactory(() => RegisterCubit(sl()))
     ..registerLazySingleton(() => RestoreSession(sl()))
     ..registerLazySingleton(
       () =>

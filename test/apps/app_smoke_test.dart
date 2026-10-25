@@ -10,6 +10,6 @@ void main() {
 
   testWidgets('AdminApp shows its title', (tester) async {
     await tester.pumpWidget(const AdminApp());
-    expect(find.text(AdminApp.title), findsOneWidget);
+    expect(find.text("EasyShop Admin"), findsOneWidget);
   });
 }

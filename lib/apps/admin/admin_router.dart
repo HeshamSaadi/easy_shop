@@ -7,8 +7,11 @@ import 'package:easy_shop/apps/admin/session/session_state.dart';
 import 'package:easy_shop/features/admin/auth/presentation/cubit/login_cubit.dart';
 import 'package:easy_shop/features/admin/auth/presentation/cubit/otp_cubit.dart';
 import 'package:easy_shop/features/admin/auth/presentation/cubit/otp_state.dart';
+import 'package:easy_shop/features/admin/auth/presentation/cubit/register_cubit.dart';
 import 'package:easy_shop/features/admin/auth/presentation/screens/login_screen.dart';
 import 'package:easy_shop/features/admin/auth/presentation/screens/otp_screen.dart';
+import 'package:easy_shop/features/admin/auth/presentation/screens/register_screen.dart';
+import 'package:easy_shop/features/admin/auth/presentation/widgets/register/register_pickers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -47,7 +50,7 @@ GoRouter createAdminRouter(SessionCubit session) {
       GoRoute(
         name: AdminRouteNames.register,
         path: AdminRoutePaths.register,
-        builder: (_, _) => const PlaceholderScreen('Register'),
+        builder: (_, _) => const _RegisterPage(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (_, _, shell) => AdminShell(navigationShell: shell),
@@ -135,6 +138,36 @@ class _OtpPage extends StatelessWidget {
             prev.status != curr.status && curr.status == OtpStatus.verified,
         listener: (_, _) => session.signedIn(),
         child: const OtpScreen(),
+      ),
+    );
+  }
+}
+
+class _RegisterPage extends StatelessWidget {
+  const _RegisterPage();
+
+  static Future<String?> _noFilePicker() async => null;
+
+  static Future<PickedLocation?> _noLocationPicker() async => null;
+
+  void _backToLogin(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.goNamed(AdminRouteNames.login);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => _sl<RegisterCubit>(),
+      child: RegisterScreen(
+        onRegistered: () => _backToLogin(context),
+        onExit: () => _backToLogin(context),
+        pickDocument: _noFilePicker,
+        pickPicture: _noFilePicker,
+        pickLocation: _noLocationPicker,
       ),
     );
   }
