@@ -6,6 +6,7 @@ abstract final class AdminShellStrings {
   static const products = 'Products';
   static const orders = 'Orders';
   static const profile = 'Profile';
+  static const logout = 'Logout';
 }
 
 class AdminShell extends StatelessWidget {

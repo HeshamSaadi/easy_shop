@@ -1,6 +1,7 @@
 import 'package:easy_shop/apps/admin/admin_route_names.dart';
 import 'package:easy_shop/apps/admin/admin_shell.dart';
 import 'package:easy_shop/apps/admin/placeholder_screen.dart';
+import 'package:easy_shop/apps/admin/profile_placeholder_screen.dart';
 import 'package:easy_shop/apps/admin/session/router_refresh_stream.dart';
 import 'package:easy_shop/apps/admin/session/session_cubit.dart';
 import 'package:easy_shop/apps/admin/session/session_state.dart';
@@ -11,6 +12,13 @@ import 'package:easy_shop/features/admin/auth/presentation/screens/login_screen.
 import 'package:easy_shop/features/admin/auth/presentation/screens/otp_screen.dart';
 import 'package:easy_shop/features/admin/auth/presentation/screens/register_screen.dart';
 import 'package:easy_shop/features/admin/auth/presentation/widgets/register/register_pickers.dart';
+import 'package:easy_shop/features/admin/categories/domain/entities/category_entity.dart';
+import 'package:easy_shop/features/admin/categories/presentation/screens/categories_screen.dart';
+import 'package:easy_shop/features/admin/categories/presentation/screens/category_form_screen.dart';
+import 'package:easy_shop/features/admin/products/domain/entities/product_entity.dart';
+import 'package:easy_shop/features/admin/products/presentation/screens/product_details_screen.dart';
+import 'package:easy_shop/features/admin/products/presentation/screens/product_form_screen.dart';
+import 'package:easy_shop/features/admin/products/presentation/screens/products_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -72,18 +80,58 @@ GoRouter createAdminRouter(SessionCubit session) {
               GoRoute(
                 name: AdminRouteNames.products,
                 path: AdminRoutePaths.products,
-                builder: (_, _) => const PlaceholderScreen('Products'),
+                builder: (context, _) => ProductsScreen(
+                  onOpenDetails: (product) => context.pushNamed<bool>(
+                    AdminRouteNames.productDetails,
+                    pathParameters: {AdminRouteParams.slug: product.slug},
+                  ),
+                  onOpenForm: () =>
+                      context.pushNamed<bool>(AdminRouteNames.productForm),
+                  onManageCategories: () =>
+                      context.pushNamed(AdminRouteNames.categories),
+                ),
                 routes: [
+                  GoRoute(
+                    name: AdminRouteNames.productDetails,
+                    path: 'details/:${AdminRouteParams.slug}',
+                    builder: (context, state) => ProductDetailsScreen(
+                      slug: state.pathParameters[AdminRouteParams.slug] ?? '',
+                      onEdit: (product) => context.pushNamed<bool>(
+                        AdminRouteNames.productForm,
+                        extra: product,
+                      ),
+                    ),
+                  ),
+                  GoRoute(
+                    name: AdminRouteNames.productForm,
+                    path: 'form',
+                    builder: (_, state) {
+                      final extra = state.extra;
+                      return ProductFormScreen(
+                        product: extra is ProductEntity ? extra : null,
+                      );
+                    },
+                  ),
                   GoRoute(
                     name: AdminRouteNames.categories,
                     path: 'categories',
-                    builder: (_, _) => const PlaceholderScreen('Categories'),
+                    builder: (context, _) => CategoriesScreen(
+                      showBack: true,
+                      onOpenForm: (category) => context.pushNamed<bool>(
+                        AdminRouteNames.categoryForm,
+                        extra: category,
+                      ),
+                    ),
                     routes: [
                       GoRoute(
                         name: AdminRouteNames.categoryForm,
                         path: 'form',
-                        builder: (_, _) =>
-                            const PlaceholderScreen('Category form'),
+                        builder: (_, state) {
+                          final extra = state.extra;
+                          return CategoryFormScreen(
+                            category: extra is CategoryEntity ? extra : null,
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -105,7 +153,7 @@ GoRouter createAdminRouter(SessionCubit session) {
               GoRoute(
                 name: AdminRouteNames.profile,
                 path: AdminRoutePaths.profile,
-                builder: (_, _) => const PlaceholderScreen('Profile'), // A11
+                builder: (_, _) => const ProfilePlaceholderScreen(), // A11
               ),
             ],
           ),
