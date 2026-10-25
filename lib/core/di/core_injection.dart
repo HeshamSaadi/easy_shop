@@ -5,9 +5,15 @@ import 'package:easy_shop/core/databases/api/api_consumer.dart';
 import 'package:easy_shop/core/databases/api/dio_consumer.dart';
 import 'package:easy_shop/core/databases/api/session_events.dart';
 import 'package:easy_shop/core/databases/cache/secure_storage_helper.dart';
-import 'package:easy_shop/core/databases/cache/shared_preferences.dart';
+import 'package:easy_shop/core/databases/cache/cache_helper.dart';
 import 'package:easy_shop/core/databases/cache/token_storage.dart';
 import 'package:easy_shop/core/utils/app_config.dart';
+import 'package:easy_shop/core/location/address_resolver.dart';
+import 'package:easy_shop/core/location/geocoding_address_resolver.dart';
+import 'package:easy_shop/core/location/geolocator_location_service.dart';
+import 'package:easy_shop/core/location/location_picker_cubit.dart';
+import 'package:easy_shop/core/location/location_service.dart';
+import 'package:easy_shop/core/location/picked_location.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,6 +36,15 @@ Future<void> initCore(GetIt sl, AppConfig config) async {
         config: sl(),
         tokenStorage: sl(),
         sessionEvents: sl(),
+      ),
+    )
+    ..registerLazySingleton<LocationService>(GeolocatorLocationService.new)
+    ..registerLazySingleton<AddressResolver>(GeocodingAddressResolver.new)
+    ..registerFactoryParam<LocationPickerCubit, PickedLocation?, void>(
+      (initialLocation, _) => LocationPickerCubit(
+        locationService: sl(),
+        addressResolver: sl(),
+        initialLocation: initialLocation,
       ),
     );
 }

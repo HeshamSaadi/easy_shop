@@ -29,3 +29,14 @@ bool parseBool(Object? value, {bool fallback = false}) {
   }
   return fallback;
 }
+
+/// A nested object, or an empty map when it is missing or has another type.
+Map<String, dynamic> parseMap(Object? value) {
+  return value is Map<String, dynamic> ? value : const <String, dynamic>{};
+}
+
+/// A list of objects. Items that are not objects are skipped.
+List<Map<String, dynamic>> parseMapList(Object? value) {
+  if (value is! List) return const [];
+  return value.whereType<Map<String, dynamic>>().toList();
+}

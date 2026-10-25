@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 
-import 'error_model.dart';
 import 'error_messages.dart';
+import 'error_model.dart';
 import 'exceptions.dart';
 
 Never handleDioException(DioException e) {

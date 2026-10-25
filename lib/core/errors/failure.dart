@@ -13,6 +13,5 @@ class Failure {
 
   final String message;
   final int? statusCode;
-
   final Map<String, List<String>> fieldErrors;
 }

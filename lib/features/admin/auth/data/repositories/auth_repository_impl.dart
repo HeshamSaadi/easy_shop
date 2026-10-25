@@ -3,6 +3,7 @@ import 'package:easy_shop/core/databases/api/session_events.dart';
 import 'package:easy_shop/core/databases/cache/token_storage.dart';
 import 'package:easy_shop/core/errors/exceptions.dart';
 import 'package:easy_shop/core/errors/failure.dart';
+import 'package:easy_shop/core/errors/guarded_call.dart';
 import 'package:easy_shop/core/utils/jwt_utils.dart';
 import 'package:easy_shop/features/admin/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:easy_shop/features/admin/auth/domain/params/register_params.dart';
@@ -21,7 +22,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, Unit>> register(RegisterParams params) {
-    return _guard(() => _remote.register(params));
+    return guardedUnitCall(() => _remote.register(params));
   }
 
   @override
@@ -29,7 +30,9 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String password,
   }) {
-    return _guard(() => _remote.login(email: email, password: password));
+    return guardedUnitCall(
+      () => _remote.login(email: email, password: password),
+    );
   }
 
   @override
@@ -37,7 +40,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String email,
     required String otpCode,
   }) {
-    return _guard(() async {
+    return guardedUnitCall(() async {
       final token = await _remote.verifyOtp(email: email, otpCode: otpCode);
       await _tokenStorage.saveToken(token);
       _sessionEvents.reset();
@@ -46,10 +49,12 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, Unit>> logout() {
-    return _guard(() async {
+    return guardedUnitCall(() async {
       try {
         await _remote.logout();
-      } on AppException catch (_) {
+      } on AppException {
+        // The server call can fail (expired token, no internet).
+        // The user must still be logged out on this device.
       } finally {
         await _tokenStorage.clearToken();
       }
@@ -58,18 +63,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, Unit>> resendOtp({required String email}) {
-    return _guard(() => _remote.resendOtp(email: email));
-  }
-
-  Future<Either<Failure, Unit>> _guard(Future<void> Function() action) async {
-    try {
-      await action();
-      return const Right(unit);
-    } on AppException catch (e) {
-      return Left(Failure.fromException(e));
-    } catch (_) {
-      return Left(Failure.fromException(const UnknownException()));
-    }
+    return guardedUnitCall(() => _remote.resendOtp(email: email));
   }
 
   @override

@@ -52,8 +52,9 @@ class DioConsumer implements ApiConsumer {
     Map<String, dynamic>? queryParameters,
   }) {
     if (data is FormData) {
-      data.fields.add(const MapEntry(_methodOverrideField, _putMethod));
-      return post(path, data: data, queryParameters: queryParameters);
+      final copy = data.clone()
+        ..fields.add(const MapEntry(_methodOverrideField, _putMethod));
+      return post(path, data: copy, queryParameters: queryParameters);
     }
     return _request(
       () => _dio.put(path, data: data, queryParameters: queryParameters),
