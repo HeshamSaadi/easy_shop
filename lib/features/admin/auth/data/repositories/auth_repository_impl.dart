@@ -4,6 +4,7 @@ import 'package:easy_shop/core/databases/cache/token_storage.dart';
 import 'package:easy_shop/core/errors/exceptions.dart';
 import 'package:easy_shop/core/errors/failure.dart';
 import 'package:easy_shop/core/errors/guarded_call.dart';
+import 'package:easy_shop/core/utils/jwt_utils.dart';
 import 'package:easy_shop/features/admin/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:easy_shop/features/admin/auth/domain/params/register_params.dart';
 import 'package:easy_shop/features/admin/auth/domain/repositories/auth_repository.dart';
@@ -63,5 +64,16 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, Unit>> resendOtp({required String email}) {
     return guardedUnitCall(() => _remote.resendOtp(email: email));
+  }
+
+  @override
+  Future<bool> hasValidSession() async {
+    final token = await _tokenStorage.readToken();
+    if (token == null || token.isEmpty) return false;
+    if (isJwtExpired(token)) {
+      await _tokenStorage.clearToken();
+      return false;
+    }
+    return true;
   }
 }

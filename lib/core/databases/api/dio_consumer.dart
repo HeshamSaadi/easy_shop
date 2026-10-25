@@ -3,7 +3,7 @@ import 'package:easy_shop/core/databases/api/api_consumer.dart';
 import 'package:easy_shop/core/databases/api/auth_interceptor.dart';
 import 'package:easy_shop/core/databases/api/session_events.dart';
 import 'package:easy_shop/core/databases/cache/token_storage.dart';
-import 'package:easy_shop/core/errors/dio_exception_handler.dart';
+import 'package:easy_shop/core/errors/handle_dio_exception.dart';
 import 'package:easy_shop/core/utils/app_config.dart';
 
 class DioConsumer implements ApiConsumer {

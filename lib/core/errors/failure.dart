@@ -7,9 +7,7 @@ class Failure {
     return Failure(
       exception.message,
       statusCode: exception.statusCode,
-      fieldErrors: exception is BadRequestException
-          ? exception.fieldErrors
-          : const {},
+      fieldErrors: exception.fieldErrors,
     );
   }
 
