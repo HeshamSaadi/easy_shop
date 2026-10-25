@@ -52,4 +52,7 @@ class FakeAuthRepository implements AuthRepository {
   Future<Either<Failure, Unit>> logout() {
     throw UnimplementedError();
   }
+
+  @override
+  Future<bool> hasValidSession() async => false;
 }

@@ -6,7 +6,6 @@ import 'package:easy_shop/apps/admin/session/session_cubit.dart';
 import 'package:easy_shop/apps/admin/session/session_state.dart';
 import 'package:easy_shop/features/admin/auth/presentation/cubit/login_cubit.dart';
 import 'package:easy_shop/features/admin/auth/presentation/cubit/otp_cubit.dart';
-import 'package:easy_shop/features/admin/auth/presentation/cubit/otp_state.dart';
 import 'package:easy_shop/features/admin/auth/presentation/cubit/register_cubit.dart';
 import 'package:easy_shop/features/admin/auth/presentation/screens/login_screen.dart';
 import 'package:easy_shop/features/admin/auth/presentation/screens/otp_screen.dart';
@@ -34,9 +33,13 @@ GoRouter createAdminRouter(SessionCubit session) {
       GoRoute(
         name: AdminRouteNames.login,
         path: AdminRoutePaths.login,
-        builder: (_, _) => BlocProvider(
+        builder: (context, _) => BlocProvider(
           create: (_) => _sl<LoginCubit>(),
-          child: const LoginScreen(),
+          child: LoginScreen(
+            onOtpRequested: (email) =>
+                context.pushNamed(AdminRouteNames.otp, extra: email),
+            onRegisterTap: () => context.pushNamed(AdminRouteNames.register),
+          ),
         ),
       ),
       GoRoute(
@@ -132,13 +135,8 @@ class _OtpPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => OtpCubit(_sl(), _sl(), email: email),
-      child: BlocListener<OtpCubit, OtpState>(
-        listenWhen: (prev, curr) =>
-            prev.status != curr.status && curr.status == OtpStatus.verified,
-        listener: (_, _) => session.signedIn(),
-        child: const OtpScreen(),
-      ),
+      create: (_) => _sl<OtpCubit>(param1: email)..start(),
+      child: OtpScreen(onVerified: session.signedIn),
     );
   }
 }

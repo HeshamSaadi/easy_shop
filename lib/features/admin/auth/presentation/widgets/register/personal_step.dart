@@ -72,7 +72,7 @@ class _PersonalStepState extends State<PersonalStep>
           onChanged: (_) => clearServerError(RegisterFields.name),
         ),
         AppTextField(
-          label: AuthStrings.email,
+          label: AuthStrings.emailLabel,
           hint: AuthStrings.emailHint,
           controller: _email,
           keyboardType: TextInputType.emailAddress,

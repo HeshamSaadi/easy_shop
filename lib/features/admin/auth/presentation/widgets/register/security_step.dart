@@ -74,7 +74,7 @@ class _SecurityStepState extends State<SecurityStep>
               onTap: isLoading ? null : _pickPicture,
             ),
             AppTextField(
-              label: AuthStrings.password,
+              label: AuthStrings.passwordLabel,
               hint: AuthStrings.createPasswordHint,
               controller: _password,
               isPassword: true,
