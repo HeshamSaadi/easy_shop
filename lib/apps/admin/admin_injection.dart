@@ -15,7 +15,6 @@ void initAdmin(GetIt sl) {
   registerAdminOrders(sl);
 }
 
-/// Register and session pieces added in A9, on top of `registerAdminAuth`.
 void _registerAuthExtras(GetIt sl) {
   sl
     ..registerFactory(() => RegisterCubit(sl()))

@@ -7,6 +7,7 @@ import 'error_model.dart';
 import 'exceptions.dart';
 
 Never handleDioException(DioException e) {
+  
   switch (e.type) {
     case DioExceptionType.connectionTimeout:
     case DioExceptionType.sendTimeout:
