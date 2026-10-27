@@ -7,12 +7,15 @@ import 'package:easy_shop/apps/admin/session/session_cubit.dart';
 import 'package:easy_shop/apps/admin/session/session_state.dart';
 import 'package:easy_shop/features/admin/auth/presentation/cubit/login_cubit.dart';
 import 'package:easy_shop/features/admin/auth/presentation/cubit/otp_cubit.dart';
+import 'package:easy_shop/features/admin/auth/presentation/cubit/register_cubit.dart';
 import 'package:easy_shop/features/admin/auth/presentation/screens/login_screen.dart';
 import 'package:easy_shop/features/admin/auth/presentation/screens/otp_screen.dart';
+import 'package:easy_shop/features/admin/auth/presentation/screens/register_screen.dart';
+import 'package:easy_shop/features/admin/auth/presentation/widgets/register/register_pickers.dart';
 import 'package:easy_shop/features/admin/categories/domain/entities/category_entity.dart';
 import 'package:easy_shop/features/admin/categories/presentation/screens/categories_screen.dart';
 import 'package:easy_shop/features/admin/categories/presentation/screens/category_form_screen.dart';
-import 'package:easy_shop/features/admin/pages/register_page.dart';
+import 'package:easy_shop/features/admin/home/presentation/screens/home_screen.dart';
 import 'package:easy_shop/features/admin/products/domain/entities/product_entity.dart';
 import 'package:easy_shop/features/admin/products/presentation/screens/product_details_screen.dart';
 import 'package:easy_shop/features/admin/products/presentation/screens/product_form_screen.dart';
@@ -59,7 +62,7 @@ GoRouter createAdminRouter(SessionCubit session) {
       GoRoute(
         name: AdminRouteNames.register,
         path: AdminRoutePaths.register,
-        builder: (_, _) => const RegisterPage(),
+        builder: (_, _) => const _RegisterPage(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (_, _, shell) => AdminShell(navigationShell: shell),
@@ -69,7 +72,16 @@ GoRouter createAdminRouter(SessionCubit session) {
               GoRoute(
                 name: AdminRouteNames.home,
                 path: AdminRoutePaths.home,
-                builder: (_, _) => const PlaceholderScreen('Home'),
+                builder: (context, _) => HomeScreen(
+                  // TODO(A11): pass adminName and storeName from the profile.
+                  onAddProduct: () =>
+                      context.pushNamed<bool>(AdminRouteNames.productForm),
+                  onManageCategories: () =>
+                      context.pushNamed(AdminRouteNames.categories),
+                  onSeeAllProducts: () =>
+                      context.goNamed(AdminRouteNames.products),
+                  onSeeAllOrders: () => context.goNamed(AdminRouteNames.orders),
+                ),
               ),
             ],
           ),
@@ -183,6 +195,36 @@ class _OtpPage extends StatelessWidget {
     return BlocProvider(
       create: (_) => _sl<OtpCubit>(param1: email)..start(),
       child: OtpScreen(onVerified: session.signedIn),
+    );
+  }
+}
+
+class _RegisterPage extends StatelessWidget {
+  const _RegisterPage();
+
+  static Future<String?> _noFilePicker() async => null;
+
+  static Future<PickedLocation?> _noLocationPicker() async => null;
+
+  void _backToLogin(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.goNamed(AdminRouteNames.login);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => _sl<RegisterCubit>(),
+      child: RegisterScreen(
+        onRegistered: () => _backToLogin(context),
+        onExit: () => _backToLogin(context),
+        pickDocument: _noFilePicker,
+        pickPicture: _noFilePicker,
+        pickLocation: _noLocationPicker,
+      ),
     );
   }
 }
