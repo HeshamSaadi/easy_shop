@@ -1,3 +1,4 @@
+import 'package:easy_shop/core/theme/app_sizes.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:easy_shop/core/widgets/app_button.dart';
 import 'package:flutter/material.dart';
@@ -15,21 +16,19 @@ class AppEmpty extends StatelessWidget {
   final String? actionText;
   final VoidCallback? onAction;
 
-  static const double _iconSize = 46;
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final hasAction = actionText != null && onAction != null;
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.xxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              size: _iconSize,
+              size: AppSizes.iconXl,
               color: theme.colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: AppSpacing.lg),

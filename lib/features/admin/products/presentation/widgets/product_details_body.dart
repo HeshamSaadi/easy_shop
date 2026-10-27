@@ -201,10 +201,12 @@ class _InfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: Theme.of(context).textTheme.bodySmall),
-        value,
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: Align(alignment: AlignmentDirectional.centerEnd, child: value),
+        ),
       ],
     );
   }

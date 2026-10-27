@@ -14,24 +14,27 @@ class QuickActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: onAddProduct,
-            icon: const Icon(Icons.add),
-            label: const Text(HomeStrings.addProduct),
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: onAddProduct,
+              icon: const Icon(Icons.add),
+              label: const Text(HomeStrings.addProduct),
+            ),
           ),
-        ),
-        const SizedBox(width: AppSpacing.md),
-        Expanded(
-          child: OutlinedButton.icon(
-            onPressed: onManageCategories,
-            icon: const Icon(Icons.category_outlined),
-            label: const Text(HomeStrings.manageCategories),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: onManageCategories,
+              icon: const Icon(Icons.category_outlined),
+              label: const Text(HomeStrings.manageCategories),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
