@@ -15,6 +15,7 @@ import 'package:easy_shop/features/admin/auth/presentation/widgets/register/regi
 import 'package:easy_shop/features/admin/categories/domain/entities/category_entity.dart';
 import 'package:easy_shop/features/admin/categories/presentation/screens/categories_screen.dart';
 import 'package:easy_shop/features/admin/categories/presentation/screens/category_form_screen.dart';
+import 'package:easy_shop/features/admin/home/presentation/screens/home_screen.dart';
 import 'package:easy_shop/features/admin/products/domain/entities/product_entity.dart';
 import 'package:easy_shop/features/admin/products/presentation/screens/product_details_screen.dart';
 import 'package:easy_shop/features/admin/products/presentation/screens/product_form_screen.dart';
@@ -71,7 +72,16 @@ GoRouter createAdminRouter(SessionCubit session) {
               GoRoute(
                 name: AdminRouteNames.home,
                 path: AdminRoutePaths.home,
-                builder: (_, _) => const PlaceholderScreen('Home'),
+                builder: (context, _) => HomeScreen(
+                  // TODO(A11): pass adminName and storeName from the profile.
+                  onAddProduct: () =>
+                      context.pushNamed<bool>(AdminRouteNames.productForm),
+                  onManageCategories: () =>
+                      context.pushNamed(AdminRouteNames.categories),
+                  onSeeAllProducts: () =>
+                      context.goNamed(AdminRouteNames.products),
+                  onSeeAllOrders: () => context.goNamed(AdminRouteNames.orders),
+                ),
               ),
             ],
           ),
