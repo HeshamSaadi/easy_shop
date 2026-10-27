@@ -1,9 +1,9 @@
-import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_sizes.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
+import 'package:easy_shop/features/admin/home/presentation/widgets/home_card.dart';
 import 'package:flutter/material.dart';
 
-/// One row on the home screen: icon, label and a number.
+/// One number with an icon and a label, for the 2x2 grid.
 class StatCard extends StatelessWidget {
   const StatCard({
     super.key,
@@ -19,19 +19,15 @@ class StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: theme.dividerColor),
-      ),
-      child: Row(
+    return HomeCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, size: AppSizes.iconLg, color: theme.colorScheme.primary),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(child: Text(label, style: theme.textTheme.titleMedium)),
-          Text('$count', style: theme.textTheme.headlineSmall),
+          const SizedBox(height: AppSpacing.md),
+          Text('$count', style: theme.textTheme.headlineMedium),
+          const SizedBox(height: AppSpacing.xs),
+          Text(label, style: theme.textTheme.bodySmall),
         ],
       ),
     );

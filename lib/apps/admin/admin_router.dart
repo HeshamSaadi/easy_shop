@@ -72,7 +72,16 @@ GoRouter createAdminRouter(SessionCubit session) {
               GoRoute(
                 name: AdminRouteNames.home,
                 path: AdminRoutePaths.home,
-                builder: (_, _) => const HomeScreen(),
+                builder: (context, _) => HomeScreen(
+                  // TODO(A11): pass adminName and storeName from the profile.
+                  onAddProduct: () =>
+                      context.pushNamed<bool>(AdminRouteNames.productForm),
+                  onManageCategories: () =>
+                      context.pushNamed(AdminRouteNames.categories),
+                  onSeeAllProducts: () =>
+                      context.goNamed(AdminRouteNames.products),
+                  onSeeAllOrders: () => context.goNamed(AdminRouteNames.orders),
+                ),
               ),
             ],
           ),
