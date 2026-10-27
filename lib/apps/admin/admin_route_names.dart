@@ -11,6 +11,7 @@ abstract final class AdminRouteNames {
   static const categoryForm = 'categoryForm';
   static const orders = 'orders';
   static const profile = 'profile';
+  static const profileEdit = 'profileEdit';
 }
 
 abstract final class AdminRoutePaths {

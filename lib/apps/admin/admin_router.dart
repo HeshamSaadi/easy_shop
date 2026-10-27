@@ -1,7 +1,6 @@
 import 'package:easy_shop/apps/admin/admin_route_names.dart';
 import 'package:easy_shop/apps/admin/admin_shell.dart';
 import 'package:easy_shop/apps/admin/placeholder_screen.dart';
-import 'package:easy_shop/apps/admin/profile_placeholder_screen.dart';
 import 'package:easy_shop/apps/admin/session/router_refresh_stream.dart';
 import 'package:easy_shop/apps/admin/session/session_cubit.dart';
 import 'package:easy_shop/apps/admin/session/session_state.dart';
@@ -17,6 +16,10 @@ import 'package:easy_shop/features/admin/products/domain/entities/product_entity
 import 'package:easy_shop/features/admin/products/presentation/screens/product_details_screen.dart';
 import 'package:easy_shop/features/admin/products/presentation/screens/product_form_screen.dart';
 import 'package:easy_shop/features/admin/products/presentation/screens/products_screen.dart';
+import 'package:easy_shop/features/admin/profile/domain/entities/profile_entity.dart';
+import 'package:easy_shop/features/admin/profile/presentation/cubit/profile_cubit.dart';
+import 'package:easy_shop/features/admin/profile/presentation/screens/edit_profile_page.dart';
+import 'package:easy_shop/features/admin/profile/presentation/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -151,7 +154,27 @@ GoRouter createAdminRouter(SessionCubit session) {
               GoRoute(
                 name: AdminRouteNames.profile,
                 path: AdminRoutePaths.profile,
-                builder: (_, _) => const ProfilePlaceholderScreen(), // A11
+                builder: (context, _) => BlocProvider(
+                  create: (_) => _sl<ProfileCubit>()..load(),
+                  child: ProfileScreen(
+                    onEdit: (profile) => context.pushNamed<bool>(
+                      AdminRouteNames.profileEdit,
+                      extra: profile,
+                    ),
+                    onLogout: session.logout,
+                  ),
+                ),
+                routes: [
+                  GoRoute(
+                    name: AdminRouteNames.profileEdit,
+                    path: 'edit',
+                    redirect: (_, state) => state.extra is ProfileEntity
+                        ? null
+                        : AdminRoutePaths.profile,
+                    builder: (_, state) =>
+                        EditProfilePage(profile: state.extra! as ProfileEntity),
+                  ),
+                ],
               ),
             ],
           ),
