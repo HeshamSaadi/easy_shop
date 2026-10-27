@@ -1,6 +1,7 @@
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:easy_shop/core/utils/app_strings.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AppTextField extends StatefulWidget {
   const AppTextField({
@@ -14,12 +15,14 @@ class AppTextField extends StatefulWidget {
     this.isPassword = false,
     this.isOptional = false,
     this.prefixIcon,
+    this.prefixText,
+    this.inputFormatters,
     this.maxLines = 1,
     this.enabled = true,
     this.onChanged,
   });
 
-  //! Varriables
+  //! Variables
   final String label;
   final String? hint;
   final TextEditingController? controller;
@@ -29,6 +32,11 @@ class AppTextField extends StatefulWidget {
   final bool isPassword;
   final bool isOptional;
   final IconData? prefixIcon;
+
+  /// Fixed text shown before the typed value (for example `+20 `).
+  /// It is display only and is not part of the controller text.
+  final String? prefixText;
+  final List<TextInputFormatter>? inputFormatters;
   final int maxLines;
   final bool enabled;
   final ValueChanged<String>? onChanged;
@@ -53,6 +61,7 @@ class _AppTextFieldState extends State<AppTextField> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final prefixText = widget.prefixText;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,6 +85,7 @@ class _AppTextFieldState extends State<AppTextField> {
           validator: widget.validator,
           keyboardType: widget.keyboardType,
           textInputAction: widget.textInputAction,
+          inputFormatters: widget.inputFormatters,
           obscureText: _isObscured,
           // A password field must stay on one line
           maxLines: widget.isPassword ? 1 : widget.maxLines,
@@ -86,6 +96,11 @@ class _AppTextFieldState extends State<AppTextField> {
             prefixIcon: widget.prefixIcon == null
                 ? null
                 : Icon(widget.prefixIcon),
+            // `prefix` (not `prefixText`) so it is always visible,
+            // even when the field is empty and showing the hint.
+            prefix: prefixText == null
+                ? null
+                : Text(prefixText, style: textTheme.bodyLarge),
             suffixIcon: widget.isPassword
                 ? IconButton(
                     onPressed: _toggleVisibility,

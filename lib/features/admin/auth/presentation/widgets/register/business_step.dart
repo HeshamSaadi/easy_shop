@@ -1,11 +1,11 @@
 import 'package:easy_shop/core/utils/validators.dart';
 import 'package:easy_shop/core/widgets/app_button.dart';
 import 'package:easy_shop/core/widgets/app_text_field.dart';
+import 'package:easy_shop/core/widgets/picker_field.dart';
 import 'package:easy_shop/features/admin/auth/presentation/constants/auth_strings.dart';
 import 'package:easy_shop/features/admin/auth/presentation/cubit/register_cubit.dart';
 import 'package:easy_shop/features/admin/auth/presentation/cubit/register_fields.dart';
 import 'package:easy_shop/features/admin/auth/presentation/cubit/register_state.dart';
-import 'package:easy_shop/features/admin/auth/presentation/widgets/register/picker_field.dart';
 import 'package:easy_shop/features/admin/auth/presentation/widgets/register/register_pickers.dart';
 import 'package:easy_shop/features/admin/auth/presentation/widgets/register/register_step_form.dart';
 import 'package:flutter/material.dart';

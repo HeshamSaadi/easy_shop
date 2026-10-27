@@ -1,3 +1,4 @@
+import 'package:easy_shop/core/utils/phone_utils.dart';
 import 'package:easy_shop/core/utils/validators.dart';
 import 'package:easy_shop/core/widgets/app_button.dart';
 import 'package:easy_shop/core/widgets/app_text_field.dart';
@@ -6,6 +7,7 @@ import 'package:easy_shop/features/admin/auth/presentation/cubit/register_cubit.
 import 'package:easy_shop/features/admin/auth/presentation/cubit/register_fields.dart';
 import 'package:easy_shop/features/admin/auth/presentation/widgets/register/register_step_form.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PersonalStep extends StatefulWidget {
@@ -29,7 +31,7 @@ class _PersonalStepState extends State<PersonalStep>
     final draft = context.read<RegisterCubit>().state.draft;
     _name = TextEditingController(text: draft.name);
     _email = TextEditingController(text: draft.email);
-    _phone = TextEditingController(text: draft.phone);
+    _phone = TextEditingController(text: PhoneUtils.toLocal(draft.phone));
     _nationalId = TextEditingController(text: draft.nationalId);
   }
 
@@ -47,7 +49,7 @@ class _PersonalStepState extends State<PersonalStep>
     context.read<RegisterCubit>().savePersonal(
       name: _name.text,
       email: _email.text,
-      phone: _phone.text,
+      phone: PhoneUtils.toInternational(_phone.text),
       nationalId: _nationalId.text,
     );
   }
@@ -85,8 +87,10 @@ class _PersonalStepState extends State<PersonalStep>
           label: AuthStrings.phoneNumber,
           hint: AuthStrings.phoneHint,
           controller: _phone,
+          prefixText: '${PhoneUtils.egyptCode} ',
           keyboardType: TextInputType.phone,
           textInputAction: TextInputAction.next,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           validator: (value) =>
               Validators.egyptianPhone(value) ??
               serverError(RegisterFields.phone),
