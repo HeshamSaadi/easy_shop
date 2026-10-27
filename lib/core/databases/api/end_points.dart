@@ -28,4 +28,8 @@ abstract final class EndPoints {
       '/admin/categories/update/${Uri.encodeComponent(slug)}';
   static String adminCategoryDelete(String slug) =>
       '/admin/categories/destroy/${Uri.encodeComponent(slug)}';
+
+  // profile
+  static const String adminProfile = '/admin/profile';
+  static const String adminProfileUpdate = '/admin/profile/update';
 }
