@@ -1,3 +1,4 @@
+import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:easy_shop/features/admin/home/presentation/constants/home_strings.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,10 @@ class QuickActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
+
+    // IntrinsicHeight keeps both buttons the same height if a label wraps.
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -29,7 +34,16 @@ class QuickActions extends StatelessWidget {
           Expanded(
             child: OutlinedButton.icon(
               onPressed: onManageCategories,
-              icon: const Icon(Icons.category_outlined),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: primary,
+                backgroundColor: primary.withValues(alpha: 0.08),
+                side: BorderSide(color: primary.withValues(alpha: 0.3)),
+                textStyle: theme.textTheme.labelLarge,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+              ),
+              icon: const Icon(Icons.sell_outlined),
               label: const Text(HomeStrings.manageCategories),
             ),
           ),

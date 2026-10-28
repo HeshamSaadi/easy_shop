@@ -1,10 +1,12 @@
+import 'package:easy_shop/core/theme/app_colors.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:easy_shop/features/admin/home/domain/entities/dashboard_stats.dart';
 import 'package:easy_shop/features/admin/home/presentation/constants/home_strings.dart';
+import 'package:easy_shop/features/admin/home/presentation/widgets/home_card.dart';
 import 'package:easy_shop/features/admin/home/presentation/widgets/stat_card.dart';
 import 'package:flutter/material.dart';
 
-/// The four dashboard numbers in a 2x2 grid.
+/// The four dashboard numbers in a 2x2 grid, inside one card.
 class StatsGrid extends StatelessWidget {
   const StatsGrid({super.key, required this.stats});
 
@@ -12,34 +14,55 @@ class StatsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _StatsRow(
-          first: StatCard(
-            icon: Icons.inventory_2_outlined,
-            label: HomeStrings.totalProducts,
-            count: stats.productsCount,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return HomeCard(
+      padding: AppSpacing.md,
+      child: Column(
+        children: [
+          _StatsRow(
+            first: StatCard(
+              icon: Icons.view_in_ar_outlined,
+              label: HomeStrings.totalProducts,
+              count: stats.productsCount,
+              color: AppColors.error,
+              background: isDark
+                  ? AppColors.darkErrorBackground
+                  : AppColors.primarySoft,
+            ),
+            second: StatCard(
+              icon: Icons.shopping_bag_outlined,
+              label: HomeStrings.totalOrders,
+              count: stats.ordersCount,
+              color: AppColors.info,
+              background: isDark
+                  ? AppColors.darkInfoBackground
+                  : AppColors.infoBackground,
+            ),
           ),
-          second: StatCard(
-            icon: Icons.receipt_long_outlined,
-            label: HomeStrings.totalOrders,
-            count: stats.ordersCount,
+          const SizedBox(height: AppSpacing.md),
+          _StatsRow(
+            first: StatCard(
+              icon: Icons.schedule,
+              label: HomeStrings.pendingOrders,
+              count: stats.pendingOrdersCount,
+              color: AppColors.warning,
+              background: isDark
+                  ? AppColors.darkWarningBackground
+                  : AppColors.warningBackground,
+            ),
+            second: StatCard(
+              icon: Icons.sell_outlined,
+              label: HomeStrings.categories,
+              count: stats.categoriesCount,
+              color: AppColors.success,
+              background: isDark
+                  ? AppColors.darkSuccessBackground
+                  : AppColors.successBackground,
+            ),
           ),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        _StatsRow(
-          first: StatCard(
-            icon: Icons.hourglass_empty,
-            label: HomeStrings.pendingOrders,
-            count: stats.pendingOrdersCount,
-          ),
-          second: StatCard(
-            icon: Icons.category_outlined,
-            label: HomeStrings.categories,
-            count: stats.categoriesCount,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

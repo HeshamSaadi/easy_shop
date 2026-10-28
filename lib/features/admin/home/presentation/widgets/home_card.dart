@@ -18,11 +18,11 @@ class HomeCard extends StatelessWidget {
     final theme = Theme.of(context);
     return Container(
       width: double.infinity,
+
       padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: theme.scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: theme.dividerColor),
       ),
       child: child,
     );
