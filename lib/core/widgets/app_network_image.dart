@@ -2,8 +2,8 @@ import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:flutter/material.dart';
 
 /// Fills the space its parent gives it (wrap it in a SizedBox or AspectRatio).
-class ProductImage extends StatelessWidget {
-  const ProductImage({
+class AppNetworkImage extends StatelessWidget {
+  const AppNetworkImage({
     super.key,
     required this.url,
     this.radius = AppRadius.sm,

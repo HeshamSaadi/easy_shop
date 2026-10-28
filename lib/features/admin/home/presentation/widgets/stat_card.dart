@@ -1,6 +1,6 @@
 import 'package:easy_shop/core/theme/app_sizes.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
-import 'package:easy_shop/features/admin/home/presentation/widgets/home_card.dart';
+import 'package:easy_shop/core/widgets/app_card.dart';
 import 'package:flutter/material.dart';
 
 /// One number with an icon and a label, for the 2x2 grid.
@@ -19,7 +19,7 @@ class StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return HomeCard(
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
