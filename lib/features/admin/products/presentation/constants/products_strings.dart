@@ -18,6 +18,9 @@ abstract final class ProductsStrings {
   static const String addedLabel = 'Added';
   static const String visibilityLabel = 'Visibility';
   static const String editAction = 'Edit Product';
+  static const String deleteTitle = 'Delete product';
+  static String deleteMessage(String name) =>
+      'Delete "$name"? This cannot be undone.';
 
   static const String addTitle = 'Add product';
   static const String editTitle = 'Edit product';
