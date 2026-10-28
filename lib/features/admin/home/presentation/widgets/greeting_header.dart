@@ -11,8 +11,7 @@ class GreetingHeader extends StatelessWidget {
   final String? storeName;
 
   /// How far the stats card rises into the orange header.
-  static const double overlap = AppSpacing.xxxxl;
-
+  static const double overlap = AppSpacing.xxxl * 4;
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
