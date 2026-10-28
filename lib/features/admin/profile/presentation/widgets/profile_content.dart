@@ -26,12 +26,15 @@ class ProfileContent extends StatelessWidget {
     final address = profile.address;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.xxl),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xxl,
+        vertical: AppSpacing.lg,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: AppSpacing.xxl,
         children: [
           ProfileHeader(profile: profile),
+          const SizedBox(height: AppSpacing.xxl),
           InfoSection(
             title: ProfileStrings.personalInfo,
             rows: [
@@ -44,6 +47,7 @@ class ProfileContent extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: AppSpacing.xxl),
           InfoSection(
             title: ProfileStrings.businessInfo,
             rows: [
@@ -65,6 +69,7 @@ class ProfileContent extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: AppSpacing.xxl),
           InfoSection(
             title: ProfileStrings.documents,
             rows: [
@@ -76,12 +81,15 @@ class ProfileContent extends StatelessWidget {
               _documentRow(ProfileStrings.taxCard, profile.hasTaxCard, colors),
             ],
           ),
+          const SizedBox(height: AppSpacing.xxl),
           AppButton(text: ProfileStrings.editProfile, onPressed: onEdit),
+          const SizedBox(height: AppSpacing.md),
           AppButton(
             text: ProfileStrings.logout,
             isOutlined: true,
             onPressed: onLogout,
           ),
+          const SizedBox(height: AppSpacing.lg),
         ],
       ),
     );

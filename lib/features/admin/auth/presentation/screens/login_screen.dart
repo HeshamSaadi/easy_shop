@@ -8,7 +8,6 @@ import 'package:easy_shop/features/admin/auth/presentation/cubit/login_state.dar
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Expects a [LoginCubit] above it (the router provides it).
 class LoginScreen extends StatefulWidget {
   const LoginScreen({
     super.key,
@@ -16,7 +15,6 @@ class LoginScreen extends StatefulWidget {
     required this.onRegisterTap,
   });
 
-  /// Called with the email after the server sent the OTP.
   final ValueChanged<String> onOtpRequested;
   final VoidCallback onRegisterTap;
 
@@ -40,9 +38,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final isValid = _formKey.currentState?.validate() ?? false;
     if (!isValid) return;
     context.read<LoginCubit>().login(
-      email: _emailController.text,
-      password: _passwordController.text,
-    );
+          email: _emailController.text,
+          password: _passwordController.text,
+        );
   }
 
   void _onStateChanged(BuildContext context, LoginState state) {
@@ -69,28 +67,37 @@ class _LoginScreenState extends State<LoginScreen> {
           body: SafeArea(
             child: Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(AppSpacing.xxl),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xxl,
+                  vertical: AppSpacing.lg,
+                ),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         AuthStrings.forBusiness,
                         style: textTheme.bodySmall?.copyWith(
                           color: primary,
                           fontWeight: FontWeight.w700,
+                          letterSpacing: 1.2,
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.sm),
+                      const SizedBox(height: AppSpacing.xs),
                       Text(
                         AuthStrings.welcomeBack,
-                        style: textTheme.headlineMedium,
+                        style: textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
                         AuthStrings.loginSubtitle,
-                        style: textTheme.bodyMedium,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey[600],
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.xxxl),
                       AppTextField(
@@ -107,8 +114,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         label: AuthStrings.passwordLabel,
                         hint: AuthStrings.passwordHint,
                         controller: _passwordController,
-                        // Not Validators.password: its 8-character rule would
-                        // block valid accounts (the server accepts 6).
                         validator: (value) => Validators.notEmpty(
                           value,
                           fieldName: AuthStrings.passwordLabel,
@@ -127,6 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Center(
                         child: Wrap(
                           crossAxisAlignment: WrapCrossAlignment.center,
+                          alignment: WrapAlignment.center,
                           children: [
                             Text(
                               AuthStrings.newMerchant,
@@ -136,8 +142,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               onPressed: isLoading
                                   ? null
                                   : widget.onRegisterTap,
-                              child: const Text(
+                              child: Text(
                                 AuthStrings.createMerchantAccount,
+                                style: TextStyle(
+                                  color: primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ],

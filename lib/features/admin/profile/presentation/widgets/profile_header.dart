@@ -11,21 +11,65 @@ class ProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
     final pictureUrl = profile.pictureUrl;
 
     return Column(
-      spacing: AppSpacing.sm,
       children: [
         CircleAvatar(
           radius: ProfileSizes.avatarRadius,
+          backgroundColor: primary.withOpacity(0.1),
           foregroundImage: pictureUrl.isEmpty ? null : NetworkImage(pictureUrl),
-          onForegroundImageError: (_, _) {},
-          child: const Icon(Icons.person_outline),
+          onForegroundImageError: (_, __) {},
+          child: Icon(
+            Icons.person_outline,
+            size: ProfileSizes.avatarRadius,
+            color: primary,
+          ),
         ),
-        Text(profile.name, style: theme.textTheme.titleLarge),
-        Text(profile.businessName, style: theme.textTheme.bodyMedium),
-        Text(profile.email, style: theme.textTheme.bodySmall),
-        const Chip(label: Text(ProfileStrings.merchant)),
+        const SizedBox(height: AppSpacing.md),
+        Text(
+          profile.name,
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          profile.businessName,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            color: Colors.grey[700],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          profile.email,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: Colors.grey[500],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        OutlinedButton(
+          onPressed: null,
+          style: OutlinedButton.styleFrom(
+            side: BorderSide(color: primary),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.xxl),
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.xxl,
+              vertical: AppSpacing.xs,
+            ),
+          ),
+          child: Text(
+            ProfileStrings.merchant,
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: primary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
       ],
     );
   }
