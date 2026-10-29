@@ -38,14 +38,16 @@ class ProfileHeader extends StatelessWidget {
         Text(
           profile.businessName,
           style: theme.textTheme.bodyLarge?.copyWith(
-            color: Colors.grey[700],
+            color: theme.colorScheme.onSurfaceVariant,
             fontWeight: FontWeight.w500,
           ),
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(
           profile.email,
-          style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: AppSpacing.md),
         OutlinedButton(

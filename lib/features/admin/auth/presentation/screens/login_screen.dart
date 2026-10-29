@@ -96,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Text(
                         AuthStrings.loginSubtitle,
                         style: textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.xxxl),
