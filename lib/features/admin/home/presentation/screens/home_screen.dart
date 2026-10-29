@@ -127,78 +127,86 @@ class _LoadedContent extends StatelessWidget {
       physics: const AlwaysScrollableScrollPhysics(),
       padding: EdgeInsets.zero,
       children: [
-        GreetingHeader(
-          adminName: screen.adminName,
-          storeName: screen.storeName,
-        ),
-        // Moves everything below the header up, so the stats card overlaps it
-        Transform.translate(
-          offset: const Offset(0, -GreetingHeader.overlap),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                StatsGrid(stats: stats),
-                const SizedBox(height: AppSpacing.xxl),
-                Text(
-                  HomeStrings.quickActions,
-                  style: theme.textTheme.titleMedium,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                QuickActions(
-                  onAddProduct: () => onOpen(screen.onAddProduct),
-                  onManageCategories: () => onOpen(screen.onManageCategories),
-                ),
-                const SizedBox(height: AppSpacing.xxl),
-                HomeSection(
-                  title: HomeStrings.recentOrders,
-                  emptyText: HomeStrings.noOrders,
-                  onSeeAll: screen.onSeeAllOrders,
-                  children: [
-                    for (final order in stats.recentOrders)
-                      HomeListItem(
-                        leading: const AppIconBadge(
-                          icon: Icons.shopping_bag_outlined,
-                        ),
-                        title: '#${order.code}',
-                        subtitle: order.client.name,
-                        trailingText: PriceFormatter.format(order.totalPrice),
-                        label: AppStatusLabel(
-                          text: _capitalize(order.status),
-                          color: order.isPending ? AppColors.warning : null,
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                HomeSection(
-                  title: HomeStrings.productsOverview,
-                  emptyText: HomeStrings.noProducts,
-                  onSeeAll: screen.onSeeAllProducts,
-                  children: [
-                    for (final product in stats.overviewProducts)
-                      HomeListItem(
-                        leading: SizedBox.square(
-                          dimension: AppIconBadge.size,
-                          child: AppNetworkImage(url: product.imageUrl),
-                        ),
-                        title: product.name,
-                        subtitle:
-                            '${PriceFormatter.format(product.price)}  ·  '
-                            '${HomeStrings.quantity(product.quantity)}',
-                        label: AppStatusLabel(
-                          text: product.isVisible
-                              ? HomeStrings.visible
-                              : HomeStrings.hidden,
-                          color: product.isVisible ? AppColors.success : null,
-                        ),
-                      ),
-                  ],
-                ),
-              ],
+        Stack(
+          children: [
+            GreetingHeader(
+              adminName: screen.adminName,
+              storeName: screen.storeName,
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.only(top: GreetingHeader.contentTop),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    StatsGrid(stats: stats),
+                    const SizedBox(height: AppSpacing.xxl),
+                    Text(
+                      HomeStrings.quickActions,
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    QuickActions(
+                      onAddProduct: () => onOpen(screen.onAddProduct),
+                      onManageCategories: () =>
+                          onOpen(screen.onManageCategories),
+                    ),
+                    const SizedBox(height: AppSpacing.xxl),
+                    HomeSection(
+                      title: HomeStrings.recentOrders,
+                      emptyText: HomeStrings.noOrders,
+                      onSeeAll: screen.onSeeAllOrders,
+                      children: [
+                        for (final order in stats.recentOrders)
+                          HomeListItem(
+                            leading: const AppIconBadge(
+                              icon: Icons.shopping_bag_outlined,
+                            ),
+                            title: '#${order.code}',
+                            subtitle: order.client.name,
+                            trailingText: PriceFormatter.format(
+                              order.totalPrice,
+                            ),
+                            label: AppStatusLabel(
+                              text: _capitalize(order.status),
+                              color: order.isPending ? AppColors.warning : null,
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    HomeSection(
+                      title: HomeStrings.productsOverview,
+                      emptyText: HomeStrings.noProducts,
+                      onSeeAll: screen.onSeeAllProducts,
+                      children: [
+                        for (final product in stats.overviewProducts)
+                          HomeListItem(
+                            leading: SizedBox.square(
+                              dimension: AppIconBadge.size,
+                              child: AppNetworkImage(url: product.imageUrl),
+                            ),
+                            title: product.name,
+                            subtitle:
+                                '${PriceFormatter.format(product.price)}  ·  '
+                                '${HomeStrings.quantity(product.quantity)}',
+                            label: AppStatusLabel(
+                              text: product.isVisible
+                                  ? HomeStrings.visible
+                                  : HomeStrings.hidden,
+                              color: product.isVisible
+                                  ? AppColors.success
+                                  : null,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
