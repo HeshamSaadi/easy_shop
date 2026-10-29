@@ -3,7 +3,7 @@ import 'package:easy_shop/features/admin/home/presentation/constants/home_string
 import 'package:flutter/material.dart';
 import 'package:easy_shop/core/widgets/app_avatar.dart';
 
-//! The orange header
+/// The orange header
 class GreetingHeader extends StatelessWidget {
   const GreetingHeader({super.key, this.adminName, this.storeName});
 

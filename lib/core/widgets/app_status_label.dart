@@ -2,13 +2,13 @@ import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
 
-//! Small status pill with a colored dot
+/// Small status pill with a colored dot
 class AppStatusLabel extends StatelessWidget {
   const AppStatusLabel({super.key, required this.text, this.color});
 
   final String text;
 
-  //! Falls back to the secondary text color of the theme.
+  /// Falls back to the secondary text color of the theme.
   final Color? color;
 
   static const double _dotSize = 6;

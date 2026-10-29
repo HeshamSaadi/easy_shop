@@ -28,6 +28,7 @@ class HomeListItem extends StatelessWidget {
     final trailing = trailingText;
 
     return AppCard(
+      borderless: true,
       padding: AppSpacing.md,
       child: Row(
         children: [

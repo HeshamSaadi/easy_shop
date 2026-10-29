@@ -17,6 +17,7 @@ class StatsGrid extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AppCard(
+      borderless: true,
       padding: AppSpacing.md,
       child: Column(
         children: [

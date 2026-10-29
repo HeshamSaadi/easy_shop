@@ -2,7 +2,7 @@ import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_sizes.dart';
 import 'package:flutter/material.dart';
 
-//! rounded square with a soft orange background and an icon
+/// rounded square with a soft orange background and an icon
 class AppIconBadge extends StatelessWidget {
   const AppIconBadge({super.key, required this.icon});
 
