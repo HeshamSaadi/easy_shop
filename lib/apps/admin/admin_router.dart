@@ -26,6 +26,7 @@ import 'package:easy_shop/features/admin/products/presentation/screens/product_f
 import 'package:easy_shop/features/admin/products/presentation/screens/products_screen.dart';
 import 'package:easy_shop/features/admin/profile/domain/entities/profile_entity.dart';
 import 'package:easy_shop/features/admin/profile/presentation/cubit/profile_cubit.dart';
+import 'package:easy_shop/features/admin/profile/presentation/cubit/profile_state.dart';
 import 'package:easy_shop/features/admin/profile/presentation/screens/edit_profile_page.dart';
 import 'package:easy_shop/features/admin/profile/presentation/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
@@ -80,15 +81,28 @@ GoRouter createAdminRouter(SessionCubit session) {
               GoRoute(
                 name: AdminRouteNames.home,
                 path: AdminRoutePaths.home,
-                builder: (context, _) => HomeScreen(
-                  // TODO(A11): pass adminName and storeName from the profile.
-                  onAddProduct: () =>
-                      context.pushNamed<bool>(AdminRouteNames.productForm),
-                  onManageCategories: () =>
-                      context.pushNamed(AdminRouteNames.categories),
-                  onSeeAllProducts: () =>
-                      context.goNamed(AdminRouteNames.products),
-                  onSeeAllOrders: () => context.goNamed(AdminRouteNames.orders),
+                builder: (context, _) => BlocProvider(
+                  create: (_) => _sl<ProfileCubit>()..load(),
+                  child: BlocBuilder<ProfileCubit, ProfileState>(
+                    builder: (context, state) {
+                      final profile = state is ProfileLoaded
+                          ? state.profile
+                          : null;
+                      return HomeScreen(
+                        adminName: profile?.name,
+                        storeName: profile?.businessName,
+                        onAddProduct: () => context.pushNamed<bool>(
+                          AdminRouteNames.productForm,
+                        ),
+                        onManageCategories: () =>
+                            context.pushNamed(AdminRouteNames.categories),
+                        onSeeAllProducts: () =>
+                            context.goNamed(AdminRouteNames.products),
+                        onSeeAllOrders: () =>
+                            context.goNamed(AdminRouteNames.orders),
+                      );
+                    },
+                  ),
                 ),
               ),
             ],

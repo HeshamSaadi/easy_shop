@@ -1,3 +1,4 @@
+import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_sizes.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:easy_shop/core/widgets/app_avatar.dart';
@@ -52,7 +53,7 @@ class ProfileHeader extends StatelessWidget {
           style: OutlinedButton.styleFrom(
             side: BorderSide(color: primary),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppSpacing.xxl),
+              borderRadius: BorderRadius.circular(AppRadius.full),
             ),
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.xxl,
