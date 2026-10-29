@@ -6,16 +6,19 @@ import 'package:flutter/material.dart';
 class HomeListItem extends StatelessWidget {
   const HomeListItem({
     super.key,
+    required this.leading,
     required this.title,
     required this.subtitle,
     required this.label,
     this.trailingText,
   });
 
+  /// Icon badge or image shown at the start of the row.
+  final Widget leading;
   final String title;
   final String subtitle;
 
-  /// Status widget shown under [trailingText].
+  /// Status widget shown above [trailingText].
   final Widget label;
   final String? trailingText;
 
@@ -25,9 +28,12 @@ class HomeListItem extends StatelessWidget {
     final trailing = trailingText;
 
     return AppCard(
+      borderless: true,
       padding: AppSpacing.md,
       child: Row(
         children: [
+          leading,
+          const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,9 +58,17 @@ class HomeListItem extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              if (trailing != null)
-                Text(trailing, style: theme.textTheme.titleMedium),
               label,
+              if (trailing != null) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  trailing,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
             ],
           ),
         ],

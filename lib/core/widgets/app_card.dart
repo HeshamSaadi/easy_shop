@@ -2,12 +2,21 @@ import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
 
-/// The bordered surface used for blocks on admin screens (home, orders).
+/// The surface used for blocks on admin screens (home, orders).
+///
+/// By default it is a bordered surface. With [borderless] it blends into
+/// the screen background and has no border (the Home look).
 class AppCard extends StatelessWidget {
-  const AppCard({super.key, required this.child, this.padding = AppSpacing.lg});
+  const AppCard({
+    super.key,
+    required this.child,
+    this.padding = AppSpacing.lg,
+    this.borderless = false,
+  });
 
   final Widget child;
   final double padding;
+  final bool borderless;
 
   @override
   Widget build(BuildContext context) {
@@ -16,9 +25,11 @@ class AppCard extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: borderless
+            ? theme.scaffoldBackgroundColor
+            : theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: theme.dividerColor),
+        border: borderless ? null : Border.all(color: theme.dividerColor),
       ),
       child: child,
     );

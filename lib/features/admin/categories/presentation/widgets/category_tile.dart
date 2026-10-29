@@ -1,6 +1,7 @@
 import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_sizes.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
+import 'package:easy_shop/core/widgets/app_icon_badge.dart';
 import 'package:easy_shop/features/admin/categories/domain/entities/category_entity.dart';
 import 'package:easy_shop/features/admin/categories/presentation/constants/categories_strings.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +34,8 @@ class CategoryTile extends StatelessWidget {
       ),
       child: Row(
         children: [
+          const AppIconBadge(icon: Icons.sell_outlined),
+          const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,7 +56,11 @@ class CategoryTile extends StatelessWidget {
           IconButton(
             tooltip: CategoriesStrings.editTooltip,
             onPressed: isDeleting ? null : onEdit,
-            icon: const Icon(Icons.edit_outlined, size: AppSizes.iconLg),
+            icon: Icon(
+              Icons.edit_outlined,
+              size: AppSizes.iconLg,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
           IconButton(
             tooltip: CategoriesStrings.deleteTooltip,

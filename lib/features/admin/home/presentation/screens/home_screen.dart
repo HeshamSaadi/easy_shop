@@ -2,7 +2,9 @@ import 'package:easy_shop/core/theme/app_colors.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:easy_shop/core/utils/price_formatter.dart';
 import 'package:easy_shop/core/widgets/app_error.dart';
+import 'package:easy_shop/core/widgets/app_icon_badge.dart';
 import 'package:easy_shop/core/widgets/app_loading.dart';
+import 'package:easy_shop/core/widgets/app_network_image.dart';
 import 'package:easy_shop/core/widgets/app_status_label.dart';
 import 'package:easy_shop/features/admin/home/domain/entities/dashboard_stats.dart';
 import 'package:easy_shop/features/admin/home/presentation/constants/home_strings.dart';
@@ -14,6 +16,7 @@ import 'package:easy_shop/features/admin/home/presentation/widgets/home_section.
 import 'package:easy_shop/features/admin/home/presentation/widgets/quick_actions.dart';
 import 'package:easy_shop/features/admin/home/presentation/widgets/stats_grid.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
@@ -64,26 +67,32 @@ class _HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: BlocConsumer<HomeCubit, HomeState>(
-          listenWhen: (_, current) =>
-              current is HomeLoaded && current.actionError != null,
-          listener: (context, state) {
-            if (state is! HomeLoaded) return;
-            final message = state.actionError;
-            if (message == null) return;
-            ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(SnackBar(content: Text(message)));
-          },
-          builder: (context, state) {
-            return switch (state) {
-              HomeInitial() || HomeLoading() => const AppLoading(),
-              HomeError(:final message) => AppError(
+      body: BlocConsumer<HomeCubit, HomeState>(
+        listenWhen: (_, current) =>
+            current is HomeLoaded && current.actionError != null,
+        listener: (context, state) {
+          if (state is! HomeLoaded) return;
+          final message = state.actionError;
+          if (message == null) return;
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(SnackBar(content: Text(message)));
+        },
+        builder: (context, state) {
+          return switch (state) {
+            HomeInitial() ||
+            HomeLoading() => const SafeArea(child: AppLoading()),
+            HomeError(:final message) => SafeArea(
+              child: AppError(
                 message: message,
                 onRetry: () => context.read<HomeCubit>().load(),
               ),
-              HomeLoaded(:final stats) => RefreshIndicator(
+            ),
+            // The header is orange, so the status bar icons must be light
+            HomeLoaded(:final stats) => AnnotatedRegion<SystemUiOverlayStyle>(
+              value: SystemUiOverlayStyle.light,
+              child: RefreshIndicator(
+                edgeOffset: MediaQuery.paddingOf(context).top,
                 onRefresh: () => context.read<HomeCubit>().refresh(),
                 child: _LoadedContent(
                   stats: stats,
@@ -91,9 +100,9 @@ class _HomeView extends StatelessWidget {
                   onOpen: (open) => _open(context, open),
                 ),
               ),
-            };
-          },
-        ),
+            ),
+          };
+        },
       ),
     );
   }
@@ -116,58 +125,87 @@ class _LoadedContent extends StatelessWidget {
 
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: EdgeInsets.zero,
       children: [
-        GreetingHeader(
-          adminName: screen.adminName,
-          storeName: screen.storeName,
-        ),
-        const SizedBox(height: AppSpacing.xxl),
-        StatsGrid(stats: stats),
-        const SizedBox(height: AppSpacing.xxl),
-        Text(HomeStrings.quickActions, style: theme.textTheme.titleMedium),
-        const SizedBox(height: AppSpacing.md),
-        QuickActions(
-          onAddProduct: () => onOpen(screen.onAddProduct),
-          onManageCategories: () => onOpen(screen.onManageCategories),
-        ),
-        const SizedBox(height: AppSpacing.xxl),
-        HomeSection(
-          title: HomeStrings.recentOrders,
-          emptyText: HomeStrings.noOrders,
-          onSeeAll: screen.onSeeAllOrders,
+        Stack(
           children: [
-            for (final order in stats.recentOrders)
-              HomeListItem(
-                title: '#${order.code}',
-                subtitle: order.client.name,
-                trailingText: PriceFormatter.format(order.totalPrice),
-                label: AppStatusLabel(
-                  text: _capitalize(order.status),
-                  color: order.isPending ? AppColors.warning : null,
+            GreetingHeader(
+              adminName: screen.adminName,
+              storeName: screen.storeName,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: GreetingHeader.contentTop),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    StatsGrid(stats: stats),
+                    const SizedBox(height: AppSpacing.xxl),
+                    Text(
+                      HomeStrings.quickActions,
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    QuickActions(
+                      onAddProduct: () => onOpen(screen.onAddProduct),
+                      onManageCategories: () =>
+                          onOpen(screen.onManageCategories),
+                    ),
+                    const SizedBox(height: AppSpacing.xxl),
+                    HomeSection(
+                      title: HomeStrings.recentOrders,
+                      emptyText: HomeStrings.noOrders,
+                      onSeeAll: screen.onSeeAllOrders,
+                      children: [
+                        for (final order in stats.recentOrders)
+                          HomeListItem(
+                            leading: const AppIconBadge(
+                              icon: Icons.shopping_bag_outlined,
+                            ),
+                            title: '#${order.code}',
+                            subtitle: order.client.name,
+                            trailingText: PriceFormatter.format(
+                              order.totalPrice,
+                            ),
+                            label: AppStatusLabel(
+                              text: _capitalize(order.status),
+                              color: order.isPending ? AppColors.warning : null,
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    HomeSection(
+                      title: HomeStrings.productsOverview,
+                      emptyText: HomeStrings.noProducts,
+                      onSeeAll: screen.onSeeAllProducts,
+                      children: [
+                        for (final product in stats.overviewProducts)
+                          HomeListItem(
+                            leading: SizedBox.square(
+                              dimension: AppIconBadge.size,
+                              child: AppNetworkImage(url: product.imageUrl),
+                            ),
+                            title: product.name,
+                            subtitle:
+                                '${PriceFormatter.format(product.price)}  ·  '
+                                '${HomeStrings.quantity(product.quantity)}',
+                            label: AppStatusLabel(
+                              text: product.isVisible
+                                  ? HomeStrings.visible
+                                  : HomeStrings.hidden,
+                              color: product.isVisible
+                                  ? AppColors.success
+                                  : null,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        HomeSection(
-          title: HomeStrings.productsOverview,
-          emptyText: HomeStrings.noProducts,
-          onSeeAll: screen.onSeeAllProducts,
-          children: [
-            for (final product in stats.overviewProducts)
-              HomeListItem(
-                title: product.name,
-                subtitle:
-                    '${PriceFormatter.format(product.price)}  ·  '
-                    '${HomeStrings.quantity(product.quantity)}',
-                label: AppStatusLabel(
-                  text: product.isVisible
-                      ? HomeStrings.visible
-                      : HomeStrings.hidden,
-                  color: product.isVisible ? AppColors.success : null,
-                ),
-              ),
+            ),
           ],
         ),
       ],
