@@ -103,9 +103,7 @@ class _OtpScreenState extends State<OtpScreen> {
                   children: [
                     Text(
                       AuthStrings.checkYourEmail,
-                      style: textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: textTheme.headlineMedium,
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(

@@ -8,6 +8,7 @@ import 'package:easy_shop/features/admin/auth/presentation/cubit/login_state.dar
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+/// Expects a [LoginCubit] above it (the router provides it).
 class LoginScreen extends StatefulWidget {
   const LoginScreen({
     super.key,
@@ -15,6 +16,7 @@ class LoginScreen extends StatefulWidget {
     required this.onRegisterTap,
   });
 
+  /// Called with the email after the server sent the OTP.
   final ValueChanged<String> onOtpRequested;
   final VoidCallback onRegisterTap;
 
@@ -88,9 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: AppSpacing.xs),
                       Text(
                         AuthStrings.welcomeBack,
-                        style: textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: textTheme.headlineMedium,
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
@@ -114,6 +114,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         label: AuthStrings.passwordLabel,
                         hint: AuthStrings.passwordHint,
                         controller: _passwordController,
+                        // Not Validators.password: its 8-character rule would
+                        // block valid accounts (the server accepts 6).
                         validator: (value) => Validators.notEmpty(
                           value,
                           fieldName: AuthStrings.passwordLabel,
