@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:easy_shop/core/databases/api/api_consumer.dart';
 import 'package:easy_shop/core/databases/api/end_points.dart';
 import 'package:easy_shop/core/databases/api/multipart_helper.dart';
-import 'package:easy_shop/core/errors/exceptions.dart';
+import 'package:easy_shop/core/databases/api/response_reader.dart';
 import 'package:easy_shop/features/admin/profile/data/models/profile_model.dart';
 import 'package:easy_shop/features/admin/profile/domain/params/update_profile_params.dart';
 
@@ -15,18 +15,12 @@ abstract class ProfileRemoteDataSource {
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   const ProfileRemoteDataSourceImpl(this._api);
 
-  static const String _dataKey = 'data';
-
   final ApiConsumer _api;
 
   @override
   Future<ProfileModel> getProfile() async {
     final response = await _api.get(EndPoints.adminProfile);
-    final data = response is Map<String, dynamic> ? response[_dataKey] : null;
-    if (data is! Map<String, dynamic>) {
-      throw const ServerException();
-    }
-    return ProfileModel.fromJson(data);
+    return ProfileModel.fromJson(ResponseReader.object(response));
   }
 
   @override
