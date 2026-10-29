@@ -4,7 +4,7 @@ import 'package:easy_shop/core/widgets/app_button.dart';
 import 'package:easy_shop/features/admin/products/domain/entities/product_entity.dart';
 import 'package:easy_shop/features/admin/products/presentation/constants/products_strings.dart';
 import 'package:easy_shop/features/admin/products/presentation/utils/product_formatters.dart';
-import 'package:easy_shop/features/admin/products/presentation/widgets/product_image.dart';
+import 'package:easy_shop/core/widgets/app_network_image.dart';
 import 'package:easy_shop/features/admin/products/presentation/widgets/product_visibility_badge.dart';
 import 'package:flutter/material.dart';
 
@@ -36,7 +36,7 @@ class ProductDetailsBody extends StatelessWidget {
               children: [
                 AspectRatio(
                   aspectRatio: _imageAspectRatio,
-                  child: ProductImage(
+                  child: AppNetworkImage(
                     url: product.imageUrl,
                     radius: AppRadius.lg,
                   ),

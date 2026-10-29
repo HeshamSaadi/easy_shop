@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:easy_shop/features/admin/products/presentation/constants/products_strings.dart';
-import 'package:easy_shop/features/admin/products/presentation/widgets/product_image.dart';
+import 'package:easy_shop/core/widgets/app_network_image.dart';
 import 'package:flutter/material.dart';
 
 /// Shows the newly picked file, else the current image, else a placeholder.
@@ -75,7 +75,7 @@ class ProductImageField extends StatelessWidget {
       );
     }
     if (url != null) {
-      return ProductImage(url: url, radius: AppRadius.lg);
+      return AppNetworkImage(url: url, radius: AppRadius.lg);
     }
     return const _Placeholder();
   }

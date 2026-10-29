@@ -1,10 +1,13 @@
 import 'package:easy_shop/apps/admin/admin_route_names.dart';
 import 'package:easy_shop/apps/admin/admin_shell.dart';
-import 'package:easy_shop/apps/admin/placeholder_screen.dart';
 import 'package:easy_shop/apps/admin/profile_placeholder_screen.dart';
 import 'package:easy_shop/apps/admin/session/router_refresh_stream.dart';
 import 'package:easy_shop/apps/admin/session/session_cubit.dart';
 import 'package:easy_shop/apps/admin/session/session_state.dart';
+import 'package:easy_shop/core/location/location_picker_cubit.dart';
+import 'package:easy_shop/core/location/location_picker_screen.dart';
+import 'package:easy_shop/core/location/picked_location.dart' as core;
+import 'package:easy_shop/core/media/image_picker_service.dart';
 import 'package:easy_shop/features/admin/auth/presentation/cubit/login_cubit.dart';
 import 'package:easy_shop/features/admin/auth/presentation/cubit/otp_cubit.dart';
 import 'package:easy_shop/features/admin/auth/presentation/cubit/register_cubit.dart';
@@ -20,6 +23,8 @@ import 'package:easy_shop/features/admin/products/domain/entities/product_entity
 import 'package:easy_shop/features/admin/products/presentation/screens/product_details_screen.dart';
 import 'package:easy_shop/features/admin/products/presentation/screens/product_form_screen.dart';
 import 'package:easy_shop/features/admin/products/presentation/screens/products_screen.dart';
+import 'package:easy_shop/features/admin/orders/presentation/screens/order_details_screen.dart';
+import 'package:easy_shop/features/admin/orders/presentation/screens/orders_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -154,7 +159,21 @@ GoRouter createAdminRouter(SessionCubit session) {
               GoRoute(
                 name: AdminRouteNames.orders,
                 path: AdminRoutePaths.orders,
-                builder: (_, _) => const PlaceholderScreen('Orders'), // C14
+                builder: (context, _) => OrdersScreen(
+                  onOpenDetails: (order) => context.pushNamed(
+                    AdminRouteNames.orderDetails,
+                    pathParameters: {AdminRouteParams.code: order.code},
+                  ),
+                ),
+                routes: [
+                  GoRoute(
+                    name: AdminRouteNames.orderDetails,
+                    path: 'details/:${AdminRouteParams.code}',
+                    builder: (_, state) => OrderDetailsScreen(
+                      code: state.pathParameters[AdminRouteParams.code] ?? '',
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -202,9 +221,18 @@ class _OtpPage extends StatelessWidget {
 class _RegisterPage extends StatelessWidget {
   const _RegisterPage();
 
-  static Future<String?> _noFilePicker() async => null;
+  static PickedLocation? _toRecord(core.PickedLocation? location) {
+    if (location == null) return null;
+    return (latitude: location.latitude, longitude: location.longitude);
+  }
 
-  static Future<PickedLocation?> _noLocationPicker() async => null;
+  static Future<PickedLocation?> _pickLocation(BuildContext context) async {
+    final result = await LocationPickerScreen.open(
+      context,
+      createCubit: () => _sl<LocationPickerCubit>(param1: null),
+    );
+    return _toRecord(result);
+  }
 
   void _backToLogin(BuildContext context) {
     if (context.canPop()) {
@@ -216,14 +244,15 @@ class _RegisterPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final images = _sl<ImagePickerService>();
     return BlocProvider(
       create: (_) => _sl<RegisterCubit>(),
       child: RegisterScreen(
         onRegistered: () => _backToLogin(context),
         onExit: () => _backToLogin(context),
-        pickDocument: _noFilePicker,
-        pickPicture: _noFilePicker,
-        pickLocation: _noLocationPicker,
+        pickDocument: images.pickImage,
+        pickPicture: images.pickImage,
+        pickLocation: () => _pickLocation(context),
       ),
     );
   }

@@ -1,3 +1,5 @@
+import 'package:easy_shop/core/utils/phone_utils.dart';
+
 /// Form validators. Each returns null when the value is valid,
 /// or an error message to show under the field.
 class Validators {
@@ -82,15 +84,11 @@ class Validators {
     return null;
   }
 
-  static final RegExp _whitespace = RegExp(r'\s+');
-  static final RegExp _egyptianPhoneRegex = RegExp(r'^\+20[0-9]{10}$');
-
-  //! Egyptian phone: +20 followed by 10 digits (spaces are ignored)
   static String? egyptianPhone(String? value) {
-    final text = value?.replaceAll(_whitespace, '') ?? '';
-    if (text.isEmpty) return 'Phone number is required';
-    if (!_egyptianPhoneRegex.hasMatch(text)) {
-      return 'Phone must start with +20 followed by 10 digits';
+    final local = PhoneUtils.toLocal(value);
+    if (local.isEmpty) return 'Phone number is required';
+    if (local.length != PhoneUtils.localLength) {
+      return 'Enter ${PhoneUtils.localLength} digits after ${PhoneUtils.egyptCode}';
     }
     return null;
   }

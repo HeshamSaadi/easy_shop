@@ -34,7 +34,11 @@ void registerAdminProducts(GetIt sl) {
     )
     ..registerFactory(() => ProductsCubit(getProducts: sl()))
     ..registerFactoryParam<ProductDetailsCubit, String, void>(
-      (slug, _) => ProductDetailsCubit(getProductDetails: sl(), slug: slug),
+      (slug, _) => ProductDetailsCubit(
+        getProductDetails: sl(),
+        deleteProduct: sl(),
+        slug: slug,
+      ),
     )
     ..registerFactory(
       () => ProductFormCubit(

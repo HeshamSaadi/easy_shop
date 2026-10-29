@@ -1,8 +1,8 @@
 import 'package:easy_shop/core/theme/app_colors.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
+import 'package:easy_shop/core/widgets/app_card.dart';
 import 'package:easy_shop/features/admin/home/domain/entities/dashboard_stats.dart';
 import 'package:easy_shop/features/admin/home/presentation/constants/home_strings.dart';
-import 'package:easy_shop/features/admin/home/presentation/widgets/home_card.dart';
 import 'package:easy_shop/features/admin/home/presentation/widgets/stat_card.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +16,7 @@ class StatsGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return HomeCard(
+    return AppCard(
       padding: AppSpacing.md,
       child: Column(
         children: [

@@ -14,7 +14,7 @@ import 'package:easy_shop/features/admin/home/presentation/widgets/home_list_ite
 import 'package:easy_shop/features/admin/home/presentation/widgets/home_section.dart';
 import 'package:easy_shop/features/admin/home/presentation/widgets/quick_actions.dart';
 import 'package:easy_shop/features/admin/home/presentation/widgets/stats_grid.dart';
-import 'package:easy_shop/features/admin/products/presentation/widgets/product_image.dart';
+import 'package:easy_shop/core/widgets/app_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -181,7 +181,7 @@ class _LoadedContent extends StatelessWidget {
                       HomeListItem(
                         leading: SizedBox.square(
                           dimension: AppIconBadge.size,
-                          child: ProductImage(url: product.imageUrl),
+                          child: AppNetworkImage(url: product.imageUrl),
                         ),
                         title: product.name,
                         subtitle:
