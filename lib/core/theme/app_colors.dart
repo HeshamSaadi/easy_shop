@@ -30,21 +30,21 @@ class AppColors {
 
   // Success Colors
   static const Color success = Color(0xFF0F9F6F);
-  static const Color successBackground = Color(0xFFECFDF5);
+  static const Color successBackground = Color(0xFFD1FAE5);
   static const Color darkSuccessBackground = Color(0xFF16352B);
 
   // Warning Colors
   static const Color warning = Color(0xFFD97706);
-  static const Color warningBackground = Color(0xFFFFFBEB);
+  static const Color warningBackground = Color(0xFFFEF3C7);
   static const Color darkWarningBackground = Color(0xFF3B2D16);
 
   // Error Colors
   static const Color error = Color(0xFFDC2626);
-  static const Color errorBackground = Color(0xFFFEF2F2);
+  static const Color errorBackground = Color(0xFFFEE2E2);
   static const Color darkErrorBackground = Color(0xFF3B2023);
 
   // Information Colors
   static const Color info = Color(0xFF155DFC);
-  static const Color infoBackground = Color(0xFFEFF6FF);
+  static const Color infoBackground = Color(0xFFDBEAFE);
   static const Color darkInfoBackground = Color(0xFF1B2D4A);
 }

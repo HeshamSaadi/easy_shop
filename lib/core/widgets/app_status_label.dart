@@ -1,4 +1,6 @@
+import 'package:easy_shop/core/theme/app_opacity.dart';
 import 'package:easy_shop/core/theme/app_radius.dart';
+import 'package:easy_shop/core/theme/app_sizes.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
 
@@ -11,8 +13,6 @@ class AppStatusLabel extends StatelessWidget {
   //! Falls back to the secondary text color of the theme.
   final Color? color;
 
-  static const double _dotSize = 6;
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -20,7 +20,7 @@ class AppStatusLabel extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: tint.withValues(alpha: 0.12),
+        color: tint.withValues(alpha: AppOpacity.tint),
         borderRadius: BorderRadius.circular(AppRadius.full),
       ),
       child: Padding(
@@ -33,7 +33,7 @@ class AppStatusLabel extends StatelessWidget {
           children: [
             DecoratedBox(
               decoration: BoxDecoration(color: tint, shape: BoxShape.circle),
-              child: const SizedBox.square(dimension: _dotSize),
+              child: const SizedBox.square(dimension: AppSizes.dot),
             ),
             const SizedBox(width: AppSpacing.sm),
             Text(

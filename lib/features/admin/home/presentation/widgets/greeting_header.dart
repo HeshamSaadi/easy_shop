@@ -1,7 +1,8 @@
+import 'package:easy_shop/core/theme/app_opacity.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
+import 'package:easy_shop/core/widgets/app_avatar.dart';
 import 'package:easy_shop/features/admin/home/presentation/constants/home_strings.dart';
 import 'package:flutter/material.dart';
-import 'package:easy_shop/core/widgets/app_avatar.dart';
 
 //! The orange header
 class GreetingHeader extends StatelessWidget {
@@ -10,14 +11,14 @@ class GreetingHeader extends StatelessWidget {
   final String? adminName;
   final String? storeName;
 
-  /// How far the stats card rises into the orange header.
   static const double overlap = AppSpacing.xxxl * 4;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final onPrimary = theme.colorScheme.onPrimary;
-    final softText = onPrimary.withValues(alpha: 0.85);
-    final circleColor = onPrimary.withValues(alpha: 0.2);
+    final softText = onPrimary.withValues(alpha: AppOpacity.fadedText);
+    final circleColor = onPrimary.withValues(alpha: AppOpacity.overlay);
     final topInset = MediaQuery.paddingOf(context).top;
     final name = adminName;
     final store = storeName;
@@ -59,7 +60,6 @@ class GreetingHeader extends StatelessWidget {
               ],
             ),
           ),
-          // The bell does nothing yet: there is no notifications feature
           IconButton.filled(
             onPressed: null,
             style: IconButton.styleFrom(

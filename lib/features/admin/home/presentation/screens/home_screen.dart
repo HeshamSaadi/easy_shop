@@ -1,4 +1,5 @@
 import 'package:easy_shop/core/theme/app_colors.dart';
+import 'package:easy_shop/core/theme/app_sizes.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:easy_shop/core/utils/price_formatter.dart';
 import 'package:easy_shop/core/widgets/app_error.dart';
@@ -180,7 +181,7 @@ class _LoadedContent extends StatelessWidget {
                     for (final product in stats.overviewProducts)
                       HomeListItem(
                         leading: SizedBox.square(
-                          dimension: AppIconBadge.size,
+                          dimension: AppSizes.badge,
                           child: ProductImage(url: product.imageUrl),
                         ),
                         title: product.name,
