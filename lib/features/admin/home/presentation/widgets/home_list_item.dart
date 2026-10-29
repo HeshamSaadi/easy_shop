@@ -1,5 +1,5 @@
 import 'package:easy_shop/core/theme/app_spacing.dart';
-import 'package:easy_shop/features/admin/home/presentation/widgets/home_card.dart';
+import 'package:easy_shop/core/widgets/app_card.dart';
 import 'package:flutter/material.dart';
 
 /// One row of the recent orders and products overview lists.
@@ -27,7 +27,7 @@ class HomeListItem extends StatelessWidget {
     final theme = Theme.of(context);
     final trailing = trailingText;
 
-    return HomeCard(
+    return AppCard(
       padding: AppSpacing.md,
       child: Row(
         children: [

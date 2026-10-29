@@ -1,6 +1,7 @@
 import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:easy_shop/core/widgets/app_button.dart';
+import 'package:easy_shop/core/widgets/app_card.dart';
 import 'package:easy_shop/features/admin/products/domain/entities/product_entity.dart';
 import 'package:easy_shop/features/admin/products/presentation/constants/products_strings.dart';
 import 'package:easy_shop/features/admin/products/presentation/utils/product_formatters.dart';
@@ -103,28 +104,6 @@ class ProductDetailsBody extends StatelessWidget {
   }
 }
 
-class _Panel extends StatelessWidget {
-  const _Panel({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: theme.dividerColor),
-      ),
-      child: child,
-    );
-  }
-}
-
 class _StatCard extends StatelessWidget {
   const _StatCard({required this.label, required this.value});
 
@@ -135,7 +114,7 @@ class _StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return _Panel(
+    return AppCard(
       child: Column(
         children: [
           Text(value, style: theme.textTheme.titleLarge),
@@ -175,7 +154,7 @@ class _DetailsPanel extends StatelessWidget {
       ),
     ];
 
-    return _Panel(
+    return AppCard(
       child: Column(
         children: [
           for (var i = 0; i < rows.length; i++) ...[
@@ -200,6 +179,7 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Expanded lets a long value wrap instead of overflowing the row
     return Row(
       children: [
         Text(label, style: Theme.of(context).textTheme.bodySmall),

@@ -1,9 +1,9 @@
+import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_sizes.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:easy_shop/core/theme/app_radius.dart';
 
-/// One number with an icon and a label, for the 2x2 grid.
+/// One number with an icon and a label, on a tile with its own background.
 class StatCard extends StatelessWidget {
   const StatCard({
     super.key,

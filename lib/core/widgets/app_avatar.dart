@@ -22,10 +22,8 @@ class AppAvatar extends StatelessWidget {
     return CircleAvatar(
       radius: size / 2,
       backgroundColor: backgroundColor,
-      backgroundImage: url == null ? null : NetworkImage(url),
-      child: url == null
-          ? Icon(Icons.person_outline, size: size / 2, color: iconColor)
-          : null,
+      foregroundImage: url == null ? null : NetworkImage(url),
+      child: Icon(Icons.person_outline, size: size / 2, color: iconColor),
     );
   }
 }
