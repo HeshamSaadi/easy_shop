@@ -1,4 +1,6 @@
+import 'package:easy_shop/core/theme/app_sizes.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
+import 'package:easy_shop/core/widgets/app_avatar.dart';
 import 'package:easy_shop/features/admin/profile/constants/profile_strings.dart';
 import 'package:easy_shop/features/admin/profile/domain/entities/profile_entity.dart';
 import 'package:flutter/material.dart';
@@ -16,16 +18,11 @@ class ProfileHeader extends StatelessWidget {
 
     return Column(
       children: [
-        CircleAvatar(
-          radius: ProfileSizes.avatarRadius,
-          backgroundColor: primary..withValues(alpha: 0.1),
-          foregroundImage: pictureUrl.isEmpty ? null : NetworkImage(pictureUrl),
-          onForegroundImageError: (_, _) {},
-          child: Icon(
-            Icons.person_outline,
-            size: ProfileSizes.avatarRadius,
-            color: primary,
-          ),
+        AppAvatar(
+          imageUrl: pictureUrl.isEmpty ? null : pictureUrl,
+          backgroundColor: primary.withValues(alpha: 0.1),
+          iconColor: primary,
+          size: AppSizes.avatarLg,
         ),
         const SizedBox(height: AppSpacing.md),
         Text(
