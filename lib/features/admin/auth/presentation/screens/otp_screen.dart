@@ -9,9 +9,11 @@ import 'package:easy_shop/features/admin/auth/presentation/cubit/otp_state.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+/// Expects an [OtpCubit] above it (the router provides it and calls `start()`).
 class OtpScreen extends StatefulWidget {
   const OtpScreen({super.key, required this.onVerified});
 
+  /// Called after the code was accepted and the token was saved.
   final VoidCallback onVerified;
 
   @override
@@ -23,6 +25,7 @@ class _OtpScreenState extends State<OtpScreen> {
 
   String _code = '';
 
+  // A new key rebuilds OtpInput, which clears its boxes.
   Key _inputKey = UniqueKey();
 
   void _submit() {
@@ -73,6 +76,7 @@ class _OtpScreenState extends State<OtpScreen> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final errorColor = Theme.of(context).colorScheme.error;
+    final mutedColor = Theme.of(context).colorScheme.onSurfaceVariant;
 
     return BlocConsumer<OtpCubit, OtpState>(
       listenWhen: (previous, current) => previous.status != current.status,
@@ -106,9 +110,7 @@ class _OtpScreenState extends State<OtpScreen> {
                     const SizedBox(height: AppSpacing.sm),
                     Text(
                       AuthStrings.otpSubtitle,
-                      style: textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+                      style: textTheme.bodyMedium?.copyWith(color: mutedColor),
                     ),
                     const SizedBox(height: AppSpacing.xxxl),
                     Center(
@@ -127,9 +129,7 @@ class _OtpScreenState extends State<OtpScreen> {
                             : '${AuthStrings.codeExpiresIn} '
                                   '${_formatRemaining(state.remaining)}',
                         style: textTheme.bodyMedium?.copyWith(
-                          color: state.isExpired
-                              ? errorColor
-                              : Colors.grey[600],
+                          color: state.isExpired ? errorColor : mutedColor,
                         ),
                       ),
                     ),
