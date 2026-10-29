@@ -69,20 +69,25 @@ class _LoginScreenState extends State<LoginScreen> {
           body: SafeArea(
             child: Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(AppSpacing.xxl),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xxl,
+                  vertical: AppSpacing.lg,
+                ),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         AuthStrings.forBusiness,
                         style: textTheme.bodySmall?.copyWith(
                           color: primary,
                           fontWeight: FontWeight.w700,
+                          letterSpacing: 1.2,
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.sm),
+                      const SizedBox(height: AppSpacing.xs),
                       Text(
                         AuthStrings.welcomeBack,
                         style: textTheme.headlineMedium,
@@ -90,7 +95,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: AppSpacing.xs),
                       Text(
                         AuthStrings.loginSubtitle,
-                        style: textTheme.bodyMedium,
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.xxxl),
                       AppTextField(
@@ -127,6 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Center(
                         child: Wrap(
                           crossAxisAlignment: WrapCrossAlignment.center,
+                          alignment: WrapAlignment.center,
                           children: [
                             Text(
                               AuthStrings.newMerchant,
@@ -136,8 +144,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               onPressed: isLoading
                                   ? null
                                   : widget.onRegisterTap,
-                              child: const Text(
+                              child: Text(
                                 AuthStrings.createMerchantAccount,
+                                style: TextStyle(
+                                  color: primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ],

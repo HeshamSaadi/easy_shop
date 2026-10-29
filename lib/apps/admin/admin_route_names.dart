@@ -12,6 +12,7 @@ abstract final class AdminRouteNames {
   static const orders = 'orders';
   static const orderDetails = 'orderDetails';
   static const profile = 'profile';
+  static const profileEdit = 'profileEdit';
 }
 
 abstract final class AdminRoutePaths {

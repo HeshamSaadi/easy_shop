@@ -85,12 +85,15 @@ class RegisterScreen extends StatelessWidget {
             ),
             body: SafeArea(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(AppSpacing.xxl),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xxl,
+                  vertical: AppSpacing.lg,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: AppSpacing.xxl,
                   children: [
                     RegisterStepHeader(step: state.step),
+                    const SizedBox(height: AppSpacing.xxl),
                     _buildStep(state.step),
                   ],
                 ),

@@ -76,6 +76,7 @@ class _OtpScreenState extends State<OtpScreen> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final errorColor = Theme.of(context).colorScheme.error;
+    final mutedColor = Theme.of(context).colorScheme.onSurfaceVariant;
 
     return BlocConsumer<OtpCubit, OtpState>(
       listenWhen: (previous, current) => previous.status != current.status,
@@ -90,52 +91,63 @@ class _OtpScreenState extends State<OtpScreen> {
             showBack: true,
           ),
           body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.xxl),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AuthStrings.checkYourEmail,
-                    style: textTheme.headlineMedium,
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(AuthStrings.otpSubtitle, style: textTheme.bodyMedium),
-                  const SizedBox(height: AppSpacing.xxxl),
-                  OtpInput(
-                    key: _inputKey,
-                    length: _otpLength,
-                    onChanged: (value) => setState(() => _code = value),
-                    onCompleted: (_) => _submit(),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  Center(
-                    child: Text(
-                      state.isExpired
-                          ? AuthStrings.codeExpired
-                          : '${AuthStrings.codeExpiresIn} '
-                                '${_formatRemaining(state.remaining)}',
-                      style: textTheme.bodyMedium?.copyWith(
-                        color: state.isExpired ? errorColor : null,
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xxl,
+                  vertical: AppSpacing.lg,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      AuthStrings.checkYourEmail,
+                      style: textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      AuthStrings.otpSubtitle,
+                      style: textTheme.bodyMedium?.copyWith(color: mutedColor),
+                    ),
+                    const SizedBox(height: AppSpacing.xxxl),
+                    Center(
+                      child: OtpInput(
+                        key: _inputKey,
+                        length: _otpLength,
+                        onChanged: (value) => setState(() => _code = value),
+                        onCompleted: (_) => _submit(),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.xxl),
-                  AppButton(
-                    text: AuthStrings.verify,
-                    isLoading: state.status == OtpStatus.verifying,
-                    onPressed: canVerify ? _submit : null,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  AppButton(
-                    text: AuthStrings.resendCode,
-                    isOutlined: true,
-                    isLoading: state.status == OtpStatus.resending,
-                    onPressed: state.isBusy
-                        ? null
-                        : () => context.read<OtpCubit>().resend(),
-                  ),
-                ],
+                    const SizedBox(height: AppSpacing.lg),
+                    Center(
+                      child: Text(
+                        state.isExpired
+                            ? AuthStrings.codeExpired
+                            : '${AuthStrings.codeExpiresIn} '
+                                  '${_formatRemaining(state.remaining)}',
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: state.isExpired ? errorColor : mutedColor,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xxl),
+                    AppButton(
+                      text: AuthStrings.verify,
+                      isLoading: state.status == OtpStatus.verifying,
+                      onPressed: canVerify ? _submit : null,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    AppButton(
+                      text: AuthStrings.resendCode,
+                      isOutlined: true,
+                      isLoading: state.status == OtpStatus.resending,
+                      onPressed: state.isBusy
+                          ? null
+                          : () => context.read<OtpCubit>().resend(),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
