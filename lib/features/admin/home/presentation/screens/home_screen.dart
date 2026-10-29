@@ -4,6 +4,7 @@ import 'package:easy_shop/core/utils/price_formatter.dart';
 import 'package:easy_shop/core/widgets/app_error.dart';
 import 'package:easy_shop/core/widgets/app_icon_badge.dart';
 import 'package:easy_shop/core/widgets/app_loading.dart';
+import 'package:easy_shop/core/widgets/app_network_image.dart';
 import 'package:easy_shop/core/widgets/app_status_label.dart';
 import 'package:easy_shop/features/admin/home/domain/entities/dashboard_stats.dart';
 import 'package:easy_shop/features/admin/home/presentation/constants/home_strings.dart';
@@ -14,7 +15,6 @@ import 'package:easy_shop/features/admin/home/presentation/widgets/home_list_ite
 import 'package:easy_shop/features/admin/home/presentation/widgets/home_section.dart';
 import 'package:easy_shop/features/admin/home/presentation/widgets/quick_actions.dart';
 import 'package:easy_shop/features/admin/home/presentation/widgets/stats_grid.dart';
-import 'package:easy_shop/core/widgets/app_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

@@ -1,9 +1,9 @@
 import 'package:easy_shop/core/theme/app_spacing.dart';
+import 'package:easy_shop/core/widgets/app_avatar.dart';
 import 'package:easy_shop/features/admin/home/presentation/constants/home_strings.dart';
 import 'package:flutter/material.dart';
-import 'package:easy_shop/core/widgets/app_avatar.dart';
 
-/// The orange header
+/// The orange header with the greeting, the admin name and the store name.
 class GreetingHeader extends StatelessWidget {
   const GreetingHeader({super.key, this.adminName, this.storeName});
 
@@ -12,6 +12,7 @@ class GreetingHeader extends StatelessWidget {
 
   /// How far the stats card rises into the orange header.
   static const double overlap = AppSpacing.xxxl * 4;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
