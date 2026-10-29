@@ -38,9 +38,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final isValid = _formKey.currentState?.validate() ?? false;
     if (!isValid) return;
     context.read<LoginCubit>().login(
-          email: _emailController.text,
-          password: _passwordController.text,
-        );
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
   }
 
   void _onStateChanged(BuildContext context, LoginState state) {

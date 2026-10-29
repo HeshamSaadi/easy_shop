@@ -92,3 +92,6 @@ Font family: Flutter default (not set yet).
 | `buttonHeight` | 52 | All main buttons |
 | `loaderSm` | 20 | Loader inside a button |
 | `loaderStroke` | 2 | Loader line width |
+| `avatarMd` | 60 | Avatar in the Home header |
+| `avatarLg` | 96 | Large avatar (profile) |
+| `statusDot` | 6 | Dot inside the status pill |

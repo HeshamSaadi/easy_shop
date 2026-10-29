@@ -125,9 +125,11 @@ class _OtpScreenState extends State<OtpScreen> {
                         state.isExpired
                             ? AuthStrings.codeExpired
                             : '${AuthStrings.codeExpiresIn} '
-                                '${_formatRemaining(state.remaining)}',
+                                  '${_formatRemaining(state.remaining)}',
                         style: textTheme.bodyMedium?.copyWith(
-                          color: state.isExpired ? errorColor : Colors.grey[600],
+                          color: state.isExpired
+                              ? errorColor
+                              : Colors.grey[600],
                         ),
                       ),
                     ),

@@ -18,9 +18,9 @@ class ProfileHeader extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: ProfileSizes.avatarRadius,
-          backgroundColor: primary.withOpacity(0.1),
+          backgroundColor: primary..withValues(alpha: 0.1),
           foregroundImage: pictureUrl.isEmpty ? null : NetworkImage(pictureUrl),
-          onForegroundImageError: (_, __) {},
+          onForegroundImageError: (_, _) {},
           child: Icon(
             Icons.person_outline,
             size: ProfileSizes.avatarRadius,
@@ -45,9 +45,7 @@ class ProfileHeader extends StatelessWidget {
         const SizedBox(height: AppSpacing.xs),
         Text(
           profile.email,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: Colors.grey[500],
-          ),
+          style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),
         ),
         const SizedBox(height: AppSpacing.md),
         OutlinedButton(
