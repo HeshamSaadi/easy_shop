@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:easy_shop/core/errors/failure.dart';
+import 'package:easy_shop/features/admin/products/domain/entities/product_category_entity.dart';
 import 'package:easy_shop/features/admin/products/domain/entities/product_entity.dart';
 import 'package:easy_shop/features/admin/products/domain/params/product_params.dart';
 import 'package:easy_shop/features/admin/products/domain/repositories/products_repository.dart';
@@ -53,16 +54,21 @@ class FakeProductsRepository implements ProductsRepository {
   }
 }
 
-ProductEntity buildProduct({String slug = 'smart-watch'}) {
+ProductEntity buildProduct({
+  String slug = 'smart-watch',
+  String name = 'Smart Watch',
+  ProductCategoryEntity? category,
+}) {
   return ProductEntity(
     id: 9,
-    name: 'Smart Watch',
+    name: name,
     slug: slug,
     price: 150,
     quantity: 10,
     categoryId: 2,
     isVisible: true,
     imageUrl: 'https://example.com/watch.png',
+    category: category,
   );
 }
 
