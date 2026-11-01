@@ -50,7 +50,10 @@ void main() {
       final result = await GetCategories(repository)();
 
       expect(result.isLeft(), true);
-      result.fold((f) => expect(f.message, 'No internet'), (_) => fail('x'));
+      result.fold(
+        (f) => expect(f.message, 'No internet'),
+        (_) => fail('Expected a failure'),
+      );
     });
   });
 

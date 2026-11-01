@@ -90,8 +90,11 @@ void main() {
       expect(Validators.egyptianPhone('+20 101 234 5678'), isNull);
     });
 
+    test('accepts a leading 0 after the +20 prefix', () {
+      expect(Validators.egyptianPhone('01012345678'), isNull);
+    });
+
     test('rejects other formats', () {
-      expect(Validators.egyptianPhone('01012345678'), isNotNull);
       expect(Validators.egyptianPhone('+20101234567'), isNotNull);
       expect(Validators.egyptianPhone(''), isNotNull);
     });

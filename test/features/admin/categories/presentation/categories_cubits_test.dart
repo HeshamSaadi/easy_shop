@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:easy_shop/core/errors/failure.dart';
 import 'package:easy_shop/features/admin/categories/domain/entities/category_entity.dart';
@@ -16,6 +18,20 @@ import '../helpers/fake_category_repository.dart';
 
 const _shoes = CategoryEntity(id: 1, name: 'Shoes', slug: 'shoes');
 const _bags = CategoryEntity(id: 2, name: 'Bags', slug: 'bags');
+
+/// Holds the "add" request open until [gate] completes, to test double taps.
+class _PausedCategoryRepository extends FakeCategoryRepository {
+  final Completer<void> gate = Completer<void>();
+
+  @override
+  Future<Either<Failure, Unit>> addCategory({
+    required String name,
+    String? description,
+  }) async {
+    await gate.future;
+    return super.addCategory(name: name, description: description);
+  }
+}
 
 /// Runs [action] and returns every state the cubit emitted meanwhile.
 Future<List<S>> _collect<S>(
@@ -183,5 +199,24 @@ void main() {
       expect(states.last, isA<CategoryFormFailure>());
       expect((states.last as CategoryFormFailure).message, 'Name is taken');
     });
+
+    test(
+      'submit ignores a second tap while the first one is running',
+      () async {
+        final paused = _PausedCategoryRepository();
+        final cubit = CategoryFormCubit(
+          addCategory: AddCategory(paused),
+          updateCategory: UpdateCategory(paused),
+        );
+
+        final first = cubit.submit(name: 'Shoes');
+        await cubit.submit(name: 'Shoes'); // ignored: state is Submitting
+        paused.gate.complete();
+        await first;
+
+        expect(paused.calls, ['add:Shoes:']);
+        expect(cubit.state, isA<CategoryFormSuccess>());
+      },
+    );
   });
 }
