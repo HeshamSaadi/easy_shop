@@ -1,15 +1,14 @@
+import 'package:easy_shop/core/theme/app_opacity.dart';
 import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_sizes.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
 
-/// Small status pill with a colored dot
 class AppStatusLabel extends StatelessWidget {
   const AppStatusLabel({super.key, required this.text, this.color});
 
   final String text;
 
-  /// Falls back to the secondary text color of the theme.
   final Color? color;
 
   @override
@@ -19,7 +18,7 @@ class AppStatusLabel extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: tint.withValues(alpha: 0.12),
+        color: tint.withValues(alpha: AppOpacity.tint),
         borderRadius: BorderRadius.circular(AppRadius.full),
       ),
       child: Padding(
