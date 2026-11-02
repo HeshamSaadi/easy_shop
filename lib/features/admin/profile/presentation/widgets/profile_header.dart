@@ -1,3 +1,4 @@
+import 'package:easy_shop/core/theme/app_opacity.dart';
 import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_sizes.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
@@ -21,7 +22,7 @@ class ProfileHeader extends StatelessWidget {
       children: [
         AppAvatar(
           imageUrl: pictureUrl.isEmpty ? null : pictureUrl,
-          backgroundColor: primary.withValues(alpha: 0.1),
+          backgroundColor: primary.withValues(alpha: AppOpacity.tint),
           iconColor: primary,
           size: AppSizes.avatarLg,
         ),

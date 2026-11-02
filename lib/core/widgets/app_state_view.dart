@@ -22,7 +22,8 @@ class AppStateView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final hasAction = actionText != null && onAction != null;
+    final actionLabel = actionText;
+    final onActionPressed = onAction;
 
     return Center(
       child: SingleChildScrollView(
@@ -37,9 +38,9 @@ class AppStateView extends StatelessWidget {
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyLarge,
             ),
-            if (hasAction) ...[
+            if (actionLabel != null && onActionPressed != null) ...[
               const SizedBox(height: AppSpacing.xxl),
-              AppButton(text: actionText!, onPressed: onAction),
+              AppButton(text: actionLabel, onPressed: onActionPressed),
             ],
           ],
         ),

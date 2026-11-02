@@ -19,6 +19,7 @@ class QuickActions extends StatelessWidget {
     final theme = Theme.of(context);
     final primary = theme.colorScheme.primary;
 
+    // IntrinsicHeight keeps both buttons the same height if a label wraps.
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,

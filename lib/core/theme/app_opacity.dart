@@ -7,4 +7,5 @@ class AppOpacity {
   static const double overlay = 0.2;
   static const double outline = 0.3;
   static const double fadedText = 0.85;
+  static const double scrim = 0.6;
 }

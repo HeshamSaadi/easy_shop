@@ -1,6 +1,6 @@
-import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_sizes.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
+import 'package:easy_shop/core/widgets/app_card.dart';
 import 'package:easy_shop/core/widgets/app_icon_badge.dart';
 import 'package:easy_shop/features/admin/categories/domain/entities/category_entity.dart';
 import 'package:easy_shop/features/admin/categories/presentation/constants/categories_strings.dart';
@@ -25,13 +25,7 @@ class CategoryTile extends StatelessWidget {
     final theme = Theme.of(context);
     final description = category.description;
 
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: theme.dividerColor),
-      ),
+    return AppCard(
       child: Row(
         children: [
           const AppIconBadge(icon: Icons.sell_outlined),
