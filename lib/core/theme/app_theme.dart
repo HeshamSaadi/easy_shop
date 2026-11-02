@@ -18,5 +18,5 @@ class AppTheme {
     return AppDarkTheme.theme;
   }
 
-  static const ThemeMode defaultMode = ThemeMode.light;
+  static const ThemeMode defaultMode = ThemeMode.system;
 }
