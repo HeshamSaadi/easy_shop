@@ -45,6 +45,6 @@ class AppColors {
 
   // Information Colors
   static const Color info = Color(0xFF155DFC);
-  static const Color infoBackground = Color(0xFFEFF6FF);
+  static const Color infoBackground = Color(0xFFDBEAFE);
   static const Color darkInfoBackground = Color(0xFF1B2D4A);
 }

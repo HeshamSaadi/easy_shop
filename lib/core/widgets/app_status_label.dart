@@ -1,3 +1,4 @@
+import 'package:easy_shop/core/theme/app_opacity.dart';
 import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_sizes.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
@@ -19,7 +20,7 @@ class AppStatusLabel extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: tint.withValues(alpha: 0.12),
+        color: tint.withValues(alpha: AppOpacity.tint),
         borderRadius: BorderRadius.circular(AppRadius.full),
       ),
       child: Padding(

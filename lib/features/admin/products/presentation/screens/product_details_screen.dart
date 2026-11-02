@@ -1,3 +1,4 @@
+import 'package:easy_shop/core/theme/app_opacity.dart';
 import 'package:easy_shop/core/widgets/app_error.dart';
 import 'package:easy_shop/core/widgets/app_loading.dart';
 import 'package:easy_shop/core/widgets/app_top_bar.dart';
@@ -39,8 +40,6 @@ class _ProductDetailsView extends StatelessWidget {
   const _ProductDetailsView({required this.onEdit});
 
   final OpenProductEditForm onEdit;
-
-  static const double _overlayAlpha = 0.6;
 
   Future<void> _edit(BuildContext context, ProductEntity product) async {
     final navigator = Navigator.of(context);
@@ -115,7 +114,7 @@ class _ProductDetailsView extends StatelessWidget {
                     Positioned.fill(
                       child: ColoredBox(
                         color: Theme.of(context).colorScheme.surface
-                            .withValues(alpha: _overlayAlpha),
+                            .withValues(alpha: AppOpacity.scrim),
                         child: const AppLoading(),
                       ),
                     ),

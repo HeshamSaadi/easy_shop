@@ -1,3 +1,4 @@
+import 'package:easy_shop/core/theme/app_opacity.dart';
 import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_sizes.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,7 @@ class AppIconBadge extends StatelessWidget {
       dimension: size,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: primary.withValues(alpha: 0.08),
+          color: primary.withValues(alpha: AppOpacity.soft),
           borderRadius: BorderRadius.circular(AppRadius.md),
         ),
         child: Center(
