@@ -74,32 +74,70 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Form(
                   key: _formKey,
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        AuthStrings.forBusiness,
-                        style: textTheme.bodySmall?.copyWith(
-                          color: primary,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.2,
+                      // Logo Container matching the design
+                      Center(
+                        child: Container(
+                          width: 72,
+                          height: 72,
+                          decoration: BoxDecoration(
+                            color: primary.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(AppSpacing.lg),
+                          ),
+                          child: Icon(
+                            Icons.storefront_rounded,
+                            size: 36,
+                            color: primary,
+                          ),
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.xs),
+                      const SizedBox(height: AppSpacing.xxl),
+                      
+                      // Welcome Back Title
                       Text(
                         AuthStrings.welcomeBack,
                         style: textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: AppSpacing.xs),
+                      
+                      // Subtitle
                       Text(
                         AuthStrings.loginSubtitle,
                         style: textTheme.bodyMedium?.copyWith(
                           color: Colors.grey[600],
                         ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      
+                      // For Business Badge
+                      Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.lg,
+                            vertical: AppSpacing.xs,
+                          ),
+                          decoration: BoxDecoration(
+                            color: primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(AppSpacing.xxl),
+                          ),
+                          child: Text(
+                            AuthStrings.forBusiness,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: primary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.xxxl),
+
+                      // Email Field
                       AppTextField(
                         label: AuthStrings.emailLabel,
                         hint: AuthStrings.emailHint,
@@ -110,6 +148,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         enabled: !isLoading,
                       ),
                       const SizedBox(height: AppSpacing.lg),
+
+                      // Password Field
                       AppTextField(
                         label: AuthStrings.passwordLabel,
                         hint: AuthStrings.passwordHint,
@@ -123,12 +163,16 @@ class _LoginScreenState extends State<LoginScreen> {
                         enabled: !isLoading,
                       ),
                       const SizedBox(height: AppSpacing.xxl),
+
+                      // Sign In Button
                       AppButton(
                         text: AuthStrings.signIn,
                         isLoading: isLoading,
                         onPressed: _submit,
                       ),
                       const SizedBox(height: AppSpacing.lg),
+
+                      // Register Navigation
                       Center(
                         child: Wrap(
                           crossAxisAlignment: WrapCrossAlignment.center,

@@ -23,6 +23,7 @@ class _OtpScreenState extends State<OtpScreen> {
 
   String _code = '';
 
+  // A new key rebuilds OtpInput, which clears its boxes.
   Key _inputKey = UniqueKey();
 
   void _submit() {
@@ -72,6 +73,7 @@ class _OtpScreenState extends State<OtpScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final primary = Theme.of(context).colorScheme.primary;
     final errorColor = Theme.of(context).colorScheme.error;
 
     return BlocConsumer<OtpCubit, OtpState>(
@@ -94,23 +96,44 @@ class _OtpScreenState extends State<OtpScreen> {
                   vertical: AppSpacing.lg,
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Center(
+                      child: Container(
+                        width: 72,
+                        height: 72,
+                        decoration: BoxDecoration(
+                          color: primary.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(AppSpacing.lg),
+                        ),
+                        child: Icon(
+                          Icons.mark_email_unread_outlined,
+                          size: 36,
+                          color: primary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xxl),
+
                     Text(
                       AuthStrings.checkYourEmail,
                       style: textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppSpacing.sm),
+
                     Text(
                       AuthStrings.otpSubtitle,
                       style: textTheme.bodyMedium?.copyWith(
                         color: Colors.grey[600],
                       ),
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppSpacing.xxxl),
+
                     Center(
                       child: OtpInput(
                         key: _inputKey,
@@ -120,27 +143,51 @@ class _OtpScreenState extends State<OtpScreen> {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.lg),
+
                     Center(
-                      child: Text(
-                        state.isExpired
-                            ? AuthStrings.codeExpired
-                            : '${AuthStrings.codeExpiresIn} '
-                                '${_formatRemaining(state.remaining)}',
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: state.isExpired ? errorColor : Colors.grey[600],
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (!state.isExpired)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                right: AppSpacing.xs,
+                              ),
+                              child: Icon(
+                                Icons.access_time_rounded,
+                                size: 16,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          Text(
+                            state.isExpired
+                                ? AuthStrings.codeExpired
+                                : '${AuthStrings.codeExpiresIn} '
+                                      '${_formatRemaining(state.remaining)}',
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: state.isExpired
+                                  ? errorColor
+                                  : Colors.grey[600],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: AppSpacing.xxl),
+
+                    // Verify Button
                     AppButton(
                       text: AuthStrings.verify,
                       isLoading: state.status == OtpStatus.verifying,
                       onPressed: canVerify ? _submit : null,
                     ),
                     const SizedBox(height: AppSpacing.md),
+
+                    // Resend Code Button with icon matching design
                     AppButton(
                       text: AuthStrings.resendCode,
                       isOutlined: true,
+                      icon: Icons.refresh_rounded,
                       isLoading: state.status == OtpStatus.resending,
                       onPressed: state.isBusy
                           ? null

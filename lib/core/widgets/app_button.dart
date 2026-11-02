@@ -1,6 +1,6 @@
 import 'package:easy_shop/core/theme/app_sizes.dart';
-import 'package:flutter/material.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
+import 'package:flutter/material.dart';
 
 /// Main button used across both apps.
 /// Shows a loader and blocks taps while [isLoading] is true.
@@ -30,8 +30,24 @@ class AppButton extends StatelessWidget {
       width: double.infinity,
       height: AppSizes.buttonHeight,
       child: isOutlined
-          ? OutlinedButton(onPressed: action, child: child)
-          : ElevatedButton(onPressed: action, child: child),
+          ? OutlinedButton(
+              onPressed: action,
+              style: OutlinedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: child,
+            )
+          : ElevatedButton(
+              onPressed: action,
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: child,
+            ),
     );
   }
 
