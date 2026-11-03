@@ -11,7 +11,7 @@ Design: [Figma file](https://www.figma.com/design/7mTJfdcUlavMtVHAB05a8K/Easy-Sh
 
 | App | State |
 |---|---|
-| Admin | Auth (register, login, OTP, session restore, logout) and profile are done. **Update this row** with the final state of home, categories, products and orders before submission. |
+| Admin | Auth (register, login, OTP, session restore, logout) and profile: done. Home, categories, products and orders: TODO-STATUS |
 | Client | Not implemented yet. The entry point (`lib/main_client.dart`) and the `client` flavor exist. |
 
 ## Admin app features
@@ -40,7 +40,7 @@ Design: [Figma file](https://www.figma.com/design/7mTJfdcUlavMtVHAB05a8K/Easy-Sh
 | Maps and location | `flutter_map`, `latlong2`, `geolocator`, `geocoding` |
 | Files and images | `file_picker`, `image_picker` |
 | Formatting | `intl` |
-| Tests | `flutter_test`, `bloc_test`, `mocktail` |
+| Tests | `flutter_test`, `bloc_test`, `mocktail`, `fake_async` |
 
 Built with Flutter 3.47.7 and Dart 3.13.5.
 
@@ -121,7 +121,7 @@ flutter test
 flutter test --coverage
 ```
 
-Tests live under `test/` and mirror the structure of `lib/`. They cover the form validators, the API error parsing, and the admin auth feature (use cases, repository, data source and Cubits).
+Tests live under `test/` and mirror the structure of `lib/`. They cover the form validators, the phone and JWT helpers, the API error parsing, the admin auth feature (use cases, repository, data source and Cubits), and parts of location, orders and products.
 
 ## Code quality and Git
 
@@ -139,13 +139,12 @@ Branches: `main` (always runs), `develop` (integration) and short `feature/*` or
 - Order status is read-only in the Admin app, because the API has no endpoint to change it.
 - Categories are shared by all admins. The app does not stop an admin from editing a category created by someone else.
 - The API is not paginated, so lists are loaded in full.
-- The server does not read form-data sent with a real `PUT`. Updates with files send a `POST` with the field `_method=PUT` instead.
+- The server does not read form-data sent with a real `PUT` (profile and product updates). The app sends a `POST` with the field `_method=PUT` instead.
 - The base URL and API key are read from `.env`, which is bundled with the app as an asset. They are not in Git, but they are inside the built APK. This is acceptable for a training project; a production app would call a backend instead.
 - Client app: not implemented yet.
-- Add here any other incomplete feature or broken endpoint.
 
 ## Team
 
-- ADD-NAME: core network, admin shell, auth, profile
-- ADD-NAME: core UI, categories, home dashboard
-- ADD-NAME: setup, flavors, CI, location, products, orders
+- TODO-NAME: core network, admin shell, auth, profile
+- TODO-NAME: core UI, categories, home dashboard
+- TODO-NAME: setup, flavors, CI, location, products, orders
