@@ -3,10 +3,15 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // Brand Colors: shared between Light and Dark modes
+  // Brand Colors: Admin App
   static const Color primary = Color(0xFFF5821F);
   static const Color primaryLight = Color(0xFFF6BD8D);
   static const Color primarySoft = Color(0xFFFFF4EC);
+
+  // Brand Colors: Client App
+  static const Color clientPrimary = Color(0xFFFF6900);
+  static const Color clientPrimaryLight = Color(0xFFFFB580);
+  static const Color clientPrimarySoft = Color(0xFFFFF0E6);
 
   // Light Mode: backgrounds and surfaces
   static const Color background = Color(0xFFF7F8FA);

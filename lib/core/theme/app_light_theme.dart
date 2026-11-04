@@ -6,9 +6,18 @@ import 'package:flutter/material.dart';
 
 class AppLightTheme {
   AppLightTheme._();
+
   static ThemeData get theme {
+    return _buildTheme(AppColors.primary);
+  }
+
+  static ThemeData themeWithPrimary(Color primaryColor) {
+    return _buildTheme(primaryColor);
+  }
+
+  static ThemeData _buildTheme(Color primaryColor) {
     final colorScheme = ColorScheme.light(
-      primary: AppColors.primary,
+      primary: primaryColor,
       onPrimary: Colors.white,
       secondary: AppColors.primaryLight,
       onSecondary: AppColors.textPrimary,
@@ -70,7 +79,7 @@ class AppLightTheme {
 
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+          borderSide: BorderSide(color: primaryColor, width: 1.5),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
@@ -81,7 +90,7 @@ class AppLightTheme {
       // Elevated Button
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor: primaryColor,
           foregroundColor: Colors.white,
           disabledBackgroundColor: AppColors.primaryLight,
           disabledForegroundColor: Colors.white,
@@ -113,9 +122,9 @@ class AppLightTheme {
       ),
 
       // bottom Navigation
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: AppColors.surface,
-        selectedItemColor: AppColors.primary,
+        selectedItemColor: primaryColor,
         unselectedItemColor: AppColors.textSecondary,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
