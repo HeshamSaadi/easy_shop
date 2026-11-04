@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:easy_shop/core/errors/error_messages.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:easy_shop/core/utils/validators.dart';
@@ -23,7 +21,7 @@ class RegisterScreen extends StatefulWidget {
 
   final ValueChanged<String> onRegistered;
   final VoidCallback onLoginTap;
-  final Future<File?> Function() pickPicture;
+  final Future<String?> Function() pickPicture;
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -50,9 +48,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _pickPicture() async {
-    final file = await widget.pickPicture();
-    if (file != null) {
-      setState(() => _picturePath = file.path);
+    final path = await widget.pickPicture();
+    if (path != null) {
+      setState(() => _picturePath = path);
       if (mounted) {
         context.read<RegisterCubit>().clearFieldError('picture');
       }
@@ -135,7 +133,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       textInputAction: TextInputAction.next,
                       enabled: !isLoading,
-                      errorText: state.fieldError('name'),
                       onChanged: (_) =>
                           context.read<RegisterCubit>().clearFieldError('name'),
                     ),
@@ -148,7 +145,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
                       enabled: !isLoading,
-                      errorText: state.fieldError('email'),
                       onChanged: (_) => context
                           .read<RegisterCubit>()
                           .clearFieldError('email'),
@@ -158,11 +154,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       label: AuthStrings.phoneNumber,
                       hint: AuthStrings.phoneHint,
                       controller: _phoneController,
-                      validator: Validators.phoneNumber,
+                      validator: Validators.phone,
                       keyboardType: TextInputType.phone,
                       textInputAction: TextInputAction.next,
                       enabled: !isLoading,
-                      errorText: state.fieldError('phone'),
                       onChanged: (_) => context
                           .read<RegisterCubit>()
                           .clearFieldError('phone'),
@@ -176,7 +171,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       isPassword: true,
                       textInputAction: TextInputAction.next,
                       enabled: !isLoading,
-                      errorText: state.fieldError('password'),
                       onChanged: (_) => context
                           .read<RegisterCubit>()
                           .clearFieldError('password'),
@@ -186,14 +180,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       label: AuthStrings.confirmPassword,
                       hint: AuthStrings.repeatPasswordHint,
                       controller: _confirmPasswordController,
-                      validator: (value) => Validators.passwordConfirmation(
+                      validator: (value) => Validators.confirmPassword(
                         value,
                         _passwordController.text,
                       ),
                       isPassword: true,
                       textInputAction: TextInputAction.done,
                       enabled: !isLoading,
-                      errorText: state.fieldError('password_confirmation'),
                       onChanged: (_) => context
                           .read<RegisterCubit>()
                           .clearFieldError('password_confirmation'),
