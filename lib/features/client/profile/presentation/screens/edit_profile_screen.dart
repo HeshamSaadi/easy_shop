@@ -1,6 +1,8 @@
 import 'package:easy_shop/core/errors/error_messages.dart';
+import 'package:easy_shop/core/theme/app_colors.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:easy_shop/core/utils/validators.dart';
+import 'package:easy_shop/core/widgets/app_avatar.dart';
 import 'package:easy_shop/core/widgets/app_button.dart';
 import 'package:easy_shop/core/widgets/app_text_field.dart';
 import 'package:easy_shop/core/widgets/app_top_bar.dart';
@@ -109,8 +111,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
-
     return BlocConsumer<ProfileCubit, ProfileState>(
       listenWhen: (previous, current) =>
           previous.runtimeType != current.runtimeType,
@@ -119,58 +119,54 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         final isLoading = state is ProfileUpdating;
 
         return Scaffold(
+          backgroundColor: AppColors.background,
           appBar: const AppTopBar(
             title: ProfileStrings.editProfileTitle,
             showBack: true,
           ),
           body: SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.lg),
+              padding: const EdgeInsets.all(AppSpacing.xxl),
               child: Form(
                 key: _formKey,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     // Profile Picture Section
-                    Center(
-                      child: Stack(
-                        children: [
-                          CircleAvatar(
-                            radius: 50,
-                            backgroundColor: primary.withValues(alpha: 0.1),
-                            backgroundImage: _picturePath != null
-                                ? NetworkImage(_picturePath!)
-                                : (widget.client.pictureUrl != null
-                                      ? NetworkImage(widget.client.pictureUrl!)
-                                      : null),
-                            child:
-                                (_picturePath == null &&
-                                    widget.client.pictureUrl == null)
-                                ? Icon(Icons.person, size: 50, color: primary)
-                                : null,
+                    Stack(
+                      children: [
+                        AppAvatar(
+                          imageUrl: _picturePath ?? widget.client.pictureUrl,
+                          size: 96,
+                          backgroundColor: AppColors.clientPrimary.withValues(
+                            alpha: 0.1,
                           ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: CircleAvatar(
-                              radius: 18,
-                              backgroundColor: primary,
-                              child: IconButton(
-                                icon: const Icon(
-                                  Icons.camera_alt,
-                                  size: 18,
-                                  color: Colors.white,
-                                ),
-                                onPressed: isLoading ? null : _pickPicture,
-                                padding: EdgeInsets.zero,
+                          iconColor: AppColors.clientPrimary,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: GestureDetector(
+                            onTap: isLoading ? null : _pickPicture,
+                            child: Container(
+                              width: 32,
+                              height: 32,
+                              decoration: const BoxDecoration(
+                                color: AppColors.clientPrimary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                size: 18,
+                                color: Colors.white,
                               ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
 
-                    const SizedBox(height: AppSpacing.xxl),
+                    const SizedBox(height: AppSpacing.xxxl),
 
                     // Name Field
                     AppTextField(
@@ -224,6 +220,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       label: ProfileStrings.deliveryAddressLabel,
                       hint: ProfileStrings.enterAddress,
                       controller: _addressController,
+                      isOptional: true,
                       textInputAction: TextInputAction.done,
                       enabled: !isLoading,
                       maxLines: 3,
@@ -235,28 +232,34 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     const SizedBox(height: AppSpacing.sm),
 
                     // Location Picker Button (TODO)
-                    OutlinedButton.icon(
-                      onPressed: isLoading
-                          ? null
-                          : () {
-                              // TODO: Implement location picker
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    ProfileStrings.locationPickerComingSoon,
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: isLoading
+                            ? null
+                            : () {
+                                // TODO: Implement location picker
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      ProfileStrings.locationPickerComingSoon,
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                      icon: const Icon(Icons.location_on_outlined),
-                      label: Text(
-                        _latitude != null && _longitude != null
-                            ? ProfileStrings.locationSet
-                            : ProfileStrings.pickLocationOnMap,
+                                );
+                              },
+                        icon: Icon(
+                          Icons.location_on_outlined,
+                          color: AppColors.clientPrimary,
+                        ),
+                        label: Text(
+                          _latitude != null && _longitude != null
+                              ? ProfileStrings.locationSet
+                              : ProfileStrings.pickLocationOnMap,
+                        ),
                       ),
                     ),
 
-                    const SizedBox(height: AppSpacing.xxl),
+                    const SizedBox(height: AppSpacing.xxxl),
 
                     // Save Button
                     AppButton(

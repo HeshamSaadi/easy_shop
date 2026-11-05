@@ -1,3 +1,5 @@
+import 'package:easy_shop/core/theme/app_colors.dart';
+import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:easy_shop/core/utils/validators.dart';
 import 'package:easy_shop/core/widgets/app_button.dart';
@@ -58,7 +60,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final primary = Theme.of(context).colorScheme.primary;
 
     return BlocConsumer<LoginCubit, LoginState>(
       listener: _onStateChanged,
@@ -66,29 +67,50 @@ class _LoginScreenState extends State<LoginScreen> {
         final isLoading = state is LoginLoading;
 
         return Scaffold(
+          backgroundColor: AppColors.background,
           body: SafeArea(
             child: Center(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.xxl,
-                  vertical: AppSpacing.lg,
+                  vertical: AppSpacing.xxxl,
                 ),
                 child: Form(
                   key: _formKey,
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      // Logo
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: AppColors.clientPrimary,
+                          borderRadius: BorderRadius.circular(AppRadius.lg),
+                        ),
+                        child: const Icon(
+                          Icons.shopping_bag,
+                          size: 48,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xxl),
                       Text(
                         AuthStrings.welcomeBack,
-                        style: textTheme.headlineMedium,
+                        style: textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: AppSpacing.xs),
+                      const SizedBox(height: AppSpacing.sm),
                       Text(
                         AuthStrings.loginSubtitle,
                         style: textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          color: AppColors.textSecondary,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: AppSpacing.xxxl),
                       AppTextField(
@@ -127,7 +149,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             Text(
                               AuthStrings.newUser,
-                              style: textTheme.bodyMedium,
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
                             ),
                             TextButton(
                               onPressed: isLoading
@@ -135,8 +159,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   : widget.onRegisterTap,
                               child: Text(
                                 AuthStrings.createAccount,
-                                style: TextStyle(
-                                  color: primary,
+                                style: textTheme.bodyMedium?.copyWith(
+                                  color: AppColors.clientPrimary,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),

@@ -1,5 +1,9 @@
 import 'package:easy_shop/core/errors/error_messages.dart';
+import 'package:easy_shop/core/theme/app_colors.dart';
+import 'package:easy_shop/core/theme/app_radius.dart';
+import 'package:easy_shop/core/theme/app_sizes.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
+import 'package:easy_shop/core/widgets/app_avatar.dart';
 import 'package:easy_shop/features/client/profile/domain/entities/client_entity.dart';
 import 'package:easy_shop/features/client/profile/presentation/constants/profile_strings.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/profile_cubit.dart';
@@ -24,7 +28,11 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(ProfileStrings.profile)),
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text(ProfileStrings.profile),
+        centerTitle: true,
+      ),
       body: BlocBuilder<ProfileCubit, ProfileState>(
         builder: (context, state) {
           return switch (state) {
@@ -38,22 +46,32 @@ class ProfileScreen extends StatelessWidget {
             ) => _buildProfileContent(context, client),
             ProfileError(message: final message) ||
             ProfileUpdateError(message: final message) => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                  const SizedBox(height: AppSpacing.md),
-                  Text(
-                    message.isNotEmpty ? message : ErrorMessages.unknown,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  ElevatedButton.icon(
-                    onPressed: () => context.read<ProfileCubit>().loadProfile(),
-                    icon: const Icon(Icons.refresh),
-                    label: const Text(ProfileStrings.retry),
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.xxl),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: AppSizes.iconXl,
+                      color: AppColors.error,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    Text(
+                      message.isNotEmpty ? message : ErrorMessages.unknown,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge
+                          ?.copyWith(color: AppColors.textSecondary),
+                    ),
+                    const SizedBox(height: AppSpacing.xl),
+                    OutlinedButton.icon(
+                      onPressed: () =>
+                          context.read<ProfileCubit>().loadProfile(),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text(ProfileStrings.retry),
+                    ),
+                  ],
+                ),
               ),
             ),
           };
@@ -64,167 +82,97 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildProfileContent(BuildContext context, ClientEntity client) {
     final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
 
     return RefreshIndicator(
       onRefresh: () => context.read<ProfileCubit>().loadProfile(),
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: const EdgeInsets.all(AppSpacing.xxl),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Profile Header
-            _ProfileHeader(client: client),
-
-            const SizedBox(height: AppSpacing.xl),
-
-            // Personal Information Section
-            _InfoSection(
-              title: ProfileStrings.personalInformation,
-              icon: Icons.person_outline,
-              children: [
-                _InfoTile(
-                  icon: Icons.person,
-                  label: ProfileStrings.name,
-                  value: client.name,
-                ),
-                _InfoTile(
-                  icon: Icons.email_outlined,
-                  label: ProfileStrings.email,
-                  value: client.email,
-                ),
-                _InfoTile(
-                  icon: Icons.phone_outlined,
-                  label: ProfileStrings.phone,
-                  value: client.phone,
-                ),
-              ],
+            // Profile Header with Avatar
+            AppAvatar(
+              imageUrl: client.pictureUrl,
+              size: AppSizes.avatarLg,
+              backgroundColor: AppColors.clientPrimary.withValues(alpha: 0.1),
+              iconColor: AppColors.clientPrimary,
             ),
-
             const SizedBox(height: AppSpacing.lg),
-
-            // Delivery Address Section
-            _InfoSection(
-              title: ProfileStrings.deliveryAddress,
-              icon: Icons.location_on_outlined,
-              children: [
-                if (client.address != null && client.address!.isNotEmpty)
-                  _InfoTile(
-                    icon: Icons.home_outlined,
-                    label: ProfileStrings.address,
-                    value: client.address!,
-                  )
-                else
-                  Padding(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    child: Text(
-                      ProfileStrings.noAddressSet,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-
-            const SizedBox(height: AppSpacing.lg),
-
-            // Quick Links
-            Card(
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.receipt_long_outlined),
-                    title: const Text(ProfileStrings.myOrders),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: onMyOrders,
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.favorite_outline),
-                    title: const Text(ProfileStrings.favorites),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: onFavorites,
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: AppSpacing.lg),
-
-            // Edit Profile Button
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: onEditProfile,
-                icon: const Icon(Icons.edit_outlined),
-                label: const Text(ProfileStrings.editProfile),
-              ),
-            ),
-
-            const SizedBox(height: AppSpacing.md),
-
-            // Logout Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: onLogout,
-                icon: const Icon(Icons.logout),
-                label: const Text(ProfileStrings.logout),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader({required this.client});
-
-  final ClientEntity client;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          children: [
-            // Profile Picture
-            CircleAvatar(
-              radius: 50,
-              backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
-              backgroundImage: client.pictureUrl != null
-                  ? NetworkImage(client.pictureUrl!)
-                  : null,
-              child: client.pictureUrl == null
-                  ? Icon(
-                      Icons.person,
-                      size: 50,
-                      color: theme.colorScheme.primary,
-                    )
-                  : null,
-            ),
-            const SizedBox(height: AppSpacing.md),
             Text(
               client.name,
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
+              style: textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(
               client.email,
-              style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey),
+              style: textTheme.bodyMedium?.copyWith(
+                color: AppColors.textSecondary,
+              ),
               textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: AppSpacing.xxxl),
+
+            // Information Cards
+            _InfoCard(
+              icon: Icons.phone_outlined,
+              label: ProfileStrings.phone,
+              value: client.phone,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            _InfoCard(
+              icon: Icons.location_on_outlined,
+              label: ProfileStrings.address,
+              value: client.address?.isNotEmpty == true
+                  ? client.address!
+                  : ProfileStrings.noAddressSet,
+              isEmpty: client.address?.isNotEmpty != true,
+            ),
+
+            const SizedBox(height: AppSpacing.xxxl),
+
+            // Action Buttons
+            _ActionButton(
+              icon: Icons.receipt_long_outlined,
+              label: ProfileStrings.myOrders,
+              onTap: onMyOrders,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            _ActionButton(
+              icon: Icons.favorite_outline,
+              label: ProfileStrings.favorites,
+              onTap: onFavorites,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            _ActionButton(
+              icon: Icons.edit_outlined,
+              label: ProfileStrings.editProfile,
+              onTap: onEditProfile,
+            ),
+
+            const SizedBox(height: AppSpacing.xxxl),
+
+            // Logout Button
+            SizedBox(
+              width: double.infinity,
+              height: AppSizes.buttonHeight,
+              child: OutlinedButton.icon(
+                onPressed: onLogout,
+                icon: const Icon(Icons.logout, color: AppColors.error),
+                label: Text(
+                  ProfileStrings.logout,
+                  style: textTheme.labelLarge?.copyWith(color: AppColors.error),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppColors.error),
+                ),
+              ),
             ),
           ],
         ),
@@ -233,71 +181,46 @@ class _ProfileHeader extends StatelessWidget {
   }
 }
 
-class _InfoSection extends StatelessWidget {
-  const _InfoSection({
-    required this.title,
-    required this.icon,
-    required this.children,
-  });
-
-  final String title;
-  final IconData icon;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Row(
-              children: [
-                Icon(icon, color: theme.colorScheme.primary),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 1),
-          ...children,
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoTile extends StatelessWidget {
-  const _InfoTile({
+class _InfoCard extends StatelessWidget {
+  const _InfoCard({
     required this.icon,
     required this.label,
     required this.value,
+    this.isEmpty = false,
   });
 
   final IconData icon;
   final String label;
   final String value;
+  final bool isEmpty;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final textTheme = Theme.of(context).textTheme;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppColors.border),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: Colors.grey),
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.clientPrimary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+            ),
+            child: Icon(
+              icon,
+              size: AppSizes.iconMd,
+              color: AppColors.clientPrimary,
+            ),
+          ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
@@ -305,21 +228,81 @@ class _InfoTile extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.grey,
+                  style: textTheme.bodySmall?.copyWith(
+                    color: AppColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
+                  style: textTheme.bodyLarge?.copyWith(
+                    color: isEmpty
+                        ? AppColors.textSecondary
+                        : AppColors.textPrimary,
+                    fontWeight: isEmpty ? FontWeight.w400 : FontWeight.w600,
                   ),
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Material(
+      color: AppColors.surface,
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.lg,
+          ),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.border),
+            borderRadius: BorderRadius.circular(AppRadius.md),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, size: AppSizes.iconMd, color: AppColors.clientPrimary),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Text(
+                  label,
+                  style: textTheme.bodyLarge?.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right,
+                size: AppSizes.iconMd,
+                color: AppColors.textSecondary,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

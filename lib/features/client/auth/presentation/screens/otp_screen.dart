@@ -1,4 +1,5 @@
 import 'package:easy_shop/core/errors/error_messages.dart';
+import 'package:easy_shop/core/theme/app_colors.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:easy_shop/core/widgets/app_button.dart';
 import 'package:easy_shop/core/widgets/app_top_bar.dart';
@@ -75,8 +76,6 @@ class _OtpScreenState extends State<OtpScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final errorColor = Theme.of(context).colorScheme.error;
-    final mutedColor = Theme.of(context).colorScheme.onSurfaceVariant;
 
     return BlocConsumer<OtpCubit, OtpState>(
       listenWhen: (previous, current) => previous.status != current.status,
@@ -86,6 +85,7 @@ class _OtpScreenState extends State<OtpScreen> {
             _code.length == _otpLength && !state.isExpired && !state.isBusy;
 
         return Scaffold(
+          backgroundColor: AppColors.background,
           appBar: const AppTopBar(
             title: AuthStrings.verifyEmail,
             showBack: true,
@@ -95,43 +95,49 @@ class _OtpScreenState extends State<OtpScreen> {
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.xxl,
-                  vertical: AppSpacing.lg,
+                  vertical: AppSpacing.xxxl,
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       AuthStrings.checkYourEmail,
-                      style: textTheme.headlineMedium,
+                      style: textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
                       AuthStrings.otpSubtitle,
-                      style: textTheme.bodyMedium?.copyWith(color: mutedColor),
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppSpacing.xxxl),
-                    Center(
-                      child: OtpInput(
-                        key: _inputKey,
-                        length: _otpLength,
-                        onChanged: (value) => setState(() => _code = value),
-                        onCompleted: (_) => _submit(),
-                      ),
+                    OtpInput(
+                      key: _inputKey,
+                      length: _otpLength,
+                      onChanged: (value) => setState(() => _code = value),
+                      onCompleted: (_) => _submit(),
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    Center(
-                      child: Text(
-                        state.isExpired
-                            ? AuthStrings.codeExpired
-                            : '${AuthStrings.codeExpiresIn} '
-                                  '${_formatRemaining(state.remaining)}',
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: state.isExpired ? errorColor : mutedColor,
-                        ),
+                    Text(
+                      state.isExpired
+                          ? AuthStrings.codeExpired
+                          : '${AuthStrings.codeExpiresIn} '
+                                '${_formatRemaining(state.remaining)}',
+                      style: textTheme.bodyMedium?.copyWith(
+                        color: state.isExpired
+                            ? AppColors.error
+                            : AppColors.textSecondary,
                       ),
+                      textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: AppSpacing.xxl),
+                    const SizedBox(height: AppSpacing.xxxl),
                     AppButton(
                       text: AuthStrings.verify,
                       isLoading: state.status == OtpStatus.verifying,

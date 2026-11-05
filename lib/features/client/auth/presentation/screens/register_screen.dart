@@ -1,6 +1,8 @@
 import 'package:easy_shop/core/errors/error_messages.dart';
+import 'package:easy_shop/core/theme/app_colors.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:easy_shop/core/utils/validators.dart';
+import 'package:easy_shop/core/widgets/app_avatar.dart';
 import 'package:easy_shop/core/widgets/app_button.dart';
 import 'package:easy_shop/core/widgets/app_text_field.dart';
 import 'package:easy_shop/core/widgets/app_top_bar.dart';
@@ -92,7 +94,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final primary = Theme.of(context).colorScheme.primary;
 
     return BlocConsumer<RegisterCubit, RegisterState>(
       listenWhen: (previous, current) => previous.status != current.status,
@@ -101,28 +102,64 @@ class _RegisterScreenState extends State<RegisterScreen> {
         final isLoading = state.isLoading;
 
         return Scaffold(
+          backgroundColor: AppColors.background,
           appBar: const AppTopBar(
             title: AuthStrings.createYourAccount,
             showBack: true,
           ),
           body: SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.xxl,
-                vertical: AppSpacing.lg,
-              ),
+              padding: const EdgeInsets.all(AppSpacing.xxl),
               child: Form(
                 key: _formKey,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       AuthStrings.registerSubtitle,
                       style: textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        color: AppColors.textSecondary,
                       ),
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppSpacing.xxl),
+
+                    // Profile Picture
+                    Stack(
+                      children: [
+                        AppAvatar(
+                          imageUrl: _picturePath,
+                          size: 96,
+                          backgroundColor: AppColors.clientPrimary.withValues(
+                            alpha: 0.1,
+                          ),
+                          iconColor: AppColors.clientPrimary,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: GestureDetector(
+                            onTap: isLoading ? null : _pickPicture,
+                            child: Container(
+                              width: 32,
+                              height: 32,
+                              decoration: const BoxDecoration(
+                                color: AppColors.clientPrimary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                size: 18,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: AppSpacing.xxl),
+
                     AppTextField(
                       label: AuthStrings.fullName,
                       hint: AuthStrings.fullNameHint,
@@ -191,77 +228,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           .read<RegisterCubit>()
                           .clearFieldError('password_confirmation'),
                     ),
-                    const SizedBox(height: AppSpacing.lg),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AuthStrings.profilePicture,
-                          style: textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+
+                    if (state.fieldError('picture') != null) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        state.fieldError('picture')!,
+                        style: textTheme.bodySmall?.copyWith(
+                          color: AppColors.error,
                         ),
-                        const SizedBox(height: AppSpacing.sm),
-                        OutlinedButton.icon(
-                          onPressed: isLoading ? null : _pickPicture,
-                          icon: Icon(
-                            _picturePath == null
-                                ? Icons.upload_outlined
-                                : Icons.check_circle_outline,
-                            size: 20,
-                          ),
-                          label: Text(
-                            _picturePath == null
-                                ? AuthStrings.uploadPhoto
-                                : 'Photo selected',
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: const Size.fromHeight(48),
-                          ),
-                        ),
-                        if (state.fieldError('picture') != null)
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              top: AppSpacing.xs,
-                              left: AppSpacing.md,
-                            ),
-                            child: Text(
-                              state.fieldError('picture')!,
-                              style: textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.error,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.xxl),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+
+                    const SizedBox(height: AppSpacing.xxxl),
                     AppButton(
                       text: AuthStrings.register,
                       isLoading: isLoading,
                       onPressed: _submit,
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    Center(
-                      child: Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        alignment: WrapAlignment.center,
-                        children: [
-                          Text(
-                            AuthStrings.alreadyHaveAccount,
-                            style: textTheme.bodyMedium,
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      alignment: WrapAlignment.center,
+                      children: [
+                        Text(
+                          AuthStrings.alreadyHaveAccount,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: AppColors.textSecondary,
                           ),
-                          TextButton(
-                            onPressed: isLoading ? null : widget.onLoginTap,
-                            child: Text(
-                              AuthStrings.signInHere,
-                              style: TextStyle(
-                                color: primary,
-                                fontWeight: FontWeight.w600,
-                              ),
+                        ),
+                        TextButton(
+                          onPressed: isLoading ? null : widget.onLoginTap,
+                          child: Text(
+                            AuthStrings.signInHere,
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: AppColors.clientPrimary,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
