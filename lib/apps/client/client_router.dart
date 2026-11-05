@@ -1,4 +1,5 @@
 import 'package:easy_shop/apps/client/client_route_names.dart';
+import 'package:easy_shop/apps/client/client_strings.dart';
 import 'package:easy_shop/apps/client/session/router_refresh_stream.dart';
 import 'package:easy_shop/apps/client/session/session_cubit.dart';
 import 'package:easy_shop/apps/client/session/session_state.dart';
@@ -64,7 +65,7 @@ GoRouter createClientRouter(SessionCubit session) {
         path: ClientRoutePaths.home,
         builder: (context, _) => Scaffold(
           appBar: AppBar(
-            title: const Text('EasyShop Client'),
+            title: const Text(ClientStrings.easyShopClient),
             actions: [
               IconButton(
                 icon: const Icon(Icons.person_outline),
@@ -83,11 +84,11 @@ GoRouter createClientRouter(SessionCubit session) {
                 Icon(Icons.shopping_bag_outlined, size: 100),
                 SizedBox(height: 16),
                 Text(
-                  'Welcome to EasyShop!',
+                  ClientStrings.welcomeToEasyShop,
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 8),
-                Text('Client app features coming soon...'),
+                Text(ClientStrings.clientAppComingSoon),
               ],
             ),
           ),
@@ -116,13 +117,15 @@ GoRouter createClientRouter(SessionCubit session) {
             onMyOrders: () {
               // TODO: Navigate to orders
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('My Orders - Coming Soon!')),
+                const SnackBar(content: Text(ClientStrings.myOrdersComingSoon)),
               );
             },
             onFavorites: () {
               // TODO: Navigate to favorites
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Favorites - Coming Soon!')),
+                const SnackBar(
+                  content: Text(ClientStrings.favoritesComingSoon),
+                ),
               );
             },
           ),

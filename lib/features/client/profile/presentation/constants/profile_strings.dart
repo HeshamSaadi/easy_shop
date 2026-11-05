@@ -30,8 +30,4 @@ abstract final class ProfileStrings {
   static const String locationPickerComingSoon =
       'Location Picker - Coming Soon!';
   static const String saveChanges = 'Save Changes';
-
-  // Coming Soon Messages
-  static const String myOrdersComingSoon = 'My Orders - Coming Soon!';
-  static const String favoritesComingSoon = 'Favorites - Coming Soon!';
 }

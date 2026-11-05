@@ -24,7 +24,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      appBar: AppBar(title: const Text(ProfileStrings.profile)),
       body: BlocBuilder<ProfileCubit, ProfileState>(
         builder: (context, state) {
           return switch (state) {
@@ -51,7 +51,7 @@ class ProfileScreen extends StatelessWidget {
                   ElevatedButton.icon(
                     onPressed: () => context.read<ProfileCubit>().loadProfile(),
                     icon: const Icon(Icons.refresh),
-                    label: const Text('Retry'),
+                    label: const Text(ProfileStrings.retry),
                   ),
                 ],
               ),
@@ -79,22 +79,22 @@ class ProfileScreen extends StatelessWidget {
 
             // Personal Information Section
             _InfoSection(
-              title: 'Personal Information',
+              title: ProfileStrings.personalInformation,
               icon: Icons.person_outline,
               children: [
                 _InfoTile(
                   icon: Icons.person,
-                  label: 'Name',
+                  label: ProfileStrings.name,
                   value: client.name,
                 ),
                 _InfoTile(
                   icon: Icons.email_outlined,
-                  label: 'Email',
+                  label: ProfileStrings.email,
                   value: client.email,
                 ),
                 _InfoTile(
                   icon: Icons.phone_outlined,
-                  label: 'Phone',
+                  label: ProfileStrings.phone,
                   value: client.phone,
                 ),
               ],
@@ -104,20 +104,20 @@ class ProfileScreen extends StatelessWidget {
 
             // Delivery Address Section
             _InfoSection(
-              title: 'Delivery Address',
+              title: ProfileStrings.deliveryAddress,
               icon: Icons.location_on_outlined,
               children: [
                 if (client.address != null && client.address!.isNotEmpty)
                   _InfoTile(
                     icon: Icons.home_outlined,
-                    label: 'Address',
+                    label: ProfileStrings.address,
                     value: client.address!,
                   )
                 else
                   Padding(
                     padding: const EdgeInsets.all(AppSpacing.md),
                     child: Text(
-                      'No delivery address set',
+                      ProfileStrings.noAddressSet,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: Colors.grey,
                       ),
@@ -134,14 +134,14 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   ListTile(
                     leading: const Icon(Icons.receipt_long_outlined),
-                    title: const Text('My Orders'),
+                    title: const Text(ProfileStrings.myOrders),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: onMyOrders,
                   ),
                   const Divider(height: 1),
                   ListTile(
                     leading: const Icon(Icons.favorite_outline),
-                    title: const Text('Favorites'),
+                    title: const Text(ProfileStrings.favorites),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: onFavorites,
                   ),
@@ -157,7 +157,7 @@ class ProfileScreen extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: onEditProfile,
                 icon: const Icon(Icons.edit_outlined),
-                label: const Text('Edit Profile'),
+                label: const Text(ProfileStrings.editProfile),
               ),
             ),
 
@@ -169,7 +169,7 @@ class ProfileScreen extends StatelessWidget {
               child: ElevatedButton.icon(
                 onPressed: onLogout,
                 icon: const Icon(Icons.logout),
-                label: const Text('Logout'),
+                label: const Text(ProfileStrings.logout),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,

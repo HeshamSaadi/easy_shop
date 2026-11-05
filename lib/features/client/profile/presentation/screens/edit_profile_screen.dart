@@ -6,6 +6,7 @@ import 'package:easy_shop/core/widgets/app_text_field.dart';
 import 'package:easy_shop/core/widgets/app_top_bar.dart';
 import 'package:easy_shop/features/client/profile/domain/entities/client_entity.dart';
 import 'package:easy_shop/features/client/profile/domain/params/update_profile_params.dart';
+import 'package:easy_shop/features/client/profile/presentation/constants/profile_strings.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/profile_cubit.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/profile_state.dart';
 import 'package:flutter/material.dart';
@@ -92,7 +93,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     switch (state) {
       case ProfileUpdateSuccess():
         messenger.showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully!')),
+          const SnackBar(content: Text(ProfileStrings.profileUpdated)),
         );
         widget.onUpdated();
       case ProfileUpdateError(:final message):
@@ -118,7 +119,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         final isLoading = state is ProfileUpdating;
 
         return Scaffold(
-          appBar: const AppTopBar(title: 'Edit Profile', showBack: true),
+          appBar: const AppTopBar(
+            title: ProfileStrings.editProfileTitle,
+            showBack: true,
+          ),
           body: SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.lg),
@@ -170,11 +174,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                     // Name Field
                     AppTextField(
-                      label: 'Full Name',
-                      hint: 'Enter your full name',
+                      label: ProfileStrings.fullName,
+                      hint: ProfileStrings.enterFullName,
                       controller: _nameController,
-                      validator: (value) =>
-                          Validators.notEmpty(value, fieldName: 'Name'),
+                      validator: (value) => Validators.notEmpty(
+                        value,
+                        fieldName: ProfileStrings.name,
+                      ),
                       textInputAction: TextInputAction.next,
                       enabled: !isLoading,
                       onChanged: (_) =>
@@ -185,8 +191,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                     // Email Field
                     AppTextField(
-                      label: 'Email',
-                      hint: 'Enter your email',
+                      label: ProfileStrings.email,
+                      hint: ProfileStrings.enterEmail,
                       controller: _emailController,
                       validator: Validators.email,
                       keyboardType: TextInputType.emailAddress,
@@ -200,8 +206,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                     // Phone Field
                     AppTextField(
-                      label: 'Phone Number',
-                      hint: 'Enter your phone number',
+                      label: ProfileStrings.phoneNumber,
+                      hint: ProfileStrings.enterPhoneNumber,
                       controller: _phoneController,
                       validator: Validators.phone,
                       keyboardType: TextInputType.phone,
@@ -215,8 +221,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                     // Address Field
                     AppTextField(
-                      label: 'Delivery Address',
-                      hint: 'Enter your delivery address (optional)',
+                      label: ProfileStrings.deliveryAddressLabel,
+                      hint: ProfileStrings.enterAddress,
                       controller: _addressController,
                       textInputAction: TextInputAction.done,
                       enabled: !isLoading,
@@ -237,7 +243,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
-                                    'Location Picker - Coming Soon!',
+                                    ProfileStrings.locationPickerComingSoon,
                                   ),
                                 ),
                               );
@@ -245,8 +251,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       icon: const Icon(Icons.location_on_outlined),
                       label: Text(
                         _latitude != null && _longitude != null
-                            ? 'Location Set'
-                            : 'Pick Location on Map',
+                            ? ProfileStrings.locationSet
+                            : ProfileStrings.pickLocationOnMap,
                       ),
                     ),
 
@@ -254,7 +260,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                     // Save Button
                     AppButton(
-                      text: 'Save Changes',
+                      text: ProfileStrings.saveChanges,
                       isLoading: isLoading,
                       onPressed: _submit,
                     ),
