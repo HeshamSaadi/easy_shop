@@ -1,9 +1,7 @@
 import 'package:easy_shop/core/theme/app_sizes.dart';
-import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:easy_shop/core/theme/app_spacing.dart';
 
-/// Main button used across both apps.
-/// Shows a loader and blocks taps while [isLoading] is true.
 class AppButton extends StatelessWidget {
   const AppButton({
     super.key,
@@ -22,32 +20,17 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // null disables the button, so a second tap does nothing while loading
     final VoidCallback? action = isLoading ? null : onPressed;
     final Widget child = _buildChild(context);
 
-    return SizedBox(
-      width: double.infinity,
-      height: AppSizes.buttonHeight,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        minWidth: double.infinity,
+        minHeight: AppSizes.buttonHeight,
+      ),
       child: isOutlined
-          ? OutlinedButton(
-              onPressed: action,
-              style: OutlinedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              child: child,
-            )
-          : ElevatedButton(
-              onPressed: action,
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              child: child,
-            ),
+          ? OutlinedButton(onPressed: action, child: child)
+          : ElevatedButton(onPressed: action, child: child),
     );
   }
 

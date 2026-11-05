@@ -14,7 +14,6 @@ import 'package:easy_shop/core/location/geolocator_location_service.dart';
 import 'package:easy_shop/core/location/location_picker_cubit.dart';
 import 'package:easy_shop/core/location/location_service.dart';
 import 'package:easy_shop/core/location/picked_location.dart';
-import 'package:easy_shop/core/utils/media_picker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -47,6 +46,5 @@ Future<void> initCore(GetIt sl, AppConfig config) async {
         addressResolver: sl(),
         initialLocation: initialLocation,
       ),
-    )
-    ..registerLazySingleton<MediaPicker>(() => const MediaPicker());
+    );
 }

@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:easy_shop/core/errors/failure.dart';
 import 'package:easy_shop/features/admin/auth/domain/params/register_params.dart';
-import 'package:easy_shop/features/admin/auth/domain/repositories/auth_repository.dart';
 import 'package:easy_shop/features/admin/auth/domain/usecases/login_admin.dart';
 import 'package:easy_shop/features/admin/auth/domain/usecases/logout_admin.dart';
 import 'package:easy_shop/features/admin/auth/domain/usecases/register_admin.dart';
@@ -9,9 +8,8 @@ import 'package:easy_shop/features/admin/auth/domain/usecases/resend_otp.dart';
 import 'package:easy_shop/features/admin/auth/domain/usecases/restore_session.dart';
 import 'package:easy_shop/features/admin/auth/domain/usecases/verify_otp.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 
-class MockAuthRepository extends Mock implements AuthRepository {}
+import '../../fake_auth_repository.dart';
 
 const _success = Right<Failure, Unit>(unit);
 const _failure = Failure('Invalid or expired OTP', statusCode: 401);
@@ -35,46 +33,30 @@ RegisterParams _registerParams({String phone = '+201013114901'}) {
 }
 
 void main() {
-  late MockAuthRepository repository;
-
-  setUpAll(() {
-    registerFallbackValue(_registerParams());
-  });
+  late FakeAuthRepository repository;
 
   setUp(() {
-    repository = MockAuthRepository();
+    repository = FakeAuthRepository();
   });
 
   group('LoginAdmin', () {
     test('sends the email and password to the repository', () async {
-      when(
-        () => repository.login(
-          email: any(named: 'email'),
-          password: any(named: 'password'),
-        ),
-      ).thenAnswer((_) async => _success);
-
-      final result = await LoginAdmin(
-        repository,
-      )(email: _email, password: '12345678');
+      final result = await LoginAdmin(repository)(
+        email: _email,
+        password: '12345678',
+      );
 
       expect(result, _success);
-      verify(
-        () => repository.login(email: _email, password: '12345678'),
-      ).called(1);
+      expect(repository.loginArgs, [(email: _email, password: '12345678')]);
     });
 
     test('returns the failure unchanged', () async {
-      when(
-        () => repository.login(
-          email: any(named: 'email'),
-          password: any(named: 'password'),
-        ),
-      ).thenAnswer((_) async => _failed);
+      repository.loginResult = _failed;
 
-      final result = await LoginAdmin(
-        repository,
-      )(email: _email, password: 'wrong-password');
+      final result = await LoginAdmin(repository)(
+        email: _email,
+        password: 'wrong-password',
+      );
 
       expect(result, _failed);
     });
@@ -82,34 +64,22 @@ void main() {
 
   group('VerifyOtp', () {
     test('sends the email and the code to the repository', () async {
-      when(
-        () => repository.verifyOtp(
-          email: any(named: 'email'),
-          otpCode: any(named: 'otpCode'),
-        ),
-      ).thenAnswer((_) async => _success);
-
-      final result = await VerifyOtp(
-        repository,
-      )(email: _email, otpCode: '123456');
+      final result = await VerifyOtp(repository)(
+        email: _email,
+        otpCode: '123456',
+      );
 
       expect(result, _success);
-      verify(
-        () => repository.verifyOtp(email: _email, otpCode: '123456'),
-      ).called(1);
+      expect(repository.verifyArgs, [(email: _email, otpCode: '123456')]);
     });
 
     test('returns the failure unchanged', () async {
-      when(
-        () => repository.verifyOtp(
-          email: any(named: 'email'),
-          otpCode: any(named: 'otpCode'),
-        ),
-      ).thenAnswer((_) async => _failed);
+      repository.verifyResult = _failed;
 
-      final result = await VerifyOtp(
-        repository,
-      )(email: _email, otpCode: '000000');
+      final result = await VerifyOtp(repository)(
+        email: _email,
+        otpCode: '000000',
+      );
 
       expect(result, _failed);
     });
@@ -117,20 +87,14 @@ void main() {
 
   group('ResendOtp', () {
     test('asks the repository to resend the code to the email', () async {
-      when(
-        () => repository.resendOtp(email: any(named: 'email')),
-      ).thenAnswer((_) async => _success);
-
       final result = await ResendOtp(repository)(email: _email);
 
       expect(result, _success);
-      verify(() => repository.resendOtp(email: _email)).called(1);
+      expect(repository.resendArgs, [_email]);
     });
 
     test('returns the failure unchanged', () async {
-      when(
-        () => repository.resendOtp(email: any(named: 'email')),
-      ).thenAnswer((_) async => _failed);
+      repository.resendResult = _failed;
 
       final result = await ResendOtp(repository)(email: _email);
 
@@ -140,24 +104,22 @@ void main() {
 
   group('LogoutAdmin', () {
     test('asks the repository to log out', () async {
-      when(() => repository.logout()).thenAnswer((_) async => _success);
-
       final result = await LogoutAdmin(repository)();
 
       expect(result, _success);
-      verify(() => repository.logout()).called(1);
+      expect(repository.logoutCalls, 1);
     });
   });
 
   group('RestoreSession', () {
     test('returns true when the repository has a valid session', () async {
-      when(() => repository.hasValidSession()).thenAnswer((_) async => true);
+      repository.sessionResult = true;
 
       expect(await RestoreSession(repository)(), isTrue);
     });
 
     test('returns false when there is no valid session', () async {
-      when(() => repository.hasValidSession()).thenAnswer((_) async => false);
+      repository.sessionResult = false;
 
       expect(await RestoreSession(repository)(), isFalse);
     });
@@ -165,14 +127,8 @@ void main() {
 
   group('RegisterAdmin', () {
     Future<RegisterParams> registerAndCapture(RegisterParams params) async {
-      when(() => repository.register(any())).thenAnswer((_) async => _success);
-
       await RegisterAdmin(repository)(params);
-
-      final captured = verify(
-        () => repository.register(captureAny()),
-      ).captured;
-      return captured.single as RegisterParams;
+      return repository.registerArgs.single;
     }
 
     test('removes every kind of whitespace from the phone', () async {
@@ -227,7 +183,7 @@ void main() {
     });
 
     test('returns the failure unchanged', () async {
-      when(() => repository.register(any())).thenAnswer((_) async => _failed);
+      repository.registerResult = _failed;
 
       final result = await RegisterAdmin(repository)(_registerParams());
 

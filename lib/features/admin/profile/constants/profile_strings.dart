@@ -37,7 +37,3 @@ abstract final class ProfileStrings {
   static const logout = 'Logout';
   static const profileUpdated = 'Profile updated successfully';
 }
-
-abstract final class ProfileSizes {
-  static const double avatarRadius = 40;
-}

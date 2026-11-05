@@ -87,6 +87,7 @@ class _AppTextFieldState extends State<AppTextField> {
           textInputAction: widget.textInputAction,
           inputFormatters: widget.inputFormatters,
           obscureText: _isObscured,
+          // A password field must stay on one line
           maxLines: widget.isPassword ? 1 : widget.maxLines,
           enabled: widget.enabled,
           onChanged: widget.onChanged,
@@ -95,6 +96,8 @@ class _AppTextFieldState extends State<AppTextField> {
             prefixIcon: widget.prefixIcon == null
                 ? null
                 : Icon(widget.prefixIcon),
+            // `prefix` (not `prefixText`) so it is always visible,
+            // even when the field is empty and showing the hint.
             prefix: prefixText == null
                 ? null
                 : Text(prefixText, style: textTheme.bodyLarge),
@@ -108,23 +111,6 @@ class _AppTextFieldState extends State<AppTextField> {
                     ),
                   )
                 : null,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Colors.grey.shade200),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(
-                color: Theme.of(context).colorScheme.primary,
-                width: 1.5,
-              ),
-            ),
-            filled: true,
-            fillColor: Colors.grey.shade50,
           ),
         ),
       ],

@@ -2,6 +2,7 @@ import 'package:easy_shop/features/admin/profile/domain/entities/profile_entity.
 import 'package:easy_shop/features/admin/profile/domain/params/update_profile_params.dart';
 import 'package:easy_shop/features/admin/profile/domain/usecases/update_profile.dart';
 import 'package:easy_shop/features/admin/profile/presentation/cubit/edit_profile_state.dart';
+import 'package:easy_shop/core/utils/phone_utils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class EditProfileCubit extends Cubit<EditProfileState> {
@@ -13,8 +14,6 @@ class EditProfileCubit extends Cubit<EditProfileState> {
           longitude: profile.longitude,
         ),
       );
-
-  static final _whitespace = RegExp(r'\s+');
 
   final UpdateProfile _updateProfile;
   final ProfileEntity _profile;
@@ -50,7 +49,7 @@ class EditProfileCubit extends Cubit<EditProfileState> {
       UpdateProfileParams(
         name: name.trim(),
         email: _profile.email, // read-only, but required by the server
-        phone: phone.replaceAll(_whitespace, ''),
+        phone: PhoneUtils.toInternational(phone),
         nationalId: nationalId.trim(),
         businessName: businessName.trim(),
         address: address.trim(),

@@ -24,7 +24,9 @@ void main() {
 
       expect(model.fieldErrors.keys, equals(['email', 'phone']));
       expect(model.fieldErrors['email'], ['The email has already been taken.']);
-      expect(model.fieldErrors['phone'], ['The phone field format is invalid.']);
+      expect(model.fieldErrors['phone'], [
+        'The phone field format is invalid.',
+      ]);
     });
 
     test('joins all field messages with a new line', () {

@@ -10,6 +10,7 @@ abstract final class AdminRouteNames {
   static const categories = 'categories';
   static const categoryForm = 'categoryForm';
   static const orders = 'orders';
+  static const orderDetails = 'orderDetails';
   static const profile = 'profile';
   static const profileEdit = 'profileEdit';
 }
@@ -29,4 +30,5 @@ abstract final class AdminRoutePaths {
 
 abstract final class AdminRouteParams {
   static const slug = 'slug';
+  static const code = 'code';
 }

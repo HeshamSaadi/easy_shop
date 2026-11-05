@@ -8,6 +8,7 @@ import 'package:easy_shop/features/admin/auth/presentation/cubit/login_state.dar
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+/// Expects a [LoginCubit] above it (the router provides it).
 class LoginScreen extends StatefulWidget {
   const LoginScreen({
     super.key,
@@ -15,6 +16,7 @@ class LoginScreen extends StatefulWidget {
     required this.onRegisterTap,
   });
 
+  /// Called with the email after the server sent the OTP.
   final ValueChanged<String> onOtpRequested;
   final VoidCallback onRegisterTap;
 
@@ -38,9 +40,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final isValid = _formKey.currentState?.validate() ?? false;
     if (!isValid) return;
     context.read<LoginCubit>().login(
-          email: _emailController.text,
-          password: _passwordController.text,
-        );
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
   }
 
   void _onStateChanged(BuildContext context, LoginState state) {
@@ -74,70 +76,30 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Form(
                   key: _formKey,
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Logo Container matching the design
-                      Center(
-                        child: Container(
-                          width: 72,
-                          height: 72,
-                          decoration: BoxDecoration(
-                            color: primary.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(AppSpacing.lg),
-                          ),
-                          child: Icon(
-                            Icons.storefront_rounded,
-                            size: 36,
-                            color: primary,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.xxl),
-                      
-                      // Welcome Back Title
                       Text(
-                        AuthStrings.welcomeBack,
-                        style: textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+                        AuthStrings.forBusiness,
+                        style: textTheme.bodySmall?.copyWith(
+                          color: primary,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.2,
                         ),
-                        textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: AppSpacing.xs),
-                      
-                      // Subtitle
+                      Text(
+                        AuthStrings.welcomeBack,
+                        style: textTheme.headlineMedium,
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
                       Text(
                         AuthStrings.loginSubtitle,
                         style: textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      
-                      // For Business Badge
-                      Center(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.lg,
-                            vertical: AppSpacing.xs,
-                          ),
-                          decoration: BoxDecoration(
-                            color: primary.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(AppSpacing.xxl),
-                          ),
-                          child: Text(
-                            AuthStrings.forBusiness,
-                            style: textTheme.bodySmall?.copyWith(
-                              color: primary,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.xxxl),
-
-                      // Email Field
                       AppTextField(
                         label: AuthStrings.emailLabel,
                         hint: AuthStrings.emailHint,
@@ -148,12 +110,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         enabled: !isLoading,
                       ),
                       const SizedBox(height: AppSpacing.lg),
-
-                      // Password Field
                       AppTextField(
                         label: AuthStrings.passwordLabel,
                         hint: AuthStrings.passwordHint,
                         controller: _passwordController,
+                        // Not Validators.password: its 8-character rule would
+                        // block valid accounts (the server accepts 6).
                         validator: (value) => Validators.notEmpty(
                           value,
                           fieldName: AuthStrings.passwordLabel,
@@ -163,16 +125,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         enabled: !isLoading,
                       ),
                       const SizedBox(height: AppSpacing.xxl),
-
-                      // Sign In Button
                       AppButton(
                         text: AuthStrings.signIn,
                         isLoading: isLoading,
                         onPressed: _submit,
                       ),
                       const SizedBox(height: AppSpacing.lg),
-
-                      // Register Navigation
                       Center(
                         child: Wrap(
                           crossAxisAlignment: WrapCrossAlignment.center,

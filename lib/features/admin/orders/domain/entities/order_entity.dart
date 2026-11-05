@@ -40,4 +40,7 @@ class OrderEntity {
 
   /// True when "View on Map" can be shown.
   bool get hasLocation => latitude != null && longitude != null;
+
+  /// Status is a raw String from the server, so compare it safely.
+  bool get isPending => status.trim().toLowerCase() == 'pending';
 }

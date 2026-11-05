@@ -1,52 +1,41 @@
 import 'package:dio/dio.dart';
-import 'package:easy_shop/core/databases/api/api_consumer.dart';
 import 'package:easy_shop/core/databases/api/end_points.dart';
 import 'package:easy_shop/core/errors/exceptions.dart';
 import 'package:easy_shop/features/admin/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:easy_shop/features/admin/auth/domain/params/register_params.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 
-class MockApiConsumer extends Mock implements ApiConsumer {}
+import '../../fake_recording_api.dart';
 
 const _email = 'admin@shop.com';
 
 void main() {
-  late MockApiConsumer api;
+  late RecordingApiConsumer api;
   late AuthRemoteDataSourceImpl dataSource;
 
   setUp(() {
-    api = MockApiConsumer();
+    api = RecordingApiConsumer();
     dataSource = AuthRemoteDataSourceImpl(api);
   });
 
-  void stubPost(dynamic response) {
-    when(
-      () => api.post(any(), data: any(named: 'data')),
-    ).thenAnswer((_) async => response);
-  }
-
   group('login', () {
     test('posts the credentials to the login endpoint', () async {
-      stubPost(<String, dynamic>{
+      api.response = <String, dynamic>{
         'data': null,
         'message': 'OTP sent to your email and phone',
-      });
+      };
 
       await dataSource.login(email: _email, password: '12345678');
 
-      verify(
-        () => api.post(
-          EndPoints.adminLogin,
-          data: {'email': _email, 'password': '12345678'},
-        ),
-      ).called(1);
+      expect(api.postCalls.single.path, EndPoints.adminLogin);
+      expect(api.postCalls.single.data, {
+        'email': _email,
+        'password': '12345678',
+      });
     });
 
     test('lets the exception from the api reach the repository', () async {
-      when(
-        () => api.post(any(), data: any(named: 'data')),
-      ).thenThrow(const UnauthorizedException('Invalid email or password'));
+      api.error = const UnauthorizedException('Invalid email or password');
 
       await expectLater(
         dataSource.login(email: _email, password: 'wrong-password'),
@@ -57,11 +46,11 @@ void main() {
 
   group('verifyOtp', () {
     test('posts the email and code, and returns the top-level token', () async {
-      stubPost(<String, dynamic>{
+      api.response = <String, dynamic>{
         'data': <String, dynamic>{'id': 1},
         'message': 'OTP verified successfully',
         'token': 'jwt-token',
-      });
+      };
 
       final token = await dataSource.verifyOtp(
         email: _email,
@@ -69,12 +58,11 @@ void main() {
       );
 
       expect(token, 'jwt-token');
-      verify(
-        () => api.post(
-          EndPoints.adminVerifyOtp,
-          data: {'email': _email, 'otp_code': '123456'},
-        ),
-      ).called(1);
+      expect(api.postCalls.single.path, EndPoints.adminVerifyOtp);
+      expect(api.postCalls.single.data, {
+        'email': _email,
+        'otp_code': '123456',
+      });
     });
 
     final badResponses = <String, dynamic>{
@@ -86,7 +74,7 @@ void main() {
     };
     badResponses.forEach((description, response) {
       test('throws a ServerException when the response $description', () async {
-        stubPost(response);
+        api.response = response;
 
         await expectLater(
           dataSource.verifyOtp(email: _email, otpCode: '123456'),
@@ -98,38 +86,33 @@ void main() {
 
   group('resendOtp', () {
     test('posts the email to the resend endpoint', () async {
-      stubPost(<String, dynamic>{'data': null, 'message': 'OTP resent'});
+      api.response = <String, dynamic>{'data': null, 'message': 'OTP resent'};
 
       await dataSource.resendOtp(email: _email);
 
-      verify(
-        () => api.post(EndPoints.adminResendOtp, data: {'email': _email}),
-      ).called(1);
+      expect(api.postCalls.single.path, EndPoints.adminResendOtp);
+      expect(api.postCalls.single.data, {'email': _email});
     });
   });
 
   group('logout', () {
     test('posts to the logout endpoint without a body', () async {
-      when(
-        () => api.post(EndPoints.adminLogout),
-      ).thenAnswer((_) async => <String, dynamic>{});
+      api.response = <String, dynamic>{};
 
       await dataSource.logout();
 
-      verify(() => api.post(EndPoints.adminLogout)).called(1);
+      expect(api.postCalls, [(path: EndPoints.adminLogout, data: null)]);
     });
   });
 
   group('register', () {
     Future<FormData> registerAndCaptureForm(RegisterParams params) async {
-      stubPost(<String, dynamic>{'data': null, 'message': 'created'});
+      api.response = <String, dynamic>{'data': null, 'message': 'created'};
 
       await dataSource.register(params);
 
-      final captured = verify(
-        () => api.post(EndPoints.adminRegister, data: captureAny(named: 'data')),
-      ).captured;
-      return captured.single as FormData;
+      expect(api.postCalls.single.path, EndPoints.adminRegister);
+      return api.postCalls.single.data as FormData;
     }
 
     test('sends every field as form-data', () async {

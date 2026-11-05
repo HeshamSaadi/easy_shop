@@ -1,4 +1,8 @@
+import 'package:easy_shop/core/theme/app_opacity.dart';
+import 'package:easy_shop/core/theme/app_radius.dart';
+import 'package:easy_shop/core/theme/app_sizes.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
+import 'package:easy_shop/core/widgets/app_avatar.dart';
 import 'package:easy_shop/features/admin/profile/constants/profile_strings.dart';
 import 'package:easy_shop/features/admin/profile/domain/entities/profile_entity.dart';
 import 'package:flutter/material.dart';
@@ -16,16 +20,11 @@ class ProfileHeader extends StatelessWidget {
 
     return Column(
       children: [
-        CircleAvatar(
-          radius: ProfileSizes.avatarRadius,
-          backgroundColor: primary.withOpacity(0.1),
-          foregroundImage: pictureUrl.isEmpty ? null : NetworkImage(pictureUrl),
-          onForegroundImageError: (_, __) {},
-          child: Icon(
-            Icons.person_outline,
-            size: ProfileSizes.avatarRadius,
-            color: primary,
-          ),
+        AppAvatar(
+          imageUrl: pictureUrl.isEmpty ? null : pictureUrl,
+          backgroundColor: primary.withValues(alpha: AppOpacity.tint),
+          iconColor: primary,
+          size: AppSizes.avatarLg,
         ),
         const SizedBox(height: AppSpacing.md),
         Text(
@@ -38,7 +37,7 @@ class ProfileHeader extends StatelessWidget {
         Text(
           profile.businessName,
           style: theme.textTheme.bodyLarge?.copyWith(
-            color: Colors.grey[700],
+            color: theme.colorScheme.onSurfaceVariant,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -46,7 +45,7 @@ class ProfileHeader extends StatelessWidget {
         Text(
           profile.email,
           style: theme.textTheme.bodyMedium?.copyWith(
-            color: Colors.grey[500],
+            color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: AppSpacing.md),
@@ -55,7 +54,7 @@ class ProfileHeader extends StatelessWidget {
           style: OutlinedButton.styleFrom(
             side: BorderSide(color: primary),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppSpacing.xxl),
+              borderRadius: BorderRadius.circular(AppRadius.full),
             ),
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.xxl,

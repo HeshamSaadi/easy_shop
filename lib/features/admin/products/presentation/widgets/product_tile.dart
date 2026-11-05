@@ -3,7 +3,7 @@ import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:easy_shop/features/admin/products/domain/entities/product_entity.dart';
 import 'package:easy_shop/features/admin/products/presentation/constants/products_strings.dart';
 import 'package:easy_shop/features/admin/products/presentation/utils/product_formatters.dart';
-import 'package:easy_shop/features/admin/products/presentation/widgets/product_image.dart';
+import 'package:easy_shop/core/widgets/app_network_image.dart';
 import 'package:easy_shop/features/admin/products/presentation/widgets/product_visibility_badge.dart';
 import 'package:flutter/material.dart';
 
@@ -39,7 +39,7 @@ class ProductTile extends StatelessWidget {
             children: [
               SizedBox.square(
                 dimension: _imageSize,
-                child: ProductImage(url: product.imageUrl),
+                child: AppNetworkImage(url: product.imageUrl),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(

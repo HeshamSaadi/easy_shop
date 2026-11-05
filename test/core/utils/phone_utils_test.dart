@@ -31,14 +31,12 @@ void main() {
 
   group('PhoneUtils.toInternational', () {
     test('adds +20 in front of the local number', () {
+      expect(PhoneUtils.toInternational('1013114901'), '+201013114901');
       expect(PhoneUtils.toInternational('01013114901'), '+201013114901');
     });
 
     test('does not repeat the country code', () {
-      expect(
-        PhoneUtils.toInternational('+20 101 311 4901'),
-        '+201013114901',
-      );
+      expect(PhoneUtils.toInternational('+20 101 311 4901'), '+201013114901');
     });
   });
 
@@ -69,7 +67,11 @@ void main() {
     });
 
     test('rejects a number with too few or too many digits', () {
-      for (final value in ['+20 101 311 490', '0101311490', '+20 1013114901 5']) {
+      for (final value in [
+        '+20 101 311 490',
+        '0101311490',
+        '+20 1013114901 5',
+      ]) {
         expect(
           Validators.egyptianPhone(value),
           'Enter 10 digits after +20',

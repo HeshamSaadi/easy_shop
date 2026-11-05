@@ -82,8 +82,6 @@ class RegisterScreen extends StatelessWidget {
             appBar: AppBar(
               title: const Text(AuthStrings.createAccount),
               leading: BackButton(onPressed: () => _handleBack(cubit)),
-              elevation: 0,
-              backgroundColor: Colors.transparent,
             ),
             body: SafeArea(
               child: SingleChildScrollView(

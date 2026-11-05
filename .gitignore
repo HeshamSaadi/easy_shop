@@ -56,3 +56,4 @@ android/app/google-services.json
 
 # FVM Version Cache
 .fvm/
+android/build/

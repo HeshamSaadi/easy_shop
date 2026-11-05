@@ -1,22 +1,13 @@
 import 'package:dartz/dartz.dart';
-import 'package:easy_shop/core/databases/api/session_events.dart';
-import 'package:easy_shop/core/databases/cache/token_storage.dart';
 import 'package:easy_shop/core/errors/error_messages.dart';
 import 'package:easy_shop/core/errors/exceptions.dart';
 import 'package:easy_shop/core/errors/failure.dart';
-import 'package:easy_shop/features/admin/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:easy_shop/features/admin/auth/data/repositories/auth_repository_impl.dart';
 import 'package:easy_shop/features/admin/auth/domain/params/register_params.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
 
 import '../../../../../helpers/jwt_helper.dart';
-
-class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
-
-class MockTokenStorage extends Mock implements TokenStorage {}
-
-class MockSessionEvents extends Mock implements SessionEvents {}
+import '../../fake_auth_data_sources.dart';
 
 const _email = 'admin@shop.com';
 const _password = '12345678';
@@ -37,48 +28,32 @@ Failure _failureOf(Either<Failure, Unit> result) {
 }
 
 void main() {
-  late MockAuthRemoteDataSource remote;
-  late MockTokenStorage storage;
-  late MockSessionEvents sessionEvents;
+  late List<String> log;
+  late FakeAuthRemoteDataSource remote;
+  late FakeTokenStorage storage;
+  late RecordingSessionEvents sessionEvents;
   late AuthRepositoryImpl repository;
 
-  setUpAll(() {
-    registerFallbackValue(_registerParams);
-  });
-
   setUp(() {
-    remote = MockAuthRemoteDataSource();
-    storage = MockTokenStorage();
-    sessionEvents = MockSessionEvents();
+    log = [];
+    remote = FakeAuthRemoteDataSource(log);
+    storage = FakeTokenStorage(log);
+    sessionEvents = RecordingSessionEvents(log);
     repository = AuthRepositoryImpl(remote, storage, sessionEvents);
   });
 
-  When<Future<void>> whenLogin() => when(
-    () => remote.login(
-      email: any(named: 'email'),
-      password: any(named: 'password'),
-    ),
-  );
-
-  When<Future<String>> whenVerifyOtp() => when(
-    () => remote.verifyOtp(
-      email: any(named: 'email'),
-      otpCode: any(named: 'otpCode'),
-    ),
-  );
+  tearDown(() => sessionEvents.dispose());
 
   group('login', () {
     test('forwards the credentials and returns unit', () async {
-      whenLogin().thenAnswer((_) async {});
-
       final result = await repository.login(email: _email, password: _password);
 
       expect(result, _success);
-      verify(() => remote.login(email: _email, password: _password)).called(1);
+      expect(remote.loginArgs, [(email: _email, password: _password)]);
     });
 
     test('returns the server message and status code on a 401', () async {
-      whenLogin().thenThrow(const UnauthorizedException('Invalid email or password'));
+      remote.error = const UnauthorizedException('Invalid email or password');
 
       final result = await repository.login(email: _email, password: 'wrong');
 
@@ -88,7 +63,7 @@ void main() {
     });
 
     test('returns the friendly message when there is no internet', () async {
-      whenLogin().thenThrow(const NoInternetException());
+      remote.error = const NoInternetException();
 
       final result = await repository.login(email: _email, password: _password);
 
@@ -96,7 +71,7 @@ void main() {
     });
 
     test('returns the friendly message on a timeout', () async {
-      whenLogin().thenThrow(const ConnectionTimeoutException());
+      remote.error = const ConnectionTimeoutException();
 
       final result = await repository.login(email: _email, password: _password);
 
@@ -104,7 +79,7 @@ void main() {
     });
 
     test('returns the friendly message on a server error', () async {
-      whenLogin().thenThrow(const ServerException(statusCode: 500));
+      remote.error = const ServerException(statusCode: 500);
 
       final result = await repository.login(email: _email, password: _password);
 
@@ -114,7 +89,7 @@ void main() {
     });
 
     test('turns an unexpected error into the unknown message', () async {
-      whenLogin().thenThrow(StateError('boom'));
+      remote.error = StateError('boom');
 
       final result = await repository.login(email: _email, password: _password);
 
@@ -124,23 +99,19 @@ void main() {
 
   group('register', () {
     test('returns unit when the server accepts the account', () async {
-      when(() => remote.register(any())).thenAnswer((_) async {});
-
       final result = await repository.register(_registerParams);
 
       expect(result, _success);
-      verify(() => remote.register(_registerParams)).called(1);
+      expect(remote.registerArgs, [_registerParams]);
     });
 
     test('keeps the errors of each field on a 422', () async {
-      when(() => remote.register(any())).thenThrow(
-        const BadRequestException(
-          'The email has already been taken.',
-          statusCode: 422,
-          fieldErrors: {
-            'email': ['The email has already been taken.'],
-          },
-        ),
+      remote.error = const BadRequestException(
+        'The email has already been taken.',
+        statusCode: 422,
+        fieldErrors: {
+          'email': ['The email has already been taken.'],
+        },
       );
 
       final result = await repository.register(_registerParams);
@@ -156,8 +127,7 @@ void main() {
 
   group('verifyOtp', () {
     test('saves the token, then resets the session events', () async {
-      whenVerifyOtp().thenAnswer((_) async => 'jwt-token');
-      when(() => storage.saveToken(any())).thenAnswer((_) async {});
+      remote.token = 'jwt-token';
 
       final result = await repository.verifyOtp(
         email: _email,
@@ -165,14 +135,12 @@ void main() {
       );
 
       expect(result, _success);
-      verifyInOrder([
-        () => storage.saveToken('jwt-token'),
-        () => sessionEvents.reset(),
-      ]);
+      expect(storage.savedTokens, ['jwt-token']);
+      expect(log, ['remote.verifyOtp', 'storage.saveToken', 'events.reset']);
     });
 
     test('saves nothing when the code is wrong', () async {
-      whenVerifyOtp().thenThrow(const UnauthorizedException('Invalid or expired OTP'));
+      remote.error = const UnauthorizedException('Invalid or expired OTP');
 
       final result = await repository.verifyOtp(
         email: _email,
@@ -180,13 +148,12 @@ void main() {
       );
 
       expect(_failureOf(result).message, 'Invalid or expired OTP');
-      verifyNever(() => storage.saveToken(any()));
-      verifyNever(() => sessionEvents.reset());
+      expect(storage.savedTokens, isEmpty);
+      expect(sessionEvents.resetCalls, 0);
     });
 
     test('returns a failure when the token cannot be saved', () async {
-      whenVerifyOtp().thenAnswer((_) async => 'jwt-token');
-      when(() => storage.saveToken(any())).thenThrow(Exception('disk error'));
+      storage.saveError = Exception('disk error');
 
       final result = await repository.verifyOtp(
         email: _email,
@@ -194,26 +161,20 @@ void main() {
       );
 
       expect(_failureOf(result).message, ErrorMessages.unknown);
-      verifyNever(() => sessionEvents.reset());
+      expect(sessionEvents.resetCalls, 0);
     });
   });
 
   group('resendOtp', () {
     test('asks the server to resend the code', () async {
-      when(
-        () => remote.resendOtp(email: any(named: 'email')),
-      ).thenAnswer((_) async {});
-
       final result = await repository.resendOtp(email: _email);
 
       expect(result, _success);
-      verify(() => remote.resendOtp(email: _email)).called(1);
+      expect(remote.resendArgs, [_email]);
     });
 
     test('returns a failure when the server refuses', () async {
-      when(
-        () => remote.resendOtp(email: any(named: 'email')),
-      ).thenThrow(const NoInternetException());
+      remote.error = const NoInternetException();
 
       final result = await repository.resendOtp(email: _email);
 
@@ -222,82 +183,74 @@ void main() {
   });
 
   group('logout', () {
-    setUp(() {
-      when(() => storage.clearToken()).thenAnswer((_) async {});
-    });
-
     test('calls the server, then clears the token', () async {
-      when(() => remote.logout()).thenAnswer((_) async {});
-
       final result = await repository.logout();
 
       expect(result, _success);
-      verifyInOrder([() => remote.logout(), () => storage.clearToken()]);
+      expect(log, ['remote.logout', 'storage.clearToken']);
     });
 
     for (final exception in <AppException>[
       const NoInternetException(),
       const UnauthorizedException(),
     ]) {
-      test('still clears the token and succeeds after a ${exception.runtimeType}', () async {
-        when(() => remote.logout()).thenThrow(exception);
+      test(
+        'still clears the token and succeeds after a ${exception.runtimeType}',
+        () async {
+          remote.error = exception;
 
-        final result = await repository.logout();
+          final result = await repository.logout();
 
-        expect(result, _success);
-        verify(() => storage.clearToken()).called(1);
-      });
+          expect(result, _success);
+          expect(storage.clearCalls, 1);
+        },
+      );
     }
 
     test('clears the token even when something unexpected fails', () async {
-      when(() => remote.logout()).thenThrow(StateError('boom'));
+      remote.error = StateError('boom');
 
       final result = await repository.logout();
 
       expect(_failureOf(result).message, ErrorMessages.unknown);
-      verify(() => storage.clearToken()).called(1);
+      expect(storage.clearCalls, 1);
     });
   });
 
   group('hasValidSession', () {
-    void stubToken(String? token) {
-      when(() => storage.readToken()).thenAnswer((_) async => token);
-      when(() => storage.clearToken()).thenAnswer((_) async {});
-    }
-
     test('is false when there is no token', () async {
-      stubToken(null);
+      storage.token = null;
 
       expect(await repository.hasValidSession(), isFalse);
-      verifyNever(() => storage.clearToken());
+      expect(storage.clearCalls, 0);
     });
 
     test('is false when the token is empty', () async {
-      stubToken('');
+      storage.token = '';
 
       expect(await repository.hasValidSession(), isFalse);
-      verifyNever(() => storage.clearToken());
+      expect(storage.clearCalls, 0);
     });
 
     test('is true for a token that has not expired', () async {
-      stubToken(buildJwt(expiresIn: const Duration(hours: 1)));
+      storage.token = buildJwt(expiresIn: const Duration(hours: 1));
 
       expect(await repository.hasValidSession(), isTrue);
-      verifyNever(() => storage.clearToken());
+      expect(storage.clearCalls, 0);
     });
 
     test('is false and clears the token when it has expired', () async {
-      stubToken(buildJwt(expiresIn: const Duration(hours: -1)));
+      storage.token = buildJwt(expiresIn: const Duration(hours: -1));
 
       expect(await repository.hasValidSession(), isFalse);
-      verify(() => storage.clearToken()).called(1);
+      expect(storage.clearCalls, 1);
     });
 
     test('is false and clears the token when it is malformed', () async {
-      stubToken('garbage');
+      storage.token = 'garbage';
 
       expect(await repository.hasValidSession(), isFalse);
-      verify(() => storage.clearToken()).called(1);
+      expect(storage.clearCalls, 1);
     });
   });
 }
