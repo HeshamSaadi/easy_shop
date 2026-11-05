@@ -9,6 +9,8 @@ import 'package:easy_shop/features/client/auth/presentation/cubit/register_cubit
 import 'package:easy_shop/features/client/auth/presentation/screens/login_screen.dart';
 import 'package:easy_shop/features/client/auth/presentation/screens/otp_screen.dart';
 import 'package:easy_shop/features/client/auth/presentation/screens/register_screen.dart';
+import 'package:easy_shop/features/client/profile/presentation/cubit/profile_cubit.dart';
+import 'package:easy_shop/features/client/profile/presentation/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -62,6 +64,10 @@ GoRouter createClientRouter(SessionCubit session) {
             title: const Text('EasyShop Client'),
             actions: [
               IconButton(
+                icon: const Icon(Icons.person_outline),
+                onPressed: () => context.pushNamed(ClientRouteNames.profile),
+              ),
+              IconButton(
                 icon: const Icon(Icons.logout),
                 onPressed: session.logout,
               ),
@@ -81,6 +87,38 @@ GoRouter createClientRouter(SessionCubit session) {
                 Text('Client app features coming soon...'),
               ],
             ),
+          ),
+        ),
+      ),
+      // Profile route
+      GoRoute(
+        name: ClientRouteNames.profile,
+        path: ClientRoutePaths.profile,
+        builder: (context, _) => BlocProvider(
+          create: (_) => _sl<ProfileCubit>()..loadProfile(),
+          child: ProfileScreen(
+            onLogout: () {
+              session.logout();
+              context.goNamed(ClientRouteNames.login);
+            },
+            onEditProfile: () {
+              // TODO: Navigate to edit profile when implemented
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Edit Profile - Coming Soon!')),
+              );
+            },
+            onMyOrders: () {
+              // TODO: Navigate to orders
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('My Orders - Coming Soon!')),
+              );
+            },
+            onFavorites: () {
+              // TODO: Navigate to favorites
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Favorites - Coming Soon!')),
+              );
+            },
           ),
         ),
       ),
