@@ -67,4 +67,43 @@ void main() {
 
     expect(repository.loginCalls, 1);
   });
+
+  test('sends the trimmed email and the password exactly as typed', () async {
+    await cubit.login(email: '  a@b.com ', password: ' pass 123 ');
+
+    expect(repository.loginArgs, [(email: 'a@b.com', password: ' pass 123 ')]);
+  });
+
+  test('can try again after a failure', () async {
+    repository.loginResult = const Left(Failure('Invalid email or password'));
+    await cubit.login(email: 'a@b.com', password: 'wrong');
+
+    repository.loginResult = const Right(unit);
+    final expectation = expectLater(
+      cubit.stream,
+      emitsInOrder([isA<LoginLoading>(), isA<LoginSuccess>()]),
+    );
+
+    await cubit.login(email: 'a@b.com', password: 'secret');
+    await expectation;
+    expect(repository.loginCalls, 2);
+  });
+
+  test(
+    'does not emit when the answer arrives after the cubit is closed',
+    () async {
+      final gate = Completer<void>();
+      repository.loginGate = gate;
+      final states = <LoginState>[];
+      cubit.stream.listen(states.add);
+
+      final running = cubit.login(email: 'a@b.com', password: 'secret');
+      await cubit.close();
+      gate.complete();
+      await running;
+
+      expect(states.whereType<LoginSuccess>(), isEmpty);
+      expect(states.whereType<LoginFailure>(), isEmpty);
+    },
+  );
 }

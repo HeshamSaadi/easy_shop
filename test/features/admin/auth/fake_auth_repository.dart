@@ -10,13 +10,28 @@ class FakeAuthRepository implements AuthRepository {
   Either<Failure, Unit> loginResult = const Right(unit);
   Either<Failure, Unit> verifyResult = const Right(unit);
   Either<Failure, Unit> resendResult = const Right(unit);
+  Either<Failure, Unit> registerResult = const Right(unit);
+  Either<Failure, Unit> logoutResult = const Right(unit);
+  bool sessionResult = false;
 
   /// When set, login waits for it, so a test can keep a call "in flight".
   Completer<void>? loginGate;
 
+  /// Same idea as [loginGate], for verify and resend.
+  Completer<void>? verifyGate;
+  Completer<void>? resendGate;
+  Completer<void>? registerGate;
+
   int loginCalls = 0;
   int verifyCalls = 0;
   int resendCalls = 0;
+  int logoutCalls = 0;
+
+  /// What the use cases sent, in order.
+  final List<RegisterParams> registerArgs = [];
+  final List<({String email, String password})> loginArgs = [];
+  final List<({String email, String otpCode})> verifyArgs = [];
+  final List<String> resendArgs = [];
 
   @override
   Future<Either<Failure, Unit>> login({
@@ -24,6 +39,7 @@ class FakeAuthRepository implements AuthRepository {
     required String password,
   }) async {
     loginCalls++;
+    loginArgs.add((email: email, password: password));
     await loginGate?.future;
     return loginResult;
   }
@@ -34,25 +50,32 @@ class FakeAuthRepository implements AuthRepository {
     required String otpCode,
   }) async {
     verifyCalls++;
+    verifyArgs.add((email: email, otpCode: otpCode));
+    await verifyGate?.future;
     return verifyResult;
   }
 
   @override
   Future<Either<Failure, Unit>> resendOtp({required String email}) async {
     resendCalls++;
+    resendArgs.add(email);
+    await resendGate?.future;
     return resendResult;
   }
 
   @override
-  Future<Either<Failure, Unit>> register(RegisterParams params) {
-    throw UnimplementedError();
+  Future<Either<Failure, Unit>> register(RegisterParams params) async {
+    registerArgs.add(params);
+    await registerGate?.future;
+    return registerResult;
   }
 
   @override
-  Future<Either<Failure, Unit>> logout() {
-    throw UnimplementedError();
+  Future<Either<Failure, Unit>> logout() async {
+    logoutCalls++;
+    return logoutResult;
   }
 
   @override
-  Future<bool> hasValidSession() async => false;
+  Future<bool> hasValidSession() async => sessionResult;
 }
