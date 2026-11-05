@@ -1,6 +1,7 @@
 import 'package:easy_shop/core/errors/error_messages.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:easy_shop/features/client/profile/domain/entities/client_entity.dart';
+import 'package:easy_shop/features/client/profile/presentation/constants/profile_strings.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/profile_cubit.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/profile_state.dart';
 import 'package:flutter/material.dart';
