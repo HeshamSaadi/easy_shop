@@ -8,4 +8,17 @@ abstract class ProfileRepository {
   ///
   /// Returns [ClientEntity] on success, or [Failure] on error.
   Future<Either<Failure, ClientEntity>> getProfile();
+
+  /// Updates the current authenticated client's profile information.
+  ///
+  /// Returns updated [ClientEntity] on success, or [Failure] on error.
+  Future<Either<Failure, ClientEntity>> updateProfile({
+    required String name,
+    required String email,
+    required String phone,
+    String? address,
+    String? latitude,
+    String? longitude,
+    String? picturePath,
+  });
 }

@@ -28,14 +28,15 @@ class ProfileScreen extends StatelessWidget {
         builder: (context, state) {
           return switch (state) {
             ProfileInitial() => const SizedBox.shrink(),
-            ProfileLoading() => const Center(
+            ProfileLoading() || ProfileUpdating() => const Center(
               child: CircularProgressIndicator(),
             ),
-            ProfileLoaded(client: final client) => _buildProfileContent(
-              context,
-              client,
-            ),
-            ProfileError(message: final message) => Center(
+            ProfileLoaded(client: final client) ||
+            ProfileUpdateSuccess(
+              client: final client,
+            ) => _buildProfileContent(context, client),
+            ProfileError(message: final message) ||
+            ProfileUpdateError(message: final message) => Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

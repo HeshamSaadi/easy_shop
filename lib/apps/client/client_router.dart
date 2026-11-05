@@ -9,7 +9,10 @@ import 'package:easy_shop/features/client/auth/presentation/cubit/register_cubit
 import 'package:easy_shop/features/client/auth/presentation/screens/login_screen.dart';
 import 'package:easy_shop/features/client/auth/presentation/screens/otp_screen.dart';
 import 'package:easy_shop/features/client/auth/presentation/screens/register_screen.dart';
+import 'package:easy_shop/features/client/profile/domain/entities/client_entity.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/profile_cubit.dart';
+import 'package:easy_shop/features/client/profile/presentation/cubit/profile_state.dart';
+import 'package:easy_shop/features/client/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:easy_shop/features/client/profile/presentation/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -102,10 +105,13 @@ GoRouter createClientRouter(SessionCubit session) {
               context.goNamed(ClientRouteNames.login);
             },
             onEditProfile: () {
-              // TODO: Navigate to edit profile when implemented
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Edit Profile - Coming Soon!')),
-              );
+              final state = context.read<ProfileCubit>().state;
+              if (state is ProfileLoaded) {
+                context.pushNamed(
+                  ClientRouteNames.profileEdit,
+                  extra: state.client,
+                );
+              }
             },
             onMyOrders: () {
               // TODO: Navigate to orders
@@ -121,6 +127,29 @@ GoRouter createClientRouter(SessionCubit session) {
             },
           ),
         ),
+      ),
+      // Edit Profile route
+      GoRoute(
+        name: ClientRouteNames.profileEdit,
+        path: '${ClientRoutePaths.profile}/edit',
+        redirect: (_, state) =>
+            state.extra is ClientEntity ? null : ClientRoutePaths.profile,
+        builder: (context, state) {
+          final client = state.extra! as ClientEntity;
+          final images = _sl<ImagePickerService>();
+
+          return BlocProvider.value(
+            value: context.read<ProfileCubit>(),
+            child: EditProfileScreen(
+              client: client,
+              onUpdated: () {
+                context.read<ProfileCubit>().loadProfile();
+                context.pop();
+              },
+              pickPicture: images.pickImage,
+            ),
+          );
+        },
       ),
     ],
   );

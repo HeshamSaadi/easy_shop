@@ -19,4 +19,30 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return Left(Failure(e.message, fieldErrors: e.fieldErrors));
     }
   }
+
+  @override
+  Future<Either<Failure, ClientEntity>> updateProfile({
+    required String name,
+    required String email,
+    required String phone,
+    String? address,
+    String? latitude,
+    String? longitude,
+    String? picturePath,
+  }) async {
+    try {
+      final client = await _remoteDataSource.updateProfile(
+        name: name,
+        email: email,
+        phone: phone,
+        address: address,
+        latitude: latitude,
+        longitude: longitude,
+        picturePath: picturePath,
+      );
+      return Right(client);
+    } on AppException catch (e) {
+      return Left(Failure(e.message, fieldErrors: e.fieldErrors));
+    }
+  }
 }

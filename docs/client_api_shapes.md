@@ -163,13 +163,16 @@ This document contains the API response shapes for the EasyShop Client App endpo
 
 ---
 
-### PUT /client/profile/update
+### POST /client/profile/update
 **Description**: Update client profile information
+
+**Note**: Uses POST with `_method=PUT` for method spoofing (Laravel convention)
 
 **Headers**: 
 - `Authorization: Bearer {token}`
 
 **Request**: `FormData` (multipart/form-data)
+- `_method`: string (required) - must be "PUT"
 - `name`: string (required)
 - `email`: string (required)
 - `phone`: string (required)
@@ -178,22 +181,22 @@ This document contains the API response shapes for the EasyShop Client App endpo
 - `longitude`: string (optional)
 - `picture`: file (optional)
 
-**Response - Success**: `200 OK`
+**Response - Success**: `201 Created`
 ```json
 {
     "data": {
         "id": 61,
         "name": "Ahmed Elbatal",
-        "email": "kemmouftiroza-4817@yopmail.com",
-        "phone": "+201013114573",
+        "email": "kemmouftiroza-4814@yopmail.com",
+        "phone": "+201013114577",
         "address": "Cairo, Egypt",
         "latitude": "30.033333",
         "longitude": "31.233334",
         "created_at": "2026-11-05T14:26:01.000000Z",
-        "updated_at": "2026-11-05T15:10:45.000000Z",
-        "picture_url": "https://easylearn.devawy.com/uploads/clients/images.jfif"
+        "updated_at": "2026-11-11T08:14:26.000000Z",
+        "picture_url": "https://easylearn.devawy.com/uploads/clients/1456915694.jfif"
     },
-    "message": "Profile updated successfully"
+    "message": "Account updated successfully"
 }
 ```
 
