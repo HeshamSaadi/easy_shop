@@ -1,5 +1,6 @@
 import 'package:easy_shop/core/theme/app_colors.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
+import 'package:easy_shop/core/utils/assets_path.dart'; // استيراد ملف المسارات
 import 'package:flutter/material.dart';
 
 /// Splash screen shown on app launch
@@ -16,18 +17,13 @@ class SplashScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // EasyShop Icon/Logo
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: const Icon(
-                Icons.shopping_bag,
-                size: 64,
-                color: AppColors.clientPrimary,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Image.asset(
+                AssetsPath.logo,
+                width: 120,
+                height: 120,
+                fit: BoxFit.cover,
               ),
             ),
             const SizedBox(height: AppSpacing.xxl),
