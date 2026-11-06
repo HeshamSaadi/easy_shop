@@ -25,6 +25,7 @@ abstract final class ProfileStrings {
   static const String enterPhoneNumber = 'Enter your phone number';
   static const String deliveryAddressLabel = 'Delivery Address';
   static const String enterAddress = 'Enter your delivery address (optional)';
+  static const String locationLabel = 'Location';
   static const String locationSet = 'Location Set';
   static const String pickLocationOnMap = 'Pick Location on Map';
   static const String locationPickerComingSoon =

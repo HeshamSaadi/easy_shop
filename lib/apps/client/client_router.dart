@@ -3,6 +3,9 @@ import 'package:easy_shop/apps/client/client_strings.dart';
 import 'package:easy_shop/apps/client/session/router_refresh_stream.dart';
 import 'package:easy_shop/apps/client/session/session_cubit.dart';
 import 'package:easy_shop/apps/client/session/session_state.dart';
+import 'package:easy_shop/core/location/location_picker_cubit.dart';
+import 'package:easy_shop/core/location/location_picker_screen.dart';
+import 'package:easy_shop/core/location/picked_location.dart';
 import 'package:easy_shop/core/media/image_picker_service.dart';
 import 'package:easy_shop/features/client/auth/presentation/cubit/login_cubit.dart';
 import 'package:easy_shop/features/client/auth/presentation/cubit/otp_cubit.dart';
@@ -13,6 +16,7 @@ import 'package:easy_shop/features/client/auth/presentation/screens/register_scr
 import 'package:easy_shop/features/client/auth/presentation/screens/splash_screen.dart';
 import 'package:easy_shop/features/client/auth/presentation/screens/verified_screen.dart';
 import 'package:easy_shop/features/client/profile/domain/entities/client_entity.dart';
+import 'package:easy_shop/features/client/profile/presentation/cubit/edit_profile_cubit.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/profile_cubit.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/profile_state.dart';
 import 'package:easy_shop/features/client/profile/presentation/screens/edit_profile_screen.dart';
@@ -21,9 +25,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:easy_shop/core/location/location_picker_cubit.dart';
-import 'package:easy_shop/core/location/location_picker_screen.dart';
-import 'package:easy_shop/core/location/picked_location.dart';
 
 final _sl = GetIt.instance;
 
@@ -105,62 +106,21 @@ GoRouter createClientRouter(SessionCubit session) {
           ),
         ),
       ),
-      ShellRoute(
-        builder: (context, state, child) => BlocProvider(
+      GoRoute(
+        name: ClientRouteNames.profile,
+        path: ClientRoutePaths.profile,
+        builder: (_, _) => BlocProvider(
           create: (_) => _sl<ProfileCubit>()..loadProfile(),
-          child: child,
+          child: _ProfilePage(session: session),
         ),
-        routes: [
-          GoRoute(
-            name: ClientRouteNames.profile,
-            path: ClientRoutePaths.profile,
-            builder: (context, _) => ProfileScreen(
-              onLogout: session.logout,
-              onEditProfile: () {
-                final state = context.read<ProfileCubit>().state;
-                if (state is ProfileLoaded) {
-                  context.pushNamed(
-                    ClientRouteNames.profileEdit,
-                    extra: state.client,
-                  );
-                }
-              },
-              onMyOrders: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(ClientStrings.myOrdersComingSoon),
-                  ),
-                );
-              },
-              onFavorites: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(ClientStrings.favoritesComingSoon),
-                  ),
-                );
-              },
-            ),
-          ),
-          GoRoute(
-            name: ClientRouteNames.profileEdit,
-            path: '${ClientRoutePaths.profile}/edit',
-            redirect: (_, state) =>
-                state.extra is ClientEntity ? null : ClientRoutePaths.profile,
-            builder: (context, state) {
-              final client = state.extra! as ClientEntity;
-              final images = _sl<ImagePickerService>();
-
-              return EditProfileScreen(
-                client: client,
-                onUpdated: () {
-                  context.read<ProfileCubit>().loadProfile();
-                  context.pop();
-                },
-                pickPicture: images.pickImage,
-              );
-            },
-          ),
-        ],
+      ),
+      GoRoute(
+        name: ClientRouteNames.profileEdit,
+        path: '${ClientRoutePaths.profile}/edit',
+        redirect: (_, state) =>
+            state.extra is ClientEntity ? null : ClientRoutePaths.profile,
+        builder: (_, state) =>
+            _EditProfilePage(client: state.extra! as ClientEntity),
       ),
     ],
   );
@@ -201,6 +161,7 @@ class _OtpPage extends StatelessWidget {
     );
   }
 }
+
 class _RegisterPage extends StatelessWidget {
   const _RegisterPage();
 
@@ -231,6 +192,71 @@ class _RegisterPage extends StatelessWidget {
       child: RegisterScreen(
         onRegistered: (email) => _onRegistered(context, email),
         onLoginTap: () => _backToLogin(context),
+        onPickLocation: () => _pickLocation(context),
+      ),
+    );
+  }
+}
+
+class _ProfilePage extends StatelessWidget {
+  const _ProfilePage({required this.session});
+
+  final SessionCubit session;
+
+  Future<void> _openEdit(BuildContext context) async {
+    final state = context.read<ProfileCubit>().state;
+    if (state is! ProfileLoaded) return;
+
+    final updated = await context.pushNamed<bool>(
+      ClientRouteNames.profileEdit,
+      extra: state.client,
+    );
+
+    if (updated == true && context.mounted) {
+      context.read<ProfileCubit>().loadProfile();
+    }
+  }
+
+  void _comingSoon(BuildContext context, String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ProfileScreen(
+      onLogout: session.logout,
+      onEditProfile: () => _openEdit(context),
+      onMyOrders: () => _comingSoon(context, ClientStrings.myOrdersComingSoon),
+      onFavorites: () =>
+          _comingSoon(context, ClientStrings.favoritesComingSoon),
+    );
+  }
+}
+
+class _EditProfilePage extends StatelessWidget {
+  const _EditProfilePage({required this.client});
+
+  final ClientEntity client;
+
+  Future<PickedLocation?> _pickLocation(BuildContext context) {
+    return LocationPickerScreen.open(
+      context,
+      createCubit: () => _sl<LocationPickerCubit>(param1: null),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final images = _sl<ImagePickerService>();
+
+    return BlocProvider(
+      create: (_) => _sl<EditProfileCubit>(),
+      child: EditProfileScreen(
+        client: client,
+        onUpdated: () => context.pop(true),
+        pickPicture: images.pickImage,
         onPickLocation: () => _pickLocation(context),
       ),
     );

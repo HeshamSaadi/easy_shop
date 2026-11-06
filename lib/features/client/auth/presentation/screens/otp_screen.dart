@@ -164,9 +164,7 @@ class _CountdownLabel extends StatelessWidget {
               ? AuthStrings.codeExpired
               : '${AuthStrings.codeExpiresIn} ${_format(state.remaining)}',
           style: textTheme.bodyMedium?.copyWith(
-            color: state.isExpired
-                ? AppColors.error
-                : AppColors.textSecondary,
+            color: state.isExpired ? AppColors.error : AppColors.textSecondary,
           ),
           textAlign: TextAlign.center,
         );

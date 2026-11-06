@@ -28,11 +28,16 @@ class ClientModel extends ClientEntity {
       phone: json['phone'] as String? ?? '',
       pictureUrl: json['picture_url'] as String?,
       address: json['address'] as String?,
-      latitude: json['latitude'] as String?,
-      longitude: json['longitude'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      latitude: json['latitude']?.toString(),
+      longitude: json['longitude']?.toString(),
+      createdAt: _parseDate(json['created_at']),
+      updatedAt: _parseDate(json['updated_at']),
     );
+  }
+
+  static DateTime _parseDate(Object? value) {
+    return DateTime.tryParse(value?.toString() ?? '') ??
+        DateTime.fromMillisecondsSinceEpoch(0);
   }
 
   /// Converts this model to a JSON map.

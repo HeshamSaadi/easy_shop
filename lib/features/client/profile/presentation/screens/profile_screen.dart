@@ -1,9 +1,10 @@
-import 'package:easy_shop/core/errors/error_messages.dart';
 import 'package:easy_shop/core/theme/app_colors.dart';
 import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_sizes.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:easy_shop/core/widgets/app_avatar.dart';
+import 'package:easy_shop/core/widgets/app_error.dart';
+import 'package:easy_shop/core/widgets/app_loading.dart';
 import 'package:easy_shop/features/client/profile/domain/entities/client_entity.dart';
 import 'package:easy_shop/features/client/profile/presentation/constants/profile_strings.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/profile_cubit.dart';
@@ -37,42 +38,14 @@ class ProfileScreen extends StatelessWidget {
         builder: (context, state) {
           return switch (state) {
             ProfileInitial() => const SizedBox.shrink(),
-            ProfileLoading() || ProfileUpdating() => const Center(
-              child: CircularProgressIndicator(),
+            ProfileLoading() => const AppLoading(),
+            ProfileLoaded(:final client) => _buildProfileContent(
+              context,
+              client,
             ),
-            ProfileLoaded(client: final client) ||
-            ProfileUpdateSuccess(
-              client: final client,
-            ) => _buildProfileContent(context, client),
-            ProfileError(message: final message) ||
-            ProfileUpdateError(message: final message) => Center(
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.xxl),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: AppSizes.iconXl,
-                      color: AppColors.error,
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    Text(
-                      message.isNotEmpty ? message : ErrorMessages.unknown,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyLarge
-                          ?.copyWith(color: AppColors.textSecondary),
-                    ),
-                    const SizedBox(height: AppSpacing.xl),
-                    OutlinedButton.icon(
-                      onPressed: () =>
-                          context.read<ProfileCubit>().loadProfile(),
-                      icon: const Icon(Icons.refresh),
-                      label: const Text(ProfileStrings.retry),
-                    ),
-                  ],
-                ),
-              ),
+            ProfileError(:final message) => AppError(
+              message: message,
+              onRetry: () => context.read<ProfileCubit>().loadProfile(),
             ),
           };
         },

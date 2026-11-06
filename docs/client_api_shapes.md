@@ -13,8 +13,7 @@ This document contains the API response shapes for the EasyShop Client App endpo
 - `name`, `email`, `phone`, `password`, `password_confirmation`
 - `address`, `latitude`, `longitude`, `picture` (optional)
 
-**Phone**: `+20` followed by 10 digits, **no spaces**. A phone with spaces returns 422
-(`"The phone field format is invalid."`). Strip spaces before sending.
+**Note**: Phone must be +20 followed by 10 digits, no spaces. A phone with spaces returns 422 ('The phone field format is invalid.').
 
 **Validation error (duplicate)**: 422
 { "data": null, "message": { "email": ["The email has already been taken."], "phone": ["The phone has already been taken."] } }
@@ -65,13 +64,15 @@ This document contains the API response shapes for the EasyShop Client App endpo
 
 ---
 
-### POST /client/verify-otp
+### POST /client/otp/verify
 **Description**: Verify OTP code and receive authentication token
 
 **Request**: `application/json`
 ```json
-**Request**: `application/json`
-{ "email": "...", "otp_code": "123456" }
+{
+    "email": "getrisoboleu-3890@yopmail.com",
+    "otp_code": "123456"
+}
 ```
 
 **Response**: `200 OK`
@@ -98,7 +99,7 @@ This document contains the API response shapes for the EasyShop Client App endpo
 
 ---
 
-### POST /client/resend-otp
+### POST /client/otp/resend
 **Description**: Resend OTP code to email
 
 **Request**: `application/json`

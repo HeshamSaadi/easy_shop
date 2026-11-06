@@ -101,29 +101,29 @@ Each feature follows a three-layer architecture:
 #### Admin App
 ```bash
 # Android
-flutter run --flavor admin -t lib/apps/admin/main_admin.dart
+flutter run --flavor admin -t lib/main_admin.dart
 
 # iOS
-flutter run --flavor admin -t lib/apps/admin/main_admin.dart
+flutter run --flavor admin -t lib/main_admin.dart
 ```
 
 #### Client App
 ```bash
 # Android
-flutter run --flavor client -t lib/apps/client/main_client.dart
+flutter run --flavor client -t lib/main_client.dart
 
 # iOS
-flutter run --flavor client -t lib/apps/client/main_client.dart
+flutter run --flavor client -t lib/main_client.dart
 ```
 
 ### Building for Production
 
 ```bash
 # Admin APK
-flutter build apk --flavor admin -t lib/apps/admin/main_admin.dart
+flutter build apk --flavor admin -t lib/main_admin.dart
 
 # Client APK
-flutter build apk --flavor client -t lib/apps/client/main_client.dart
+flutter build apk --flavor client -t lib/main_client.dart
 ```
 
 ---
@@ -163,18 +163,18 @@ flutter build apk --flavor client -t lib/apps/client/main_client.dart
 - ✅ **Session Management**: Token-based authentication with auto-restore
 - ✅ **Categories**: Create, Read, Update, Delete categories
 - ✅ **Products**: Full CRUD operations with images
-- ✅ **Orders**: View and manage orders
+- ✅ **Orders**: View orders and details
 - ✅ **Profile**: View and edit admin profile with location picker
 - ✅ **Dashboard**: Overview statistics (categories, products, orders count)
 
 ### Client App (Person A - Auth, Session, Profile)
-- ✅ **Authentication**: Login, OTP verification, Register with picture upload
+- ✅ **Authentication**: Login, OTP verification, Register (with optional address and map location)
 - ✅ **Session Management**: Token-based authentication with route guards
 - ✅ **Profile**: 
   - View profile with personal information and delivery address
   - Edit profile with all fields
   - Picture upload
-  - Location picker (placeholder)
+  - Location picker on map
 - ✅ **API Documentation**: Complete endpoint documentation in `docs/`
 
 ---
@@ -198,14 +198,13 @@ The following features are planned but not yet implemented:
 - ⏳ **Checkout**: Order placement with delivery address
 
 ### Both Apps
-- ⏳ **Comprehensive Testing**: Unit tests, widget tests, integration tests
+- ⏳ **Client app tests**: in progress (Admin tests are done)
 - ⏳ **Offline Support**: Local caching with connectivity handling
 - ⏳ **Push Notifications**: Order updates and announcements
 - ⏳ **Advanced Search**: Filters, sorting, price ranges
 - ⏳ **Reviews & Ratings**: Product reviews system
 - ⏳ **Payment Integration**: Payment gateway integration
 - ⏳ **Multi-language Support**: Localization (currently English only)
-- ⏳ **Dark Mode**: Full dark theme support
 
 ---
 

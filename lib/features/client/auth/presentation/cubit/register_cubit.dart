@@ -6,8 +6,7 @@ import 'package:easy_shop/features/client/auth/presentation/cubit/register_state
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RegisterCubit extends Cubit<RegisterState> {
-  RegisterCubit({required this._registerClient})
-    : super(const RegisterState());
+  RegisterCubit({required this._registerClient}) : super(const RegisterState());
 
   final RegisterClient _registerClient;
 

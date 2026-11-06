@@ -3,27 +3,21 @@ import 'package:easy_shop/features/client/profile/data/repositories/profile_repo
 import 'package:easy_shop/features/client/profile/domain/repositories/profile_repository.dart';
 import 'package:easy_shop/features/client/profile/domain/usecases/get_client_profile.dart';
 import 'package:easy_shop/features/client/profile/domain/usecases/update_client_profile.dart';
+import 'package:easy_shop/features/client/profile/presentation/cubit/edit_profile_cubit.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/profile_cubit.dart';
 import 'package:get_it/get_it.dart';
 
-/// Registers all client profile-related dependencies.
+/// Registers the Client profile feature.
 void registerClientProfile(GetIt sl) {
-  // Cubit
-  sl.registerFactory(
-    () => ProfileCubit(getClientProfile: sl(), updateClientProfile: sl()),
-  );
-
-  // Use cases
-  sl.registerLazySingleton(() => GetClientProfile(sl()));
-  sl.registerLazySingleton(() => UpdateClientProfile(sl()));
-
-  // Repository
-  sl.registerLazySingleton<ProfileRepository>(
-    () => ProfileRepositoryImpl(sl()),
-  );
-
-  // Data sources
-  sl.registerLazySingleton<ProfileRemoteDataSource>(
-    () => ProfileRemoteDataSourceImpl(sl()),
-  );
+  sl
+    ..registerLazySingleton<ProfileRemoteDataSource>(
+      () => ProfileRemoteDataSourceImpl(sl()),
+    )
+    ..registerLazySingleton<ProfileRepository>(
+      () => ProfileRepositoryImpl(sl()),
+    )
+    ..registerLazySingleton(() => GetClientProfile(sl()))
+    ..registerLazySingleton(() => UpdateClientProfile(sl()))
+    ..registerFactory(() => ProfileCubit(getClientProfile: sl()))
+    ..registerFactory(() => EditProfileCubit(updateClientProfile: sl()));
 }
