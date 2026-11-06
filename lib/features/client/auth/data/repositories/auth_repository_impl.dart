@@ -89,12 +89,16 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<bool> hasValidSession() async {
-    final token = await _tokenStorage.readToken();
-    if (token == null || token.isEmpty) return false;
-    if (isJwtExpired(token)) {
-      await _tokenStorage.clearToken();
+    try {
+      final token = await _tokenStorage.readToken();
+      if (token == null || token.isEmpty) return false;
+      if (isJwtExpired(token)) {
+        await _tokenStorage.clearToken();
+        return false;
+      }
+      return true;
+    } on Exception {
       return false;
     }
-    return true;
   }
 }

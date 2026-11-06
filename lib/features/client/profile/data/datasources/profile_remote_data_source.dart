@@ -2,16 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:easy_shop/core/databases/api/api_consumer.dart';
 import 'package:easy_shop/core/databases/api/end_points.dart';
 import 'package:easy_shop/core/databases/api/multipart_helper.dart';
+import 'package:easy_shop/core/databases/api/response_reader.dart';
 import 'package:easy_shop/features/client/profile/data/models/client_model.dart';
 
-/// Remote data source for client profile operations.
-///
-/// Handles API calls related to client profile management.
 abstract class ProfileRemoteDataSource {
-  /// Fetches the current authenticated client's profile.
   Future<ClientModel> getProfile();
-
-  /// Updates the current authenticated client's profile.
   Future<ClientModel> updateProfile({
     required String name,
     required String email,
@@ -26,12 +21,15 @@ abstract class ProfileRemoteDataSource {
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   ProfileRemoteDataSourceImpl(this._apiConsumer);
 
+  static const String _methodKey = '_method';
+  static const String _putMethod = 'PUT'; // Laravel method spoofing
+
   final ApiConsumer _apiConsumer;
 
   @override
   Future<ClientModel> getProfile() async {
     final response = await _apiConsumer.get(EndPoints.clientProfile);
-    return ClientModel.fromJson(response['data'] as Map<String, dynamic>);
+    return ClientModel.fromJson(ResponseReader.object(response));
   }
 
   @override
@@ -47,14 +45,14 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     final picture = await multipartFileOrNull(picturePath);
 
     final formData = FormData.fromMap({
-      '_method': 'PUT', // Laravel method spoofing
+      _methodKey: _putMethod,
       'name': name,
       'email': email,
       'phone': phone,
-      if (address != null) 'address': address,
-      if (latitude != null) 'latitude': latitude,
-      if (longitude != null) 'longitude': longitude,
-      if (picture != null) 'picture': picture,
+      'address': ?address,
+      'latitude': ?latitude,
+      'longitude': ?longitude,
+      'picture': ?picture,
     });
 
     final response = await _apiConsumer.post(
@@ -62,6 +60,6 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       data: formData,
     );
 
-    return ClientModel.fromJson(response['data'] as Map<String, dynamic>);
+    return ClientModel.fromJson(ResponseReader.object(response));
   }
 }

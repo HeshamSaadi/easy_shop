@@ -1,6 +1,10 @@
 /// Texts that belong to the Client auth screens only.
 /// Texts shared by both apps live in `core/utils/app_strings.dart`.
 abstract final class AuthStrings {
+  // Splash Screen
+  static const String appName = 'EasyShop';
+  static const String tagline = 'Your Shopping Companion';
+
   // Login Screen
   static const String welcomeBack = 'Welcome Back!';
   static const String loginSubtitle = 'Sign in to continue shopping';
@@ -22,6 +26,8 @@ abstract final class AuthStrings {
   static const String verify = 'Verify';
   static const String resendCode = 'Resend Code';
   static const String otpResent = 'A new code was sent to your email.';
+  static const String verifyOtpTitle = 'Verify OTP';
+  static const String codeSentTo = 'Code sent to';
 
   // Register Screen
   static const String createYourAccount = 'Create Your Account';
@@ -38,9 +44,17 @@ abstract final class AuthStrings {
   static const String register = 'Register';
   static const String alreadyHaveAccount = 'Already have an account?';
   static const String signInHere = 'Sign in here';
+  static const String addressLabel = 'Address';
+  static const String addressHint = 'Street, City (optional)';
+  static const String locationLabel = 'Location';
+  static const String locationHint = 'Tap to pick on map (optional)';
 
   // Success Messages
   static const String accountCreated = 'Account created successfully!';
   static const String loginSuccess = 'Login successful!';
   static const String otpVerified = 'Email verified successfully!';
+
+  // Verified Screen
+  static const String verifiedTitle = 'Verified!';
+  static const String verifiedSubtitle = 'Welcome to Easy Shop 🛍️';
 }

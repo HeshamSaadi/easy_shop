@@ -10,6 +10,8 @@ import 'package:easy_shop/features/client/auth/presentation/cubit/register_cubit
 import 'package:easy_shop/features/client/auth/presentation/screens/login_screen.dart';
 import 'package:easy_shop/features/client/auth/presentation/screens/otp_screen.dart';
 import 'package:easy_shop/features/client/auth/presentation/screens/register_screen.dart';
+import 'package:easy_shop/features/client/auth/presentation/screens/splash_screen.dart';
+import 'package:easy_shop/features/client/auth/presentation/screens/verified_screen.dart';
 import 'package:easy_shop/features/client/profile/domain/entities/client_entity.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/profile_cubit.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/profile_state.dart';
@@ -19,6 +21,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_shop/core/location/location_picker_cubit.dart';
+import 'package:easy_shop/core/location/location_picker_screen.dart';
+import 'package:easy_shop/core/location/picked_location.dart';
 
 final _sl = GetIt.instance;
 
@@ -31,8 +36,7 @@ GoRouter createClientRouter(SessionCubit session) {
       GoRoute(
         name: ClientRouteNames.splash,
         path: ClientRoutePaths.splash,
-        builder: (_, _) =>
-            const Scaffold(body: Center(child: CircularProgressIndicator())),
+        builder: (_, _) => const SplashScreen(),
       ),
       GoRoute(
         name: ClientRouteNames.login,
@@ -58,6 +62,13 @@ GoRouter createClientRouter(SessionCubit session) {
         name: ClientRouteNames.register,
         path: ClientRoutePaths.register,
         builder: (_, _) => const _RegisterPage(),
+      ),
+      GoRoute(
+        name: ClientRouteNames.verified,
+        path: ClientRoutePaths.verified,
+        builder: (context, _) => VerifiedScreen(
+          onContinue: () => context.goNamed(ClientRouteNames.home),
+        ),
       ),
       // Temporary home route until we implement the main app shell
       GoRoute(
@@ -94,65 +105,62 @@ GoRouter createClientRouter(SessionCubit session) {
           ),
         ),
       ),
-      // Profile route
-      GoRoute(
-        name: ClientRouteNames.profile,
-        path: ClientRoutePaths.profile,
-        builder: (context, _) => BlocProvider(
+      ShellRoute(
+        builder: (context, state, child) => BlocProvider(
           create: (_) => _sl<ProfileCubit>()..loadProfile(),
-          child: ProfileScreen(
-            onLogout: () {
-              session.logout();
-              context.goNamed(ClientRouteNames.login);
-            },
-            onEditProfile: () {
-              final state = context.read<ProfileCubit>().state;
-              if (state is ProfileLoaded) {
-                context.pushNamed(
-                  ClientRouteNames.profileEdit,
-                  extra: state.client,
+          child: child,
+        ),
+        routes: [
+          GoRoute(
+            name: ClientRouteNames.profile,
+            path: ClientRoutePaths.profile,
+            builder: (context, _) => ProfileScreen(
+              onLogout: session.logout,
+              onEditProfile: () {
+                final state = context.read<ProfileCubit>().state;
+                if (state is ProfileLoaded) {
+                  context.pushNamed(
+                    ClientRouteNames.profileEdit,
+                    extra: state.client,
+                  );
+                }
+              },
+              onMyOrders: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(ClientStrings.myOrdersComingSoon),
+                  ),
                 );
-              }
-            },
-            onMyOrders: () {
-              // TODO: Navigate to orders
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text(ClientStrings.myOrdersComingSoon)),
-              );
-            },
-            onFavorites: () {
-              // TODO: Navigate to favorites
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(ClientStrings.favoritesComingSoon),
-                ),
+              },
+              onFavorites: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(ClientStrings.favoritesComingSoon),
+                  ),
+                );
+              },
+            ),
+          ),
+          GoRoute(
+            name: ClientRouteNames.profileEdit,
+            path: '${ClientRoutePaths.profile}/edit',
+            redirect: (_, state) =>
+                state.extra is ClientEntity ? null : ClientRoutePaths.profile,
+            builder: (context, state) {
+              final client = state.extra! as ClientEntity;
+              final images = _sl<ImagePickerService>();
+
+              return EditProfileScreen(
+                client: client,
+                onUpdated: () {
+                  context.read<ProfileCubit>().loadProfile();
+                  context.pop();
+                },
+                pickPicture: images.pickImage,
               );
             },
           ),
-        ),
-      ),
-      // Edit Profile route
-      GoRoute(
-        name: ClientRouteNames.profileEdit,
-        path: '${ClientRoutePaths.profile}/edit',
-        redirect: (_, state) =>
-            state.extra is ClientEntity ? null : ClientRoutePaths.profile,
-        builder: (context, state) {
-          final client = state.extra! as ClientEntity;
-          final images = _sl<ImagePickerService>();
-
-          return BlocProvider.value(
-            value: context.read<ProfileCubit>(),
-            child: EditProfileScreen(
-              client: client,
-              onUpdated: () {
-                context.read<ProfileCubit>().loadProfile();
-                context.pop();
-              },
-              pickPicture: images.pickImage,
-            ),
-          );
-        },
+        ],
       ),
     ],
   );
@@ -161,10 +169,15 @@ GoRouter createClientRouter(SessionCubit session) {
 String? _guard(SessionState state, String location) {
   final isPublic = ClientRoutePaths.publicRoutes.contains(location);
   final isSplash = location == ClientRoutePaths.splash;
+  final isVerified = location == ClientRoutePaths.verified;
   return switch (state) {
     SessionUnknown() => isSplash ? null : ClientRoutePaths.splash,
     SessionAuthenticated() =>
-      (isPublic || isSplash) ? ClientRoutePaths.home : null,
+      isVerified
+          ? null
+          : (isPublic || isSplash)
+          ? ClientRoutePaths.home
+          : null,
     SessionUnauthenticated() => isPublic ? null : ClientRoutePaths.login,
   };
 }
@@ -175,20 +188,24 @@ class _OtpPage extends StatelessWidget {
   final String email;
   final SessionCubit session;
 
+  void _onVerified(BuildContext context) {
+    session.signedIn();
+    context.goNamed(ClientRouteNames.verified);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => _sl<OtpCubit>(param1: email)..start(),
-      child: OtpScreen(onVerified: session.signedIn),
+      child: OtpScreen(onVerified: () => _onVerified(context)),
     );
   }
 }
-
 class _RegisterPage extends StatelessWidget {
   const _RegisterPage();
 
   void _onRegistered(BuildContext context, String email) {
-    // Navigate to OTP screen after successful registration
+    // Register sends an OTP, so go straight to the OTP screen.
     context.pushReplacementNamed(ClientRouteNames.otp, extra: email);
   }
 
@@ -200,15 +217,21 @@ class _RegisterPage extends StatelessWidget {
     }
   }
 
+  Future<PickedLocation?> _pickLocation(BuildContext context) {
+    return LocationPickerScreen.open(
+      context,
+      createCubit: () => _sl<LocationPickerCubit>(param1: null),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final images = _sl<ImagePickerService>();
     return BlocProvider(
       create: (_) => _sl<RegisterCubit>(),
       child: RegisterScreen(
         onRegistered: (email) => _onRegistered(context, email),
         onLoginTap: () => _backToLogin(context),
-        pickPicture: images.pickImage,
+        onPickLocation: () => _pickLocation(context),
       ),
     );
   }

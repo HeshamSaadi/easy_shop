@@ -30,7 +30,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   const AuthRemoteDataSourceImpl(this._api);
 
   static const String _tokenKey = 'token';
-
+  static const String _otpKey = 'otp';
   final ApiConsumer _api;
 
   @override
@@ -77,7 +77,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }) async {
     final response = await _api.post(
       EndPoints.clientVerifyOtp,
-      data: {'email': email, 'otp_code': otpCode},
+      data: {'email': email, _otpKey: otpCode},
     );
     final token = response is Map<String, dynamic> ? response[_tokenKey] : null;
     if (token is! String || token.isEmpty) {

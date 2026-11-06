@@ -10,11 +10,9 @@ import 'package:easy_shop/features/client/auth/presentation/cubit/otp_state.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Expects an [OtpCubit] above it (the router provides it and calls `start()`).
 class OtpScreen extends StatefulWidget {
   const OtpScreen({super.key, required this.onVerified});
 
-  /// Called after the code was accepted and the token was saved.
   final VoidCallback onVerified;
 
   @override
@@ -26,7 +24,6 @@ class _OtpScreenState extends State<OtpScreen> {
 
   String _code = '';
 
-  // A new key rebuilds OtpInput, which clears its boxes.
   Key _inputKey = UniqueKey();
 
   void _submit() {
@@ -55,6 +52,8 @@ class _OtpScreenState extends State<OtpScreen> {
         _clearInput();
         _showMessage(context, AuthStrings.otpResent);
       case OtpStatus.verifyFailed:
+        _clearInput();
+        _showMessage(context, state.message ?? ErrorMessages.unknown);
       case OtpStatus.resendFailed:
         _showMessage(context, state.message ?? ErrorMessages.unknown);
       case OtpStatus.idle:
@@ -64,22 +63,18 @@ class _OtpScreenState extends State<OtpScreen> {
     }
   }
 
-  String _formatRemaining(Duration remaining) {
-    final minutes = remaining.inMinutes.toString().padLeft(2, '0');
-    final seconds = remaining.inSeconds
-        .remainder(Duration.secondsPerMinute)
-        .toString()
-        .padLeft(2, '0');
-    return '$minutes:$seconds';
-  }
-
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final email = context.read<OtpCubit>().email;
 
     return BlocConsumer<OtpCubit, OtpState>(
       listenWhen: (previous, current) => previous.status != current.status,
       listener: _onStatusChanged,
+      // The countdown has its own widget, so ticks do not rebuild this one.
+      buildWhen: (previous, current) =>
+          previous.status != current.status ||
+          previous.isExpired != current.isExpired,
       builder: (context, state) {
         final canVerify =
             _code.length == _otpLength && !state.isExpired && !state.isBusy;
@@ -87,7 +82,7 @@ class _OtpScreenState extends State<OtpScreen> {
         return Scaffold(
           backgroundColor: AppColors.background,
           appBar: const AppTopBar(
-            title: AuthStrings.verifyEmail,
+            title: AuthStrings.verifyOtpTitle,
             showBack: true,
           ),
           body: SafeArea(
@@ -102,16 +97,7 @@ class _OtpScreenState extends State<OtpScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      AuthStrings.checkYourEmail,
-                      style: textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      AuthStrings.otpSubtitle,
+                      '${AuthStrings.codeSentTo} $email',
                       style: textTheme.bodyMedium?.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -122,21 +108,11 @@ class _OtpScreenState extends State<OtpScreen> {
                       key: _inputKey,
                       length: _otpLength,
                       onChanged: (value) => setState(() => _code = value),
-                      onCompleted: (_) => _submit(),
+                      onCompleted: (code) =>
+                          context.read<OtpCubit>().verify(code),
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    Text(
-                      state.isExpired
-                          ? AuthStrings.codeExpired
-                          : '${AuthStrings.codeExpiresIn} '
-                                '${_formatRemaining(state.remaining)}',
-                      style: textTheme.bodyMedium?.copyWith(
-                        color: state.isExpired
-                            ? AppColors.error
-                            : AppColors.textSecondary,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
+                    const _CountdownLabel(),
                     const SizedBox(height: AppSpacing.xxxl),
                     AppButton(
                       text: AuthStrings.verify,
@@ -157,6 +133,42 @@ class _OtpScreenState extends State<OtpScreen> {
               ),
             ),
           ),
+        );
+      },
+    );
+  }
+}
+
+/// Shows the time left. Rebuilds every tick, so it is kept small.
+class _CountdownLabel extends StatelessWidget {
+  const _CountdownLabel();
+
+  static String _format(Duration remaining) {
+    final minutes = remaining.inMinutes.toString().padLeft(2, '0');
+    final seconds = remaining.inSeconds
+        .remainder(Duration.secondsPerMinute)
+        .toString()
+        .padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return BlocBuilder<OtpCubit, OtpState>(
+      buildWhen: (previous, current) => previous.remaining != current.remaining,
+      builder: (context, state) {
+        return Text(
+          state.isExpired
+              ? AuthStrings.codeExpired
+              : '${AuthStrings.codeExpiresIn} ${_format(state.remaining)}',
+          style: textTheme.bodyMedium?.copyWith(
+            color: state.isExpired
+                ? AppColors.error
+                : AppColors.textSecondary,
+          ),
+          textAlign: TextAlign.center,
         );
       },
     );

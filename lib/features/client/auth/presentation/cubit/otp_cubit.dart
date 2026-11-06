@@ -8,14 +8,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class OtpCubit extends Cubit<OtpState> {
   OtpCubit({
     required this.email,
-    required VerifyOtp verifyOtp,
-    required ResendOtp resendOtp,
+    required this._verifyOtp,
+    required this._resendOtp,
     this.tickInterval = const Duration(seconds: 1),
-  }) : _verifyOtp = verifyOtp,
-       _resendOtp = resendOtp,
-       super(const OtpState(remaining: validity));
+  }) : super(const OtpState(remaining: validity));
 
-  /// The OTP is valid for 10 minutes (see the project brief).
   static const Duration validity = Duration(minutes: 10);
 
   static const Duration _step = Duration(seconds: 1);

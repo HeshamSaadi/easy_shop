@@ -8,12 +8,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SessionCubit extends Cubit<SessionState> {
   SessionCubit({
-    required RestoreSession restoreSession,
-    required LogoutClient logout,
+    required this._restoreSession,
+    required this._logout,
     required SessionEvents sessionEvents,
-  }) : _restoreSession = restoreSession,
-       _logout = logout,
-       super(const SessionUnknown()) {
+  }) : super(const SessionUnknown()) {
     _expiredSub = sessionEvents.onSessionExpired.listen((_) => _onExpired());
   }
 
@@ -37,6 +35,7 @@ class SessionCubit extends Cubit<SessionState> {
 
   Future<void> logout() async {
     await _logout();
+    if (isClosed) return;
     emit(const SessionUnauthenticated());
   }
 

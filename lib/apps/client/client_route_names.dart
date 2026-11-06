@@ -13,6 +13,7 @@ abstract final class ClientRouteNames {
   static const orderDetails = 'orderDetails';
   static const profile = 'profile';
   static const profileEdit = 'profileEdit';
+  static const String verified = 'verified';
 }
 
 abstract final class ClientRoutePaths {
@@ -26,6 +27,7 @@ abstract final class ClientRoutePaths {
   static const cart = '/cart';
   static const orders = '/orders';
   static const profile = '/profile';
+  static const String verified = '/verified';
 
   static const publicRoutes = {login, register, otp};
 }

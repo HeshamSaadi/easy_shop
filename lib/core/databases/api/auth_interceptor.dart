@@ -15,6 +15,8 @@ class AuthInterceptor extends Interceptor {
     '/register',
     '/otp/verify',
     '/otp/resend',
+    '/verify-otp',
+    '/resend-otp',
   ];
 
   final TokenStorage _tokenStorage;

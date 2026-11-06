@@ -1,13 +1,13 @@
 import 'package:easy_shop/core/errors/failure.dart';
-import 'package:easy_shop/features/admin/auth/domain/usecases/register_admin.dart';
 import 'package:easy_shop/features/admin/auth/presentation/cubit/register_fields.dart';
 import 'package:easy_shop/features/admin/auth/presentation/cubit/register_state.dart';
+import 'package:easy_shop/features/client/auth/domain/usecases/register_client.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RegisterCubit extends Cubit<RegisterState> {
-  RegisterCubit(this._registerAdmin) : super(const RegisterState());
+  RegisterCubit({required this._registerClient}) : super(const RegisterState());
 
-  final RegisterAdmin _registerAdmin;
+  final RegisterClient _registerClient;
 
   void savePersonal({
     required String name,

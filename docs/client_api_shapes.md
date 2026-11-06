@@ -10,12 +10,14 @@ This document contains the API response shapes for the EasyShop Client App endpo
 **Description**: Register a new client account
 
 **Request**: `FormData`
-- `name`: string
-- `email`: string
-- `phone`: string
-- `password`: string
-- `password_confirmation`: string
-- `picture`: file (optional)
+- `name`, `email`, `phone`, `password`, `password_confirmation`
+- `address`, `latitude`, `longitude`, `picture` (optional)
+
+**Phone**: `+20` followed by 10 digits, **no spaces**. A phone with spaces returns 422
+(`"The phone field format is invalid."`). Strip spaces before sending.
+
+**Validation error (duplicate)**: 422
+{ "data": null, "message": { "email": ["The email has already been taken."], "phone": ["The phone has already been taken."] } }
 
 **Response**: `200 OK`
 ```json
@@ -68,10 +70,8 @@ This document contains the API response shapes for the EasyShop Client App endpo
 
 **Request**: `application/json`
 ```json
-{
-    "email": "getrisoboleu-3890@yopmail.com",
-    "otp": "123456"
-}
+**Request**: `application/json`
+{ "email": "...", "otp_code": "123456" }
 ```
 
 **Response**: `200 OK`
@@ -217,6 +217,12 @@ This document contains the API response shapes for the EasyShop Client App endpo
     }
 }
 ```
+
+| Case | message |
+|---|---|
+| Wrong password or unknown email | "Invalid email or password" |
+| Wrong OTP | "Invalid or expired OTP" |
+| Expired OTP | "Invalid or expired OTP" (same message as wrong OTP) |
 
 ---
 

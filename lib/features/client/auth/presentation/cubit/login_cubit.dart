@@ -3,9 +3,7 @@ import 'package:easy_shop/features/client/auth/presentation/cubit/login_state.da
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginCubit extends Cubit<LoginState> {
-  LoginCubit({required LoginClient loginClient})
-    : _loginClient = loginClient,
-      super(const LoginInitial());
+  LoginCubit({required this._loginClient}) : super(const LoginInitial());
 
   final LoginClient _loginClient;
 
