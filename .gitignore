@@ -53,3 +53,7 @@ app.*.map.json
 !.env.example
 android/key.properties
 android/app/google-services.json
+
+# FVM Version Cache
+.fvm/
+android/build/
