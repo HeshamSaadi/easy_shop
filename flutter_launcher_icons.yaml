@@ -1,0 +1,9 @@
+flutter_launcher_icons:
+  # Overwrites the existing "ic_launcher", which AndroidManifest.xml already uses.
+  # (A's config used the name "launcher_icon", which nothing referenced.)
+  android: "ic_launcher"
+  # iOS has no flavors set up in this project.
+  ios: false
+  image_path: "assets/icons/icon_source.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/icons/icon_source.png"

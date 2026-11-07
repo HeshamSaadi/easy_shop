@@ -1,5 +1,6 @@
 import 'package:easy_shop/apps/admin/admin_route_names.dart';
 import 'package:easy_shop/apps/admin/admin_shell.dart';
+import 'package:easy_shop/apps/admin/admin_splash_screen.dart';
 import 'package:easy_shop/apps/admin/session/session_cubit.dart';
 import 'package:easy_shop/apps/admin/session/session_state.dart';
 import 'package:easy_shop/core/location/location_picker_cubit.dart';
@@ -45,8 +46,7 @@ GoRouter createAdminRouter(SessionCubit session) {
       GoRoute(
         name: AdminRouteNames.splash,
         path: AdminRoutePaths.splash,
-        builder: (_, _) =>
-            const Scaffold(body: Center(child: CircularProgressIndicator())),
+        builder: (_, _) => const AdminSplashScreen(),
       ),
       GoRoute(
         name: AdminRouteNames.login,
