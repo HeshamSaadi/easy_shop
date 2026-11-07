@@ -1,3 +1,4 @@
+//test\apps\app_smoke_test.dart
 import 'package:easy_shop/apps/admin/admin_app.dart';
 import 'package:easy_shop/apps/admin/session/session_cubit.dart';
 import 'package:easy_shop/apps/client/client_app.dart';
@@ -7,6 +8,7 @@ import 'package:easy_shop/features/admin/auth/domain/usecases/logout_admin.dart'
 import 'package:easy_shop/features/admin/auth/domain/usecases/restore_session.dart';
 import 'package:easy_shop/features/admin/auth/presentation/constants/auth_strings.dart';
 import 'package:easy_shop/features/admin/auth/presentation/cubit/login_cubit.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 
@@ -35,9 +37,14 @@ void main() {
     await sl.reset();
   });
 
-  testWidgets('ClientApp shows its title', (tester) async {
+  testWidgets('ClientApp shows the home tab with five navigation tabs', (
+    tester,
+  ) async {
     await tester.pumpWidget(const ClientApp());
-    expect(find.text(ClientApp.title), findsOneWidget);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(NavigationDestination), findsNWidgets(5));
   });
 
   testWidgets('AdminApp opens the login screen when there is no session', (
