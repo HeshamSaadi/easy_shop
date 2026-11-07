@@ -12,4 +12,6 @@ class AppSizes {
   static const double avatarMd = 60;
   static const double avatarLg = 96;
   static const double statusDot = 6;
+  static const double logoCard = 112;
+  static const double loadingDot = 8;
 }
