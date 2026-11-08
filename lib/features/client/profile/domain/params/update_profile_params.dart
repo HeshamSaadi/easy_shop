@@ -14,7 +14,7 @@ class UpdateProfileParams {
   final String email;
   final String phone;
   final String? address;
-  final String? latitude;
-  final String? longitude;
+  final double? latitude;
+  final double? longitude;
   final String? picturePath;
 }

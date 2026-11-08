@@ -1,15 +1,10 @@
-/// Represents a client user in the system.
-///
-/// Contains all client information including personal details,
-/// delivery address, and location coordinates.
+/// A client of the store: personal details and the saved delivery location.
 class ClientEntity {
   const ClientEntity({
     required this.id,
     required this.name,
     required this.email,
     required this.phone,
-    required this.createdAt,
-    required this.updatedAt,
     this.pictureUrl,
     this.address,
     this.latitude,
@@ -22,8 +17,6 @@ class ClientEntity {
   final String phone;
   final String? pictureUrl;
   final String? address;
-  final String? latitude;
-  final String? longitude;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final double? latitude;
+  final double? longitude;
 }

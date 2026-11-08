@@ -12,17 +12,14 @@ abstract class ProfileRemoteDataSource {
     required String email,
     required String phone,
     String? address,
-    String? latitude,
-    String? longitude,
+    double? latitude,
+    double? longitude,
     String? picturePath,
   });
 }
 
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   ProfileRemoteDataSourceImpl(this._apiConsumer);
-
-  static const String _methodKey = '_method';
-  static const String _putMethod = 'PUT'; // Laravel method spoofing
 
   final ApiConsumer _apiConsumer;
 
@@ -38,14 +35,13 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     required String email,
     required String phone,
     String? address,
-    String? latitude,
-    String? longitude,
+    double? latitude,
+    double? longitude,
     String? picturePath,
   }) async {
     final picture = await multipartFileOrNull(picturePath);
 
     final formData = FormData.fromMap({
-      _methodKey: _putMethod,
       'name': name,
       'email': email,
       'phone': phone,
@@ -55,7 +51,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       'picture': ?picture,
     });
 
-    final response = await _apiConsumer.post(
+    final response = await _apiConsumer.put(
       EndPoints.clientProfileUpdate,
       data: formData,
     );

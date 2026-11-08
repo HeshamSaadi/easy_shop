@@ -62,8 +62,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _emailController = TextEditingController(text: client.email);
     _phoneController = TextEditingController(text: client.phone);
     _addressController = TextEditingController(text: client.address);
-    _latitude = double.tryParse(client.latitude ?? '');
-    _longitude = double.tryParse(client.longitude ?? '');
+    _latitude = client.latitude;
+    _longitude = client.longitude;
   }
 
   @override

@@ -43,8 +43,8 @@ class EditProfileCubit extends Cubit<EditProfileState> {
         email: email.trim(),
         phone: PhoneUtils.toInternational(phone),
         address: _nullIfBlank(address),
-        latitude: latitude?.toString(),
-        longitude: longitude?.toString(),
+        latitude: latitude,
+        longitude: longitude,
         picturePath: picturePath,
       ),
     );

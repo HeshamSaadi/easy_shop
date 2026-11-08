@@ -21,8 +21,8 @@ class ProfileRepositoryImpl implements ProfileRepository {
     required String email,
     required String phone,
     String? address,
-    String? latitude,
-    String? longitude,
+    double? latitude,
+    double? longitude,
     String? picturePath,
   }) {
     return guardedCall<ClientEntity>(
