@@ -1,4 +1,5 @@
 import 'package:easy_shop/core/theme/app_colors.dart';
+import 'package:easy_shop/core/theme/app_opacity.dart';
 import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_sizes.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
@@ -56,6 +57,8 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildProfileContent(BuildContext context, ClientEntity client) {
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
+    final address = client.address;
+    final addressText = (address == null || address.isEmpty) ? null : address;
 
     return RefreshIndicator(
       onRefresh: () => context.read<ProfileCubit>().loadProfile(),
@@ -69,7 +72,9 @@ class ProfileScreen extends StatelessWidget {
             AppAvatar(
               imageUrl: client.pictureUrl,
               size: AppSizes.avatarLg,
-              backgroundColor: AppColors.clientPrimary.withValues(alpha: 0.1),
+              backgroundColor: AppColors.clientPrimary.withValues(
+                alpha: AppOpacity.tint,
+              ),
               iconColor: AppColors.clientPrimary,
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -102,10 +107,8 @@ class ProfileScreen extends StatelessWidget {
             _InfoCard(
               icon: Icons.location_on_outlined,
               label: ProfileStrings.address,
-              value: client.address?.isNotEmpty == true
-                  ? client.address!
-                  : ProfileStrings.noAddressSet,
-              isEmpty: client.address?.isNotEmpty != true,
+              value: addressText ?? ProfileStrings.noAddressSet,
+              isEmpty: addressText == null,
             ),
 
             const SizedBox(height: AppSpacing.xxxl),
@@ -205,7 +208,7 @@ class _InfoCard extends StatelessWidget {
                     color: AppColors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: AppSpacing.xs),
                 Text(
                   value,
                   style: textTheme.bodyLarge?.copyWith(
