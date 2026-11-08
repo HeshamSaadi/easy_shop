@@ -6,10 +6,19 @@ import 'package:flutter/material.dart';
 
 class AppDarkTheme {
   AppDarkTheme._();
-  //! dark them Setting
+
   static ThemeData get theme {
+    return _buildTheme(AppColors.primary);
+  }
+
+  static ThemeData themeWithPrimary(Color primaryColor) {
+    return _buildTheme(primaryColor);
+  }
+
+  //! dark them Setting
+  static ThemeData _buildTheme(Color primaryColor) {
     final colorscheme = ColorScheme.dark(
-      primary: AppColors.primary,
+      primary: primaryColor,
       onPrimary: Colors.white,
       secondary: AppColors.primaryLight,
       onSecondary: AppColors.darkTextPrimary,
@@ -71,7 +80,7 @@ class AppDarkTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+          borderSide: BorderSide(color: primaryColor, width: 1.5),
         ),
 
         errorBorder: OutlineInputBorder(
@@ -87,7 +96,7 @@ class AppDarkTheme {
       //! Button
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor: primaryColor,
           foregroundColor: Colors.white,
           disabledBackgroundColor: AppColors.darkSurface,
           disabledForegroundColor: AppColors.darkTextSecondary,
@@ -118,9 +127,9 @@ class AppDarkTheme {
       ),
 
       //! bottom Nvigation Bar
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: AppColors.darkSurface,
-        selectedItemColor: AppColors.primary,
+        selectedItemColor: primaryColor,
         unselectedItemColor: AppColors.darkTextSecondary,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
