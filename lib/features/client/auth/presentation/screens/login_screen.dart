@@ -1,6 +1,6 @@
+import 'package:easy_shop/core/widgets/app_logo.dart';
 import 'package:easy_shop/core/theme/app_theme_colors.dart';
 import 'package:easy_shop/core/theme/app_colors.dart';
-import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:easy_shop/core/utils/validators.dart';
 import 'package:easy_shop/core/widgets/app_button.dart';
@@ -82,20 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Logo
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: AppColors.clientPrimary,
-                          borderRadius: BorderRadius.circular(AppRadius.lg),
-                        ),
-                        child: Icon(
-                          Icons.shopping_bag,
-                          size: 48,
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                      ),
+                      const AppLogo(),
                       const SizedBox(height: AppSpacing.xxl),
                       Text(
                         AuthStrings.welcomeBack,
