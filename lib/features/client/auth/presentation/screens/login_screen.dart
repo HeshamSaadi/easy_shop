@@ -1,3 +1,4 @@
+import 'package:easy_shop/core/theme/app_theme_colors.dart';
 import 'package:easy_shop/core/theme/app_colors.dart';
 import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
@@ -67,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
         final isLoading = state is LoginLoading;
 
         return Scaffold(
-          backgroundColor: AppColors.background,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -89,10 +90,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: AppColors.clientPrimary,
                           borderRadius: BorderRadius.circular(AppRadius.lg),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.shopping_bag,
                           size: 48,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onPrimary,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.xxl),
@@ -100,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         AuthStrings.welcomeBack,
                         style: textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.w700,
-                          color: AppColors.textPrimary,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -108,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Text(
                         AuthStrings.loginSubtitle,
                         style: textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: Theme.of(context).mutedText,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -150,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             Text(
                               AuthStrings.newUser,
                               style: textTheme.bodyMedium?.copyWith(
-                                color: AppColors.textSecondary,
+                                color: Theme.of(context).mutedText,
                               ),
                             ),
                             TextButton(

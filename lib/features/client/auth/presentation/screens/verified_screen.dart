@@ -1,3 +1,5 @@
+import 'package:easy_shop/core/theme/app_theme_colors.dart';
+
 import 'dart:async';
 
 import 'package:easy_shop/core/theme/app_colors.dart';
@@ -37,7 +39,7 @@ class _VerifiedScreenState extends State<VerifiedScreen> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Center(
           child: Column(
@@ -53,14 +55,14 @@ class _VerifiedScreenState extends State<VerifiedScreen> {
                 AuthStrings.verifiedTitle,
                 style: textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
                 AuthStrings.verifiedSubtitle,
                 style: textTheme.bodyLarge?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: Theme.of(context).mutedText,
                 ),
               ),
             ],

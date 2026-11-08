@@ -1,3 +1,4 @@
+import 'package:easy_shop/core/theme/app_theme_colors.dart';
 import 'package:easy_shop/core/errors/error_messages.dart';
 import 'package:easy_shop/core/location/picked_location.dart';
 import 'package:easy_shop/core/theme/app_colors.dart';
@@ -153,7 +154,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         final isLoading = state.isLoading;
 
         return Scaffold(
-          backgroundColor: AppColors.background,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           appBar: const AppTopBar(
             title: AuthStrings.createAccount,
             showBack: true,
@@ -273,7 +274,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         Text(
                           AuthStrings.alreadyHaveAccount,
                           style: textTheme.bodyMedium?.copyWith(
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).mutedText,
                           ),
                         ),
                         TextButton(

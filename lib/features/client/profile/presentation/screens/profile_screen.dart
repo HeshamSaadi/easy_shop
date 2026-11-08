@@ -1,3 +1,6 @@
+import 'package:easy_shop/core/theme/app_theme_colors.dart';
+import 'package:easy_shop/core/widgets/app_card.dart';
+import 'package:easy_shop/core/widgets/app_icon_badge.dart';
 import 'package:easy_shop/core/theme/app_colors.dart';
 import 'package:easy_shop/core/theme/app_opacity.dart';
 import 'package:easy_shop/core/theme/app_radius.dart';
@@ -30,7 +33,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text(ProfileStrings.profile),
         centerTitle: true,
@@ -82,7 +85,7 @@ class ProfileScreen extends StatelessWidget {
               client.name,
               style: textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               textAlign: TextAlign.center,
             ),
@@ -90,7 +93,7 @@ class ProfileScreen extends StatelessWidget {
             Text(
               client.email,
               style: textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).mutedText,
               ),
               textAlign: TextAlign.center,
             ),
@@ -172,49 +175,26 @@ class _InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppColors.border),
-      ),
+    return AppCard(
       child: Row(
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.clientPrimary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-            ),
-            child: Icon(
-              icon,
-              size: AppSizes.iconMd,
-              color: AppColors.clientPrimary,
-            ),
-          ),
+          AppIconBadge(icon: icon),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  label,
-                  style: textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
+                Text(label, style: textTheme.bodySmall),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   value,
                   style: textTheme.bodyLarge?.copyWith(
                     color: isEmpty
-                        ? AppColors.textSecondary
-                        : AppColors.textPrimary,
+                        ? theme.mutedText
+                        : theme.colorScheme.onSurface,
                     fontWeight: isEmpty ? FontWeight.w400 : FontWeight.w600,
                   ),
                 ),
@@ -243,7 +223,7 @@ class _ActionButton extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Material(
-      color: AppColors.surface,
+      color: Theme.of(context).colorScheme.surface,
       borderRadius: BorderRadius.circular(AppRadius.md),
       child: InkWell(
         onTap: onTap,
@@ -255,7 +235,7 @@ class _ActionButton extends StatelessWidget {
             vertical: AppSpacing.lg,
           ),
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: Theme.of(context).dividerColor),
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
           child: Row(
@@ -266,15 +246,15 @@ class _ActionButton extends StatelessWidget {
                 child: Text(
                   label,
                   style: textTheme.bodyLarge?.copyWith(
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
-              const Icon(
+              Icon(
                 Icons.chevron_right,
                 size: AppSizes.iconMd,
-                color: AppColors.textSecondary,
+                color: Theme.of(context).mutedText,
               ),
             ],
           ),

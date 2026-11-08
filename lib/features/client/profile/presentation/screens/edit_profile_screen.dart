@@ -210,7 +210,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         final isLoading = state.isSaving;
 
         return Scaffold(
-          backgroundColor: AppColors.background,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           appBar: const AppTopBar(
             title: ProfileStrings.editProfileTitle,
             showBack: true,
@@ -240,10 +240,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   color: AppColors.clientPrimary,
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.camera_alt,
                                   size: _badgeIconSize,
-                                  color: Colors.white,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimary,
                                 ),
                               ),
                             ),

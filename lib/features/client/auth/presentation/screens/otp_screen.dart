@@ -1,3 +1,4 @@
+import 'package:easy_shop/core/theme/app_theme_colors.dart';
 import 'package:easy_shop/core/errors/error_messages.dart';
 import 'package:easy_shop/core/theme/app_colors.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
@@ -80,7 +81,7 @@ class _OtpScreenState extends State<OtpScreen> {
             _code.length == _otpLength && !state.isExpired && !state.isBusy;
 
         return Scaffold(
-          backgroundColor: AppColors.background,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           appBar: const AppTopBar(
             title: AuthStrings.verifyOtpTitle,
             showBack: true,
@@ -99,7 +100,7 @@ class _OtpScreenState extends State<OtpScreen> {
                     Text(
                       '${AuthStrings.codeSentTo} $email',
                       style: textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).mutedText,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -164,7 +165,9 @@ class _CountdownLabel extends StatelessWidget {
               ? AuthStrings.codeExpired
               : '${AuthStrings.codeExpiresIn} ${_format(state.remaining)}',
           style: textTheme.bodyMedium?.copyWith(
-            color: state.isExpired ? AppColors.error : AppColors.textSecondary,
+            color: state.isExpired
+                ? AppColors.error
+                : Theme.of(context).mutedText,
           ),
           textAlign: TextAlign.center,
         );
