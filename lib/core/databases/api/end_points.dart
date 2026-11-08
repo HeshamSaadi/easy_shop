@@ -32,4 +32,11 @@ abstract final class EndPoints {
   // profile
   static const String adminProfile = '/admin/profile';
   static const String adminProfileUpdate = '/admin/profile/update';
+  // client catalog
+  static const String clientCategories = '/client/categories';
+  static const String clientProducts = '/client/products';
+  static String clientProductDetails(String slug) =>
+      '/client/products/show/${Uri.encodeComponent(slug)}';
+  static const String clientFavorites = '/client/favorites';
+  static const String clientFavoriteStore = '/client/favorites/store';
 }
