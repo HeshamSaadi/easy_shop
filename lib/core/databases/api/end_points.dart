@@ -32,4 +32,13 @@ abstract final class EndPoints {
   // profile
   static const String adminProfile = '/admin/profile';
   static const String adminProfileUpdate = '/admin/profile/update';
+
+  // Client: auth and profile
+  static const String clientRegister = '/client/register';
+  static const String clientLogin = '/client/login';
+  static const String clientVerifyOtp = '/client/otp/verify';
+  static const String clientResendOtp = '/client/otp/resend';
+  static const String clientLogout = '/client/logout';
+  static const String clientProfile = '/client/profile';
+  static const String clientProfileUpdate = '/client/profile/update';
 }
