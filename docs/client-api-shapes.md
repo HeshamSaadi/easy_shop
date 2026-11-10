@@ -1,6 +1,6 @@
 # EasyShop: Client API Response Shapes
 
-Source: tested in Postman on 2026-11-06 with a temporary client account. Complements `endpoints.md`, which lists the requests. This file lists what the server **returns**.
+Source: tested in Postman on 2026-11-06 with a temporary client account. The auth and profile facts in section 1 were also checked on a phone on 2026-11-10. Complements `endpoints.md`, which lists the requests. This file lists what the server **returns**.
 
 No real emails, tokens, keys or base URLs are in this file. Hosts are shown as `<host>`.
 
@@ -8,7 +8,7 @@ No real emails, tokens, keys or base URLs are in this file. Hosts are shown as `
 
 | Section | Owner | Status |
 |---|---|---|
-| 1. Auth and profile | A (CL-A2) | TBD |
+| 1. Auth and profile | A (CL-A2) | Basics confirmed by C, A to complete |
 | 2. Catalog and favorites | B (CL-B3) | TBD |
 | 3. Cart | C (CL-C1) | Done |
 | 4. Orders | C (CL-C1) | Done |
@@ -44,13 +44,17 @@ No real emails, tokens, keys or base URLs are in this file. Hosts are shown as `
 
 ## 1. Auth and profile (A, CL-A2)
 
-TBD. A fills this in from the Postman tests of register, login, OTP verify and resend, logout, profile and profile update.
+A completes this section from his Postman tests of register, login, OTP verify and resend, logout, profile and profile update. What is already confirmed:
 
-Seen by C on 2026-11-06 while getting a token (A to confirm and expand):
-- `POST /client/register` returns 201 and the new client. **No token and no OTP email.**
-- `POST /client/login` returns 200, `data: null`, message `"OTP sent to your email and phone"`.
+- `POST /client/register` returns 201 and the new client. **No token and no OTP email** (confirmed on a phone: no email arrives after register).
+- `POST /client/login` returns 200, `data: null`, message `"OTP sent to your email and phone"`. **The OTP email arrives only after login.**
 - `POST /client/otp/verify` returns 200 and the client in `data`, plus a top-level `token`.
-- The register request sent `address`, `latitude`, `longitude` and `picture`, but they were **not saved**: `GET /client/profile` still showed `null` for all three and the default picture. Retest with profile update.
+- The app flow is therefore: register, then login, then OTP, then home.
+- In C's Postman test, register did **not** save `address`, `latitude`, `longitude` or `picture` (`GET /client/profile` showed `null` and the default picture).
+- **Profile update saves them** (checked on a phone, 2026-11-10): `address`, location and `picture` were still there after reopening the profile. To set them, use `PUT /client/profile/update`, sent as `POST` + `_method=PUT` with `FormData`.
+- Sending your **own email** again on profile update is accepted (no "already taken").
+
+Still missing, for A (CL-A2): response fields, validation errors, login/OTP/logout errors, profile fields and token errors. A adds them in his own PR, section 1 only.
 
 ---
 
@@ -249,7 +253,7 @@ Conclusion for the plan: card payment stays a **stretch** (CL-C11). The cash flo
 | `payments/process` has no `data` | Read the top-level `url` |
 | `orders/pay` returns wrong names and empty phone and email | Fill them from the profile |
 | `orders/pay` on a cash order is a 404 | Do not call it for cash |
-| Client register did not save address, location or picture | Retest through profile update (A) |
+| Client register did not save address, location or picture (Postman) | Set them through profile update, which saves them |
 
 ---
 
