@@ -54,7 +54,7 @@ A completes this section from his Postman tests of register, login, OTP verify a
 - **Profile update saves them** (checked on a phone, 2026-11-10): `address`, location and `picture` were still there after reopening the profile. To set them, use `PUT /client/profile/update`, sent as `POST` + `_method=PUT` with `FormData`.
 - Sending your **own email** again on profile update is accepted (no "already taken").
 
-Still missing, for A: see the list in the PR description.
+Still missing, for A (CL-A2): response fields, validation errors, login/OTP/logout errors, profile fields and token errors. A adds them in his own PR, section 1 only.
 
 ---
 
