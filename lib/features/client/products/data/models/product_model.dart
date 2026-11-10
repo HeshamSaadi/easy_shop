@@ -25,16 +25,23 @@ class ProductModel extends ProductEntity {
 
     return ProductModel(
       id: parseInt(json['id']),
-      name: json['name'] as String? ?? '',
-      slug: json['slug'] as String? ?? '',
+      name: _text(json['name']) ?? '',
+      slug: _text(json['slug']) ?? '',
       price: parseDouble(json['price']),
       stock: parseInt(json['quantity']),
       categoryId: parseInt(json['category_id']),
-      categoryName: category['name'] as String? ?? '',
+      categoryName: _text(category['name']) ?? '',
       isVisible: parseBool(json['visible']),
-      imageUrl: json['image_url'] as String? ?? '',
-      storeName: admin['business_name'] as String? ?? '',
-      description: json['description'] as String?,
+      imageUrl: _text(json['image_url']) ?? '',
+      storeName: _text(admin['business_name']) ?? '',
+      description: _text(json['description']),
     );
+  }
+
+  /// Trimmed text, or null when the value is missing or empty.
+  /// Unlike `as String?`, it never throws on a number or another type.
+  static String? _text(Object? value) {
+    final text = value?.toString().trim();
+    return (text == null || text.isEmpty) ? null : text;
   }
 }
