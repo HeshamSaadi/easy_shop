@@ -41,4 +41,9 @@ abstract final class EndPoints {
   static const String clientLogout = '/client/logout';
   static const String clientProfile = '/client/profile';
   static const String clientProfileUpdate = '/client/profile/update';
+
+  static const String clientCategories = '/client/categories';
+  static const String clientProducts = '/client/products';
+  static String clientProductDetails(String slug) =>
+      '/client/products/show/${Uri.encodeComponent(slug)}';
 }
