@@ -39,6 +39,7 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   static const int _coordinateDigits = 5;
+  static const Set<String> _formFields = {'name', 'email', 'phone', 'address'};
   static const double _badgeSize = 32;
   static const double _badgeIconSize = 18;
   static const double _avatarTintAlpha = 0.1;
@@ -158,7 +159,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         widget.onUpdated();
 
       case EditProfileStatus.error:
-        if (state.fieldErrors.isEmpty) {
+        final hasFieldError = state.fieldErrors.keys.any(_formFields.contains);
+        if (hasFieldError) {
+          // Runs the validators again, so server errors show under the fields.
+          _formKey.currentState?.validate();
+        } else {
           messenger
             ..hideCurrentSnackBar()
             ..showSnackBar(
@@ -166,9 +171,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 content: Text(state.errorMessage ?? ErrorMessages.unknown),
               ),
             );
-        } else {
-          // Runs the validators again, so server errors show under the fields.
-          _formKey.currentState?.validate();
         }
 
       case EditProfileStatus.initial:
