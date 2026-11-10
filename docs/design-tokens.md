@@ -12,7 +12,7 @@ Values taken from the Admin Figma design. The code lives in `lib/core/theme/`. I
 | `primaryLight` | `#F6BD8D` | Disabled button background |
 | `primarySoft` | `#FFF4EC` | Soft orange backgrounds (outlined button, icon circles) |
 
-Note: the Client design uses a different orange, about `#FF6900`. It will be added when the Client app starts.
+Note: the Client app uses the same text styles, spacing, sizes and colors as the Admin app, with one difference: its primary color is `AppColors.clientPrimary` (`#FF6900`) instead of `primary`. It is applied in `app_theme.dart` through `themeWithPrimary`.
 
 ### Light mode
 
