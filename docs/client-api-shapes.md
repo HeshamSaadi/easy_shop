@@ -9,7 +9,7 @@ No real emails, tokens, keys or base URLs are in this file. Hosts are shown as `
 | Section | Owner | Status |
 |---|---|---|
 | 1. Auth and profile | A (CL-A2) | Basics confirmed by C, A to complete |
-| 2. Catalog and favorites | B (CL-B3) | TBD |
+| 2. Catalog and favorites | B (CL-B3) | Done |
 | 3. Cart | C (CL-C1) | Done |
 | 4. Orders | C (CL-C1) | Done |
 | 5. Card payment | C (CL-C1) | Done, successful payment untested |
@@ -60,7 +60,37 @@ Still missing, for A (CL-A2): response fields, validation errors, login/OTP/logo
 
 ## 2. Catalog and favorites (B, CL-B3)
 
-TBD. B fills this in. The product object as seen in the catalog, the cart and orders:
+Tested in Postman on 2026-11-08 with a temporary client account.
+
+| Request | Status | `data` | `message` |
+|---|---|---|---|
+| `GET /client/categories` | 200 | list of categories | `"Data retrieved successfully"` |
+| `GET /client/products` | 200 | list of products | `"Data retrieved successfully"` |
+| `GET /client/products/show/{slug}` | 200 | one product | `"Data retrieved successfully"` |
+| `GET /client/favorites` | 200 | list of favorites (`[]` when empty) | `"Data retrieved successfully"` |
+| `POST /client/favorites/store` (JSON `product_id`) | success, code not recorded | `null` | `"Product added successfully"` |
+| `DELETE /client/favorites/destroy` (JSON body `product_id`) | success, code not recorded | `null` | `"Product deleted successfully"` |
+
+Findings:
+- Both lists are plain arrays with **no** `links` or `meta`. All products come in one response, so search and the category filter are client-side.
+- `GET /client/products/show/{slug}` returns the **same object** as a list item. Use one model for both.
+- Adding a product that is already a favorite returns **400**, `data: null`, `"Product is already in your favorites"`. The app should treat it as "already added", not as a crash.
+- **`DELETE` with a JSON body works** and uses `product_id`, like the cart.
+- A **GET request with a body is rejected with 403** and an HTML page. Never send a body on a GET.
+- A wrong path (for example `/client/show/{slug}`) or a wrong method returns an **HTML error page** (404 or 405), not JSON. The error handling must not assume a JSON body.
+- A category in the list can have an Arabic or an English name. Sort in the app.
+- `store` returns no favorite. After every add or remove, refetch `GET /client/favorites`.
+
+A category:
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | int | |
+| `name`, `slug` | string | |
+| `description` | string? | |
+| `created_at`, `updated_at` | string | ISO 8601, UTC |
+
+The product object as seen in the catalog, the cart and orders:
 
 | Field | Type | Notes |
 |---|---|---|
@@ -76,6 +106,15 @@ TBD. B fills this in. The product object as seen in the catalog, the cart and or
 | `created_at`, `updated_at` | string | ISO 8601, UTC |
 | `category` | object | `id`, `name`, `slug`, `description?`, timestamps |
 | `admin` | object | see section 0: use only `id` and `business_name` |
+
+A favorite (an item of `GET /client/favorites`):
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | int | favorite row id. **Not used in any request.** |
+| `client_id`, `product_id` | int | |
+| `created_at`, `updated_at` | string | ISO 8601, UTC |
+| `product` | object | the full product (above), with `category` and `admin` |
 
 ---
 
@@ -254,6 +293,9 @@ Conclusion for the plan: card payment stays a **stretch** (CL-C11). The cash flo
 | `orders/pay` returns wrong names and empty phone and email | Fill them from the profile |
 | `orders/pay` on a cash order is a 404 | Do not call it for cash |
 | Client register did not save address, location or picture (Postman) | Set them through profile update, which saves them |
+| A wrong path or method returns an HTML page, not JSON | Do not assume a JSON body in error handling |
+| A GET with a body is a 403 | Never send a body on a GET |
+| Adding a favorite twice is a 400 | Show it as "already in favorites", then refetch |
 
 ---
 
@@ -266,3 +308,4 @@ Conclusion for the plan: card payment stays a **stretch** (CL-C11). The cash flo
 - Whether `quantity` or `price` arrive as strings in any client response.
 - `GET /client/products/show/{slug}` for a hidden product.
 - Lowercase and uppercase variants of `payment_method` (only lowercase was tested).
+- Status codes of `POST /client/favorites/store` and `DELETE /client/favorites/destroy` (only the messages were recorded), and removing a product that is not a favorite.
