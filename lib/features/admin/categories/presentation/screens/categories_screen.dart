@@ -105,6 +105,7 @@ class _CategoriesView extends StatelessWidget {
               RefreshIndicator(
                 onRefresh: () => context.read<CategoriesCubit>().refresh(),
                 child: ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.all(AppSpacing.lg),
                   itemCount: categories.length,
                   separatorBuilder: (_, _) =>

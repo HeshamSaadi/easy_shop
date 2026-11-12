@@ -61,6 +61,7 @@ class _OrdersView extends StatelessWidget {
             OrdersLoaded(:final orders) => RefreshIndicator(
               onRefresh: () => context.read<OrdersCubit>().refresh(),
               child: ListView.separated(
+                physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(AppSpacing.lg),
                 itemCount: orders.length,
                 separatorBuilder: (_, _) =>
