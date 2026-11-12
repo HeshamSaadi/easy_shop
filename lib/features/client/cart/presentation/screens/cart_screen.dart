@@ -101,6 +101,7 @@ class _CartContent extends StatelessWidget {
           child: RefreshIndicator(
             onRefresh: cubit.refresh,
             child: ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(AppSpacing.lg),
               itemCount: items.length,
               separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
