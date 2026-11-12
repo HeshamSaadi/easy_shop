@@ -22,6 +22,8 @@ import 'package:easy_shop/features/client/profile/presentation/cubit/profile_cub
 import 'package:easy_shop/features/client/profile/presentation/cubit/profile_state.dart';
 import 'package:easy_shop/features/client/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:easy_shop/features/client/profile/presentation/screens/profile_screen.dart';
+import 'package:easy_shop/features/client/cart/presentation/cubit/cart_cubit.dart';
+import 'package:easy_shop/features/client/cart/presentation/screens/cart_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -73,7 +75,7 @@ GoRouter createClientRouter(SessionCubit session) {
         ),
       ),
       StatefulShellRoute.indexedStack(
-        builder: (_, _, shell) => ClientShell(navigationShell: shell),
+        builder: (_, _, shell) => _ClientShellPage(navigationShell: shell),
         branches: [
           _placeholderBranch(
             ClientRouteNames.home,
@@ -85,10 +87,18 @@ GoRouter createClientRouter(SessionCubit session) {
             ClientRoutePaths.favorites,
             ClientShellStrings.favorites,
           ),
-          _placeholderBranch(
-            ClientRouteNames.cart,
-            ClientRoutePaths.cart,
-            ClientShellStrings.cart,
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                name: ClientRouteNames.cart,
+                path: ClientRoutePaths.cart,
+                builder: (context, _) => CartScreen(
+                  // CL-C7 opens the checkout here.
+                  onCheckout: () {},
+                  onStartShopping: () => context.goNamed(ClientRouteNames.home),
+                ),
+              ),
+            ],
           ),
           _placeholderBranch(
             ClientRouteNames.orders,
@@ -279,6 +289,37 @@ class _EditProfilePage extends StatelessWidget {
         pickPicture: images.pickImage,
         onPickLocation: () => _pickLocation(context),
       ),
+    );
+  }
+}
+
+/// Provides the shared [CartCubit] to the whole shell, so the Cart tab badge
+/// and the Cart screen show the same cart. `BlocProvider.value` does not close
+/// it, because it is a singleton. The shell is rebuilt after every login, so
+/// the cart of the previous account is replaced by `load()`.
+class _ClientShellPage extends StatefulWidget {
+  const _ClientShellPage({required this.navigationShell});
+
+  final StatefulNavigationShell navigationShell;
+
+  @override
+  State<_ClientShellPage> createState() => _ClientShellPageState();
+}
+
+class _ClientShellPageState extends State<_ClientShellPage> {
+  late final CartCubit _cart = _sl<CartCubit>();
+
+  @override
+  void initState() {
+    super.initState();
+    _cart.load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider.value(
+      value: _cart,
+      child: ClientShell(navigationShell: widget.navigationShell),
     );
   }
 }

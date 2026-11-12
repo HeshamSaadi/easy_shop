@@ -1,4 +1,7 @@
+import 'package:easy_shop/features/client/cart/presentation/cubit/cart_cubit.dart';
+import 'package:easy_shop/features/client/cart/presentation/cubit/cart_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 abstract final class ClientShellStrings {
@@ -36,8 +39,8 @@ class ClientShell extends StatelessWidget {
             label: ClientShellStrings.favorites,
           ),
           NavigationDestination(
-            icon: Icon(Icons.shopping_cart_outlined),
-            selectedIcon: Icon(Icons.shopping_cart),
+            icon: _CartIcon(selected: false),
+            selectedIcon: _CartIcon(selected: true),
             label: ClientShellStrings.cart,
           ),
           NavigationDestination(
@@ -52,6 +55,35 @@ class ClientShell extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// The cart icon with the number of items in the cart.
+class _CartIcon extends StatelessWidget {
+  const _CartIcon({required this.selected});
+
+  final bool selected;
+
+  static int _count(CartState state) =>
+      state is CartLoaded ? state.items.length : 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final icon = Icon(
+      selected ? Icons.shopping_cart : Icons.shopping_cart_outlined,
+    );
+
+    return BlocBuilder<CartCubit, CartState>(
+      buildWhen: (previous, current) => _count(previous) != _count(current),
+      builder: (_, state) {
+        final count = _count(state);
+        return Badge(
+          isLabelVisible: count > 0,
+          label: Text('$count'),
+          child: icon,
+        );
+      },
     );
   }
 }
