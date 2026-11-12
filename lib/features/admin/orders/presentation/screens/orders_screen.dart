@@ -3,6 +3,7 @@ import 'package:easy_shop/core/widgets/app_empty.dart';
 import 'package:easy_shop/core/widgets/app_error.dart';
 import 'package:easy_shop/core/widgets/app_loading.dart';
 import 'package:easy_shop/core/widgets/app_top_bar.dart';
+import 'package:easy_shop/core/widgets/app_pull_to_refresh.dart';
 import 'package:easy_shop/features/admin/orders/domain/entities/order_entity.dart';
 import 'package:easy_shop/features/admin/orders/presentation/constants/orders_strings.dart';
 import 'package:easy_shop/features/admin/orders/presentation/cubit/orders_cubit.dart';
@@ -54,9 +55,12 @@ class _OrdersView extends StatelessWidget {
               message: message,
               onRetry: () => context.read<OrdersCubit>().load(),
             ),
-            OrdersLoaded(:final orders) when orders.isEmpty => const AppEmpty(
-              message: OrdersStrings.empty,
-              icon: Icons.receipt_long_outlined,
+            OrdersLoaded(:final orders) when orders.isEmpty => AppPullToRefresh(
+              onRefresh: () => context.read<OrdersCubit>().refresh(),
+              child: const AppEmpty(
+                message: OrdersStrings.empty,
+                icon: Icons.receipt_long_outlined,
+              ),
             ),
             OrdersLoaded(:final orders) => RefreshIndicator(
               onRefresh: () => context.read<OrdersCubit>().refresh(),

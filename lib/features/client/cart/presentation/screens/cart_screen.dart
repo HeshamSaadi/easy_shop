@@ -3,6 +3,7 @@ import 'package:easy_shop/core/widgets/app_empty.dart';
 import 'package:easy_shop/core/widgets/app_error.dart';
 import 'package:easy_shop/core/widgets/app_loading.dart';
 import 'package:easy_shop/core/widgets/app_top_bar.dart';
+import 'package:easy_shop/core/widgets/app_pull_to_refresh.dart';
 import 'package:easy_shop/core/widgets/confirm_delete_dialog.dart';
 import 'package:easy_shop/features/client/cart/domain/entities/cart_item_entity.dart';
 import 'package:easy_shop/features/client/cart/presentation/constants/cart_strings.dart';
@@ -47,11 +48,14 @@ class CartScreen extends StatelessWidget {
               message: message,
               onRetry: () => context.read<CartCubit>().load(),
             ),
-            CartLoaded(:final items) when items.isEmpty => AppEmpty(
-              message: CartStrings.empty,
-              icon: Icons.shopping_cart_outlined,
-              actionText: CartStrings.startShopping,
-              onAction: onStartShopping,
+            CartLoaded(:final items) when items.isEmpty => AppPullToRefresh(
+              onRefresh: () => context.read<CartCubit>().refresh(),
+              child: AppEmpty(
+                message: CartStrings.empty,
+                icon: Icons.shopping_cart_outlined,
+                actionText: CartStrings.startShopping,
+                onAction: onStartShopping,
+              ),
             ),
             final CartLoaded loaded => _CartContent(
               state: loaded,
