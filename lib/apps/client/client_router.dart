@@ -1,15 +1,89 @@
 import 'package:easy_shop/apps/client/client_route_names.dart';
 import 'package:easy_shop/apps/client/client_shell.dart';
+import 'package:easy_shop/apps/client/client_splash_screen.dart';
+import 'package:easy_shop/apps/client/session/session_cubit.dart';
+import 'package:easy_shop/apps/client/session/session_state.dart';
+import 'package:easy_shop/core/location/location_picker_cubit.dart';
+import 'package:easy_shop/core/location/location_picker_screen.dart';
+import 'package:easy_shop/core/location/picked_location.dart';
+import 'package:easy_shop/core/media/image_picker_service.dart';
+import 'package:easy_shop/core/utils/router_refresh_stream.dart';
+import 'package:easy_shop/features/client/auth/presentation/cubit/login_cubit.dart';
+import 'package:easy_shop/features/client/auth/presentation/cubit/otp_cubit.dart';
+import 'package:easy_shop/features/client/auth/presentation/cubit/register_cubit.dart';
+import 'package:easy_shop/features/client/auth/presentation/screens/login_screen.dart';
+import 'package:easy_shop/features/client/auth/presentation/screens/otp_screen.dart';
+import 'package:easy_shop/features/client/auth/presentation/screens/register_screen.dart';
+import 'package:easy_shop/features/client/auth/presentation/screens/verified_screen.dart';
+import 'package:easy_shop/features/client/profile/domain/entities/client_entity.dart';
+import 'package:easy_shop/features/client/profile/presentation/cubit/edit_profile_cubit.dart';
+import 'package:easy_shop/features/client/profile/presentation/cubit/profile_cubit.dart';
+import 'package:easy_shop/features/client/profile/presentation/cubit/profile_state.dart';
+import 'package:easy_shop/features/client/profile/presentation/screens/edit_profile_screen.dart';
+import 'package:easy_shop/features/client/profile/presentation/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
-GoRouter createClientRouter() {
+final _sl = GetIt.instance;
+
+GoRouter createClientRouter(SessionCubit session) {
   return GoRouter(
-    initialLocation: ClientRoutePaths.home,
-    redirect: (_, state) => _guard(state.matchedLocation),
+    initialLocation: ClientRoutePaths.splash,
+    refreshListenable: RouterRefreshStream(session.stream),
+    redirect: (_, state) => _guard(session.state, state.matchedLocation),
     routes: [
+      GoRoute(
+        name: ClientRouteNames.splash,
+        path: ClientRoutePaths.splash,
+        builder: (_, _) => const ClientSplashScreen(),
+      ),
+      GoRoute(
+        name: ClientRouteNames.login,
+        path: ClientRoutePaths.login,
+        builder: (context, _) => BlocProvider(
+          create: (_) => _sl<LoginCubit>(),
+          child: LoginScreen(
+            onOtpRequested: (email) =>
+                context.pushNamed(ClientRouteNames.otp, extra: email),
+            onRegisterTap: () => context.pushNamed(ClientRouteNames.register),
+          ),
+        ),
+      ),
+      GoRoute(
+        name: ClientRouteNames.register,
+        path: ClientRoutePaths.register,
+        builder: (context, _) => BlocProvider(
+          create: (_) => _sl<RegisterCubit>(),
+          child: RegisterScreen(
+            onRegistered: (email) => context.pushReplacementNamed(
+              ClientRouteNames.otp,
+              extra: email,
+            ),
+            onLoginTap: () => _backToLogin(context),
+            onPickLocation: () => _pickLocation(context),
+          ),
+        ),
+      ),
+      GoRoute(
+        name: ClientRouteNames.otp,
+        path: ClientRoutePaths.otp,
+        redirect: (_, state) =>
+            state.extra is String ? null : ClientRoutePaths.login,
+        builder: (_, state) {
+          final email = state.extra;
+          if (email is! String) return const SizedBox.shrink();
+          return _OtpPage(email: email);
+        },
+      ),
+      GoRoute(
+        name: ClientRouteNames.verified,
+        path: ClientRoutePaths.verified,
+        builder: (_, _) => VerifiedScreen(onContinue: session.signedIn),
+      ),
       StatefulShellRoute.indexedStack(
-        builder: (_, _, shell) => ClientShell(navigationShell: shell),
+        builder: (_, state, shell) => ClientShell(navigationShell: shell),
         branches: [
           _tabBranch(
             ClientRouteNames.home,
@@ -31,10 +105,30 @@ GoRouter createClientRouter() {
             ClientRoutePaths.orders,
             ClientShellStrings.orders,
           ),
-          _tabBranch(
-            ClientRouteNames.profile,
-            ClientRoutePaths.profile,
-            ClientShellStrings.profile,
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                name: ClientRouteNames.profile,
+                path: ClientRoutePaths.profile,
+                builder: (_, _) => _ProfilePage(session: session),
+                routes: [
+                  GoRoute(
+                    name: ClientRouteNames.profileEdit,
+                    path: ClientRoutePaths.profileEdit,
+                    redirect: (_, state) => state.extra is ClientEntity
+                        ? null
+                        : ClientRoutePaths.profile,
+                    builder: (_, state) {
+                      final client = state.extra;
+                      if (client is! ClientEntity) {
+                        return const SizedBox.shrink();
+                      }
+                      return _EditProfilePage(client: client);
+                    },
+                  ),
+                ],
+              ),
+            ],
           ),
         ],
       ),
@@ -42,9 +136,33 @@ GoRouter createClientRouter() {
   );
 }
 
-/// Guard skeleton. CL-A7 replaces this with the real session check
-/// (unknown -> splash, unauthenticated -> login, authenticated -> home).
-String? _guard(String location) => null;
+/// unknown -> splash, signed out -> login, signed in -> home.
+String? _guard(SessionState state, String location) {
+  final isPublic = ClientRoutePaths.publicRoutes.contains(location);
+  final isSplash = location == ClientRoutePaths.splash;
+
+  return switch (state) {
+    SessionUnknown() => isSplash ? null : ClientRoutePaths.splash,
+    SessionAuthenticated() =>
+      (isPublic || isSplash) ? ClientRoutePaths.home : null,
+    SessionUnauthenticated() => isPublic ? null : ClientRoutePaths.login,
+  };
+}
+
+void _backToLogin(BuildContext context) {
+  if (context.canPop()) {
+    context.pop();
+  } else {
+    context.goNamed(ClientRouteNames.login);
+  }
+}
+
+Future<PickedLocation?> _pickLocation(BuildContext context) {
+  return LocationPickerScreen.open(
+    context,
+    createCubit: () => _sl<LocationPickerCubit>(param1: null),
+  );
+}
 
 StatefulShellBranch _tabBranch(String name, String path, String label) {
   return StatefulShellBranch(
@@ -68,6 +186,80 @@ class _TabPlaceholder extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Text(label, style: Theme.of(context).textTheme.titleLarge),
+    );
+  }
+}
+
+class _OtpPage extends StatelessWidget {
+  const _OtpPage({required this.email});
+
+  final String email;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => _sl<OtpCubit>(param1: email)..start(),
+      // The session stays "signed out" until the Verified screen ends, so the
+      // guard does not skip that screen.
+      child: OtpScreen(
+        onVerified: () => context.goNamed(ClientRouteNames.verified),
+      ),
+    );
+  }
+}
+
+class _ProfilePage extends StatelessWidget {
+  const _ProfilePage({required this.session});
+
+  final SessionCubit session;
+
+  Future<void> _openEdit(BuildContext context) async {
+    final cubit = context.read<ProfileCubit>();
+    final state = cubit.state;
+    if (state is! ProfileLoaded) return;
+
+    await context.pushNamed<void>(
+      ClientRouteNames.profileEdit,
+      extra: state.client,
+    );
+
+    if (cubit.isClosed) return;
+    await cubit.loadProfile();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => _sl<ProfileCubit>()..loadProfile(),
+      child: Builder(
+        builder: (context) => ProfileScreen(
+          onLogout: session.logout,
+          onEditProfile: () => _openEdit(context),
+          onMyOrders: () => context.goNamed(ClientRouteNames.orders),
+          onFavorites: () => context.goNamed(ClientRouteNames.favorites),
+        ),
+      ),
+    );
+  }
+}
+
+class _EditProfilePage extends StatelessWidget {
+  const _EditProfilePage({required this.client});
+
+  final ClientEntity client;
+
+  @override
+  Widget build(BuildContext context) {
+    final images = _sl<ImagePickerService>();
+
+    return BlocProvider(
+      create: (_) => _sl<EditProfileCubit>(),
+      child: EditProfileScreen(
+        client: client,
+        onUpdated: context.pop,
+        pickPicture: images.pickImage,
+        onPickLocation: () => _pickLocation(context),
+      ),
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:easy_shop/core/theme/app_opacity.dart';
 import 'package:easy_shop/core/theme/app_radius.dart';
 import 'package:easy_shop/core/theme/app_sizes.dart';
 import 'package:easy_shop/core/theme/app_spacing.dart';
@@ -81,7 +82,9 @@ class ProfileScreen extends StatelessWidget {
             AppAvatar(
               imageUrl: client.pictureUrl,
               size: AppSizes.avatarLg,
-              backgroundColor: colors.primary.withValues(alpha: 0.1),
+              backgroundColor: colors.primary.withValues(
+                alpha: AppOpacity.tint,
+              ),
               iconColor: colors.primary,
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -199,7 +202,7 @@ class _InfoCard extends StatelessWidget {
             width: _iconBoxSize,
             height: _iconBoxSize,
             decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: 0.1),
+              color: colors.primary.withValues(alpha: AppOpacity.tint),
               borderRadius: BorderRadius.circular(AppRadius.sm),
             ),
             child: Icon(icon, size: AppSizes.iconMd, color: colors.primary),
@@ -215,7 +218,7 @@ class _InfoCard extends StatelessWidget {
                     color: colors.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: AppSpacing.xs / 2),
                 Text(
                   value,
                   style: textTheme.bodyLarge?.copyWith(

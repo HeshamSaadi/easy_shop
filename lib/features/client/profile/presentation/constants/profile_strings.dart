@@ -5,7 +5,6 @@ abstract final class ProfileStrings {
   static const String name = 'Name';
   static const String email = 'Email';
   static const String phone = 'Phone';
-  static const String deliveryAddress = 'Delivery Address';
   static const String noAddressSet = 'No delivery address set';
   static const String address = 'Address';
   static const String myOrders = 'My Orders';

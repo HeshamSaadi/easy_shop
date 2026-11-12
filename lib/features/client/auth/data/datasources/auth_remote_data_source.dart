@@ -3,19 +3,10 @@ import 'package:easy_shop/core/databases/api/api_consumer.dart';
 import 'package:easy_shop/core/databases/api/end_points.dart';
 import 'package:easy_shop/core/databases/api/multipart_helper.dart';
 import 'package:easy_shop/core/errors/exceptions.dart';
+import 'package:easy_shop/features/admin/auth/domain/params/register_params.dart';
 
 abstract class AuthRemoteDataSource {
-  Future<void> register({
-    required String name,
-    required String email,
-    required String phone,
-    required String password,
-    required String passwordConfirmation,
-    String? address,
-    double? latitude,
-    double? longitude,
-    String? picturePath,
-  });
+  Future<void> register(RegisterParams params);
 
   Future<void> login({required String email, required String password});
 
@@ -33,31 +24,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final ApiConsumer _api;
 
   @override
-  Future<void> register({
-    required String name,
-    required String email,
-    required String phone,
-    required String password,
-    required String passwordConfirmation,
-    String? address,
-    double? latitude,
-    double? longitude,
-    String? picturePath,
-  }) async {
-    final picture = await multipartFileOrNull(picturePath);
-
+  Future<void> register(RegisterParams params) async {
+    final picture = await multipartFileOrNull(params.picturePath);
     final form = FormData.fromMap({
-      'name': name,
-      'email': email,
-      'phone': phone,
-      'password': password,
-      'password_confirmation': passwordConfirmation,
-      'address': ?address,
-      'latitude': ?latitude,
-      'longitude': ?longitude,
+      'name': params.name,
+      'email': params.email,
+      'phone': params.phone,
+      'password': params.password,
+      'password_confirmation': params.passwordConfirmation,
+      'address': ?params.address,
+      'latitude': ?params.latitude,
+      'longitude': ?params.longitude,
       'picture': ?picture,
     });
-
     await _api.post(EndPoints.clientRegister, data: form);
   }
 

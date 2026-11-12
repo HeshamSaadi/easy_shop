@@ -11,18 +11,20 @@ class OtpCubit extends Cubit<OtpState> {
     required this._verifyOtp,
     required this._resendOtp,
     this.tickInterval = const Duration(seconds: 1),
-  }) : super(const OtpState(remaining: validity));
+    DateTime Function()? now,
+  }) : _now = now ?? DateTime.now,
+       super(const OtpState(remaining: validity));
 
   static const Duration validity = Duration(minutes: 10);
-
-  static const Duration _step = Duration(seconds: 1);
 
   final String email;
   final VerifyOtp _verifyOtp;
   final ResendOtp _resendOtp;
   final Duration tickInterval;
+  final DateTime Function() _now;
 
   Timer? _timer;
+  late DateTime _expiresAt;
 
   void start() => _startCountdown();
 
@@ -71,17 +73,18 @@ class OtpCubit extends Cubit<OtpState> {
 
   void _startCountdown() {
     _timer?.cancel();
-    _timer = Timer.periodic(tickInterval, _onTick);
+    _expiresAt = _now().add(validity);
+    _timer = Timer.periodic(tickInterval, (_) => _onTick());
   }
 
-  void _onTick(Timer timer) {
-    final next = state.remaining - _step;
-    if (next <= Duration.zero) {
-      timer.cancel();
+  void _onTick() {
+    final left = _expiresAt.difference(_now());
+    if (left <= Duration.zero) {
+      _timer?.cancel();
       emit(state.copyWith(remaining: Duration.zero));
       return;
     }
-    emit(state.copyWith(remaining: next));
+    emit(state.copyWith(remaining: left));
   }
 
   @override

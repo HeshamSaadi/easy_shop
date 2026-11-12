@@ -8,7 +8,7 @@ No real emails, tokens, keys or base URLs are in this file. Hosts are shown as `
 
 | Section | Owner | Status |
 |---|---|---|
-| 1. Auth and profile | A (CL-A2) | TBD |
+| 1. Auth and profile | A (CL-A2) | Done, open items in 1.9 |
 | 2. Catalog and favorites | B (CL-B3) | TBD |
 | 3. Cart | C (CL-C1) | Done |
 | 4. Orders | C (CL-C1) | Done |
@@ -44,13 +44,108 @@ No real emails, tokens, keys or base URLs are in this file. Hosts are shown as `
 
 ## 1. Auth and profile (A, CL-A2)
 
-TBD. A fills this in from the Postman tests of register, login, OTP verify and resend, logout, profile and profile update.
+Tested in Postman on 2026-11-11 with temporary client accounts. Complements the first test by C on 2026-11-06.
 
-Seen by C on 2026-11-06 while getting a token (A to confirm and expand):
-- `POST /client/register` returns 201 and the new client. **No token and no OTP email.**
-- `POST /client/login` returns 200, `data: null`, message `"OTP sent to your email and phone"`.
-- `POST /client/otp/verify` returns 200 and the client in `data`, plus a top-level `token`.
-- The register request sent `address`, `latitude`, `longitude` and `picture`, but they were **not saved**: `GET /client/profile` still showed `null` for all three and the default picture. Retest with profile update.
+### 1.1 Flow
+
+| Step | Request | Result |
+|---|---|---|
+| 1 | `POST /client/register` (form-data) | **201**, `"Account created successfully"`. **No token and no OTP email.** |
+| 2 | `POST /client/login` (JSON) | 200, `data: null`, `"OTP sent to your email and phone"` |
+| 3 | `POST /client/otp/verify` (`email`, `otp_code`) | 200, `"OTP verified successfully"`. Client in `data`, plus a top-level **`token`** next to `data` and `message` |
+| - | `POST /client/otp/resend` (`email`) | 200, `data: null`, `"OTP resent to your email"` |
+| - | `POST /client/logout` (token, no body) | 200, `data: null`, `"Account logged out successfully"` |
+
+- Token: JWT valid for 1 hour (measured by C on 2026-11-06). No refresh endpoint was found.
+- After register, go to login. Login and verify accept raw JSON.
+- The `data` of the verify response has the same fields as `GET /client/profile` (section 1.6).
+
+### 1.2 Register (`POST /client/register`)
+
+`data` fields:
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | int | |
+| `name`, `email`, `phone` | string | |
+| `picture_url` | string | absolute URL. The uploaded file (`.jfif` accepted) comes back under `/uploads/clients/` |
+| `created_at`, `updated_at` | string | ISO 8601, UTC |
+
+- `address`, `latitude` and `longitude` were sent but **are not in the response** (the keys are missing, not `null`), and they are **not saved** (see 1.7).
+
+Validation (**422**), `message` is a map of field to list of messages:
+
+```json
+{ "data": null, "message": { "phone": ["The phone field format is invalid."] } }
+```
+
+- Required: `name`, `email`, `phone`, `password`.
+- Phone: `+20` followed by 10 digits is accepted (for example `+201013114005`). **Spaces inside the number are rejected** (`+20 101 311 4005`). Strip them before sending.
+- Password: at least 6 characters (`"The password field must be at least 6 characters."`). A different `password_confirmation` gives `"The password field confirmation does not match."`.
+
+### 1.3 Login errors (`POST /client/login`)
+
+| Case | Status | `message` |
+|---|---|---|
+| Wrong password | 401 | `"Invalid email or password"` |
+| Email not registered | 401 | `"Invalid email or password"` (same message: the app cannot tell them apart) |
+| Empty fields | 422 | `{ "email": ["The email field is required."], "password": ["The password field is required."] }` |
+
+### 1.4 OTP errors (`POST /client/otp/verify`)
+
+| Case | Status | `message` |
+|---|---|---|
+| Wrong code | 401 | `"Invalid or expired OTP"` |
+| Reused code | 401 | `"Invalid or expired OTP"` |
+
+Wrong, reused and (most likely) expired codes give the same message, so the app cannot tell them apart. The OTP is single-use: after a failed verify, send the user to resend.
+
+### 1.5 Logout
+
+`POST /client/logout` with a token: 200, `data: null`, `"Account logged out successfully"`. What the same token returns afterwards is not tested (see 1.9).
+
+### 1.6 Profile (`GET /client/profile`)
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | int | |
+| `name`, `email`, `phone` | string | |
+| `address` | string? | `null` in every test |
+| `latitude`, `longitude` | ? | `null` in every test, so the type is unknown |
+| `created_at`, `updated_at` | string | ISO 8601, UTC |
+| `picture_url` | string | absolute URL. Default image (ends with `default.png`) when none was uploaded |
+
+No `products` key.
+
+### 1.7 Profile update (`POST /client/profile/update`)
+
+- Request: form-data plus a text field `_method` = `PUT`. **201 Created**, `"Account updated successfully"`. Treat any 2xx as success.
+- `data` has the same fields as `GET /client/profile`. `picture_url` becomes the uploaded file.
+- `name`, `phone` and `picture` (`.jfif`) are saved. Sending the account's own `email` again is accepted.
+- **`address`, `latitude` and `longitude` are sent but NOT saved.** The response and a following `GET` both show `null`. The same happens on register. This was tested with form-data only. The delivery address and location are saved per order instead (section 4).
+
+### 1.8 Quirks to handle in the data layer
+
+| Quirk | What to do |
+|---|---|
+| Phone with spaces is rejected | Strip spaces (`PhoneUtils`) before sending |
+| Unknown email and wrong password give the same message | Show the server `message` |
+| Wrong, reused and expired OTP give the same message | After a failed verify, offer resend |
+| Register returns no token and sends no OTP | After register go to login |
+| `address`, `latitude`, `longitude` are not saved by register and profile update | Do not rely on them. Do not show a "saved address" from the profile |
+| Profile update is `POST` + `_method=PUT` and returns 201 | Accept any 2xx |
+| `message` is a string or a map | Parse by type, show the first message |
+
+### 1.9 Not tested yet
+
+- What the same token returns after logout, and the control test (200 before logout).
+- Messages for a missing, invalid and expired token on a client request. The Admin API gave `"Please login first"`, `"Invalid access token"` and `"Access token expired"`, but this is not confirmed for the client.
+- Expired OTP (after 10 minutes). Whether a new OTP cancels the old one.
+- Unique email and phone on register and on profile update.
+- Profile update: required fields, phone rule, picture types other than `.jfif`, size limit, a real `PUT` with form-data, and whether sending no picture keeps the old one.
+- Whether `GET /client/profile` shows the uploaded picture right after register (the register response showed it, but C saw the default image on the first test).
+- `password_confirmation` sent alone. Register and profile update with JSON instead of form-data.
+- The type of `latitude` and `longitude` (always `null` in tests).
 
 ---
 
