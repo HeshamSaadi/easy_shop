@@ -174,6 +174,7 @@ class _LoadedContent extends StatelessWidget {
               : RefreshIndicator(
                   onRefresh: cubit.refresh,
                   child: ListView.separated(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     keyboardDismissBehavior:
                         ScrollViewKeyboardDismissBehavior.onDrag,
                     padding: const EdgeInsets.all(AppSpacing.lg),
