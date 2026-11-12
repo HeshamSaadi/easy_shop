@@ -1,4 +1,3 @@
-//lib\core\databases\api\end_points.dart
 abstract final class EndPoints {
   static const String adminRegister = '/admin/register';
   static const String adminLogin = '/admin/login';
@@ -46,4 +45,7 @@ abstract final class EndPoints {
   static const String clientProducts = '/client/products';
   static String clientProductDetails(String slug) =>
       '/client/products/show/${Uri.encodeComponent(slug)}';
+  static const String clientCart = '/client/carts';
+  static const String clientCartStore = '/client/carts/store';
+  static const String clientCartDestroy = '/client/carts/destroy';
 }
