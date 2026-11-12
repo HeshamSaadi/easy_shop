@@ -24,6 +24,9 @@ import 'package:easy_shop/features/client/profile/presentation/screens/edit_prof
 import 'package:easy_shop/features/client/profile/presentation/screens/profile_screen.dart';
 import 'package:easy_shop/features/client/cart/presentation/cubit/cart_cubit.dart';
 import 'package:easy_shop/features/client/cart/presentation/screens/cart_screen.dart';
+import 'package:easy_shop/features/client/checkout/presentation/cubit/checkout_cubit.dart';
+import 'package:easy_shop/features/client/checkout/presentation/screens/checkout_screen.dart';
+import 'package:easy_shop/features/client/orders/domain/entities/order_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -93,10 +96,17 @@ GoRouter createClientRouter(SessionCubit session) {
                 name: ClientRouteNames.cart,
                 path: ClientRoutePaths.cart,
                 builder: (context, _) => CartScreen(
-                  // CL-C7 opens the checkout here.
-                  onCheckout: () {},
+                  onCheckout: () =>
+                      context.pushNamed(ClientRouteNames.checkout),
                   onStartShopping: () => context.goNamed(ClientRouteNames.home),
                 ),
+                routes: [
+                  GoRoute(
+                    name: ClientRouteNames.checkout,
+                    path: 'checkout',
+                    builder: (_, _) => const _CheckoutPage(),
+                  ),
+                ],
               ),
             ],
           ),
@@ -320,6 +330,46 @@ class _ClientShellPageState extends State<_ClientShellPage> {
     return BlocProvider.value(
       value: _cart,
       child: ClientShell(navigationShell: widget.navigationShell),
+    );
+  }
+}
+
+class _CheckoutPage extends StatelessWidget {
+  const _CheckoutPage();
+
+  /// Reopens the map at [current], so the user does not start from scratch.
+  Future<PickedLocation?> _pickLocation(
+    BuildContext context,
+    PickedLocation? current,
+  ) {
+    return LocationPickerScreen.open(
+      context,
+      createCubit: () => _sl<LocationPickerCubit>(param1: current),
+    );
+  }
+
+  /// The server empties the whole cart after an order, so the shared cart is
+  /// reloaded (this also clears the tab badge).
+  /// Temporary: CL-C8 replaces the snackbar with the success screen.
+  void _onOrderPlaced(BuildContext context, OrderEntity order) {
+    final messenger = ScaffoldMessenger.of(context);
+    _sl<CartCubit>().load();
+    context.goNamed(ClientRouteNames.cart);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(ClientStrings.orderPlaced(order.code))),
+      );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => _sl<CheckoutCubit>()..load(),
+      child: CheckoutScreen(
+        onPickLocation: (current) => _pickLocation(context, current),
+        onOrderPlaced: (order) => _onOrderPlaced(context, order),
+      ),
     );
   }
 }
