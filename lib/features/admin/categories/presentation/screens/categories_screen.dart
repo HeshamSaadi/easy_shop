@@ -3,6 +3,7 @@ import 'package:easy_shop/core/widgets/app_empty.dart';
 import 'package:easy_shop/core/widgets/app_error.dart';
 import 'package:easy_shop/core/widgets/app_loading.dart';
 import 'package:easy_shop/core/widgets/app_top_bar.dart';
+import 'package:easy_shop/core/widgets/app_pull_to_refresh.dart';
 import 'package:easy_shop/core/widgets/confirm_delete_dialog.dart';
 import 'package:easy_shop/features/admin/categories/domain/entities/category_entity.dart';
 import 'package:easy_shop/features/admin/categories/presentation/constants/categories_strings.dart';
@@ -95,11 +96,14 @@ class _CategoriesView extends StatelessWidget {
               onRetry: () => context.read<CategoriesCubit>().load(),
             ),
             CategoriesLoaded(:final categories) when categories.isEmpty =>
-              AppEmpty(
-                message: CategoriesStrings.empty,
-                icon: Icons.category_outlined,
-                actionText: CategoriesStrings.addAction,
-                onAction: () => _openForm(context),
+              AppPullToRefresh(
+                onRefresh: () => context.read<CategoriesCubit>().refresh(),
+                child: AppEmpty(
+                  message: CategoriesStrings.empty,
+                  icon: Icons.category_outlined,
+                  actionText: CategoriesStrings.addAction,
+                  onAction: () => _openForm(context),
+                ),
               ),
             CategoriesLoaded(:final categories, :final deletingId) =>
               RefreshIndicator(

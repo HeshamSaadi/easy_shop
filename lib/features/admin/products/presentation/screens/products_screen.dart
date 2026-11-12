@@ -3,6 +3,7 @@ import 'package:easy_shop/core/widgets/app_empty.dart';
 import 'package:easy_shop/core/widgets/app_error.dart';
 import 'package:easy_shop/core/widgets/app_loading.dart';
 import 'package:easy_shop/core/widgets/app_top_bar.dart';
+import 'package:easy_shop/core/widgets/app_pull_to_refresh.dart';
 import 'package:easy_shop/features/admin/products/domain/entities/product_entity.dart';
 import 'package:easy_shop/features/admin/products/presentation/constants/products_strings.dart';
 import 'package:easy_shop/features/admin/products/presentation/cubit/products_cubit.dart';
@@ -102,12 +103,16 @@ class _ProductsView extends StatelessWidget {
               message: message,
               onRetry: () => context.read<ProductsCubit>().load(),
             ),
-            ProductsLoaded(:final products) when products.isEmpty => AppEmpty(
-              message: ProductsStrings.empty,
-              icon: Icons.inventory_2_outlined,
-              actionText: ProductsStrings.addAction,
-              onAction: () => _openForm(context),
-            ),
+            ProductsLoaded(:final products) when products.isEmpty =>
+              AppPullToRefresh(
+                onRefresh: () => context.read<ProductsCubit>().refresh(),
+                child: AppEmpty(
+                  message: ProductsStrings.empty,
+                  icon: Icons.inventory_2_outlined,
+                  actionText: ProductsStrings.addAction,
+                  onAction: () => _openForm(context),
+                ),
+              ),
             final ProductsLoaded loaded => _LoadedContent(
               state: loaded,
               onOpenDetails: (product) => _openDetails(context, product),
@@ -167,9 +172,12 @@ class _LoadedContent extends StatelessWidget {
         ),
         Expanded(
           child: products.isEmpty
-              ? const AppEmpty(
-                  message: ProductsStrings.noResults,
-                  icon: Icons.search_off,
+              ? AppPullToRefresh(
+                  onRefresh: cubit.refresh,
+                  child: const AppEmpty(
+                    message: ProductsStrings.noResults,
+                    icon: Icons.search_off,
+                  ),
                 )
               : RefreshIndicator(
                   onRefresh: cubit.refresh,
