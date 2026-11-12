@@ -9,6 +9,10 @@ import 'package:easy_shop/features/admin/auth/domain/usecases/logout_admin.dart'
 import 'package:easy_shop/features/admin/auth/domain/usecases/restore_session.dart';
 import 'package:easy_shop/features/admin/auth/presentation/constants/auth_strings.dart';
 import 'package:easy_shop/features/admin/auth/presentation/cubit/login_cubit.dart';
+import 'package:easy_shop/features/client/cart/domain/usecases/add_to_cart.dart';
+import 'package:easy_shop/features/client/cart/domain/usecases/get_cart.dart';
+import 'package:easy_shop/features/client/cart/domain/usecases/remove_from_cart.dart';
+import 'package:easy_shop/features/client/cart/presentation/cubit/cart_cubit.dart';
 import 'package:easy_shop/features/client/auth/domain/usecases/login_client.dart';
 import 'package:easy_shop/features/client/auth/domain/usecases/logout_client.dart';
 import 'package:easy_shop/features/client/auth/domain/usecases/restore_session.dart'
@@ -22,6 +26,7 @@ import 'package:get_it/get_it.dart';
 
 import '../features/admin/auth/fake_auth_repository.dart';
 import '../features/client/auth/fake_client_auth_repository.dart';
+import '../features/client/cart/fake_cart_repository.dart';
 
 void main() {
   final sl = GetIt.instance;
@@ -30,6 +35,7 @@ void main() {
     Future<void> registerClient({required bool hasSession}) async {
       await sl.reset();
       final repository = FakeClientAuthRepository(hasSession: hasSession);
+      final cartRepository = FakeCartRepository();
       sl
         ..registerSingleton(SessionEvents())
         ..registerSingleton(
@@ -41,10 +47,18 @@ void main() {
         )
         ..registerFactory(
           () => client_login.LoginCubit(loginClient: LoginClient(repository)),
+        )
+        ..registerSingleton(
+          CartCubit(
+            getCart: GetCart(cartRepository),
+            addToCart: AddToCart(cartRepository),
+            removeFromCart: RemoveFromCart(cartRepository),
+          ),
         );
     }
 
     tearDown(() async {
+      await sl<CartCubit>().close();
       await sl<client_session.SessionCubit>().close();
       await sl.reset();
     });
