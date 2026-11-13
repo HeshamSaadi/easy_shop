@@ -6,6 +6,7 @@ import 'package:easy_shop/core/errors/failure.dart';
 import 'package:easy_shop/core/errors/guarded_call.dart';
 import 'package:easy_shop/core/utils/jwt_utils.dart';
 import 'package:easy_shop/features/client/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:easy_shop/features/client/auth/domain/params/register_params.dart';
 import 'package:easy_shop/features/client/auth/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -33,15 +34,17 @@ class AuthRepositoryImpl implements AuthRepository {
   }) {
     return guardedUnitCall(
       () => _remote.register(
-        name: name,
-        email: email,
-        phone: phone,
-        password: password,
-        passwordConfirmation: passwordConfirmation,
-        address: address,
-        latitude: latitude,
-        longitude: longitude,
-        picturePath: picturePath,
+        RegisterParams(
+          name: name,
+          email: email,
+          phone: phone,
+          password: password,
+          passwordConfirmation: passwordConfirmation,
+          address: address,
+          latitude: latitude,
+          longitude: longitude,
+          picturePath: picturePath,
+        ),
       ),
     );
   }
