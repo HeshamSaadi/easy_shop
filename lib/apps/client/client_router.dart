@@ -20,6 +20,8 @@ import 'package:easy_shop/features/client/cart/presentation/cubit/cart_cubit.dar
 import 'package:easy_shop/features/client/cart/presentation/screens/cart_screen.dart';
 import 'package:easy_shop/features/client/home/presentation/cubit/home_cubit.dart';
 import 'package:easy_shop/features/client/home/presentation/screens/home_screen.dart';
+import 'package:easy_shop/features/client/products/presentation/cubit/product_details_cubit.dart';
+import 'package:easy_shop/features/client/products/presentation/screens/product_details_screen.dart';
 import 'package:easy_shop/features/client/profile/domain/entities/client_entity.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/edit_profile_cubit.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/profile_cubit.dart';
@@ -75,6 +77,13 @@ GoRouter createClientRouter(SessionCubit session) {
         builder: (context, _) => VerifiedScreen(
           onContinue: () => context.goNamed(ClientRouteNames.home),
         ),
+      ),
+      // Outside the shell on purpose: the details screen covers the tab bar.
+      GoRoute(
+        name: ClientRouteNames.productDetails,
+        path: ClientRoutePaths.productDetails,
+        builder: (_, state) =>
+            _ProductDetailsPage(slug: state.pathParameters['slug']!),
       ),
       StatefulShellRoute.indexedStack(
         builder: (_, _, shell) => _ClientShellPage(navigationShell: shell),
@@ -261,10 +270,39 @@ class _HomePage extends StatelessWidget {
         builder: (context, state) {
           return HomeScreen(
             userName: state is ProfileLoaded ? state.client.name : null,
-            // CL-B6 opens the product details here.
-            onOpenProduct: (_) {},
+            onOpenProduct: (slug) => context.pushNamed(
+              ClientRouteNames.productDetails,
+              pathParameters: {'slug': slug},
+            ),
           );
         },
+      ),
+    );
+  }
+}
+
+/// Loads one product by its slug. After an add, the shared [CartCubit] is
+/// refreshed so the Cart tab badge shows the new count.
+class _ProductDetailsPage extends StatelessWidget {
+  const _ProductDetailsPage({required this.slug});
+
+  final String slug;
+
+  void _back(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.goNamed(ClientRouteNames.home);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => _sl<ProductDetailsCubit>(param1: slug)..load(),
+      child: ProductDetailsScreen(
+        onBack: () => _back(context),
+        onAdded: () => _sl<CartCubit>().refresh(),
       ),
     );
   }
