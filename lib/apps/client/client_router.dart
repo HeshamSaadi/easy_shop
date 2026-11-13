@@ -16,14 +16,18 @@ import 'package:easy_shop/features/client/auth/presentation/screens/otp_screen.d
 import 'package:easy_shop/features/client/auth/presentation/screens/register_screen.dart';
 import 'package:easy_shop/features/client/auth/presentation/screens/splash_screen.dart';
 import 'package:easy_shop/features/client/auth/presentation/screens/verified_screen.dart';
+import 'package:easy_shop/features/client/cart/presentation/cubit/cart_cubit.dart';
+import 'package:easy_shop/features/client/cart/presentation/screens/cart_screen.dart';
+import 'package:easy_shop/features/client/home/presentation/cubit/home_cubit.dart';
+import 'package:easy_shop/features/client/home/presentation/screens/home_screen.dart';
+import 'package:easy_shop/features/client/products/presentation/cubit/product_details_cubit.dart';
+import 'package:easy_shop/features/client/products/presentation/screens/product_details_screen.dart';
 import 'package:easy_shop/features/client/profile/domain/entities/client_entity.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/edit_profile_cubit.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/profile_cubit.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/profile_state.dart';
 import 'package:easy_shop/features/client/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:easy_shop/features/client/profile/presentation/screens/profile_screen.dart';
-import 'package:easy_shop/features/client/cart/presentation/cubit/cart_cubit.dart';
-import 'package:easy_shop/features/client/cart/presentation/screens/cart_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -74,14 +78,17 @@ GoRouter createClientRouter(SessionCubit session) {
           onContinue: () => context.goNamed(ClientRouteNames.home),
         ),
       ),
+      // Outside the shell on purpose: the details screen covers the tab bar.
+      GoRoute(
+        name: ClientRouteNames.productDetails,
+        path: ClientRoutePaths.productDetails,
+        builder: (_, state) =>
+            _ProductDetailsPage(slug: state.pathParameters['slug']!),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (_, _, shell) => _ClientShellPage(navigationShell: shell),
         branches: [
-          _placeholderBranch(
-            ClientRouteNames.home,
-            ClientRoutePaths.home,
-            ClientShellStrings.home,
-          ),
+          _homeBranch(),
           _placeholderBranch(
             ClientRouteNames.favorites,
             ClientRoutePaths.favorites,
@@ -121,6 +128,18 @@ String? _guard(SessionState state, String location) {
       (isPublic || isSplash) ? ClientRoutePaths.home : null,
     SessionUnauthenticated() => isPublic ? null : ClientRoutePaths.login,
   };
+}
+
+StatefulShellBranch _homeBranch() {
+  return StatefulShellBranch(
+    routes: [
+      GoRoute(
+        name: ClientRouteNames.home,
+        path: ClientRoutePaths.home,
+        builder: (_, _) => const _HomePage(),
+      ),
+    ],
+  );
 }
 
 StatefulShellBranch _profileBranch(SessionCubit session) {
@@ -230,6 +249,60 @@ class _RegisterPage extends StatelessWidget {
         onRegistered: (_) => _onRegistered(context),
         onLoginTap: () => _backToLogin(context),
         onPickLocation: () => _pickLocation(context),
+      ),
+    );
+  }
+}
+
+/// Loads the catalog and the profile name for the greeting. The shell keeps
+/// this page alive while the user moves between tabs, so it loads once.
+class _HomePage extends StatelessWidget {
+  const _HomePage();
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => _sl<HomeCubit>()..load()),
+        BlocProvider(create: (_) => _sl<ProfileCubit>()..loadProfile()),
+      ],
+      child: BlocBuilder<ProfileCubit, ProfileState>(
+        builder: (context, state) {
+          return HomeScreen(
+            userName: state is ProfileLoaded ? state.client.name : null,
+            onOpenProduct: (slug) => context.pushNamed(
+              ClientRouteNames.productDetails,
+              pathParameters: {'slug': slug},
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// Loads one product by its slug. After an add, the shared [CartCubit] is
+/// refreshed so the Cart tab badge shows the new count.
+class _ProductDetailsPage extends StatelessWidget {
+  const _ProductDetailsPage({required this.slug});
+
+  final String slug;
+
+  void _back(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.goNamed(ClientRouteNames.home);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => _sl<ProductDetailsCubit>(param1: slug)..load(),
+      child: ProductDetailsScreen(
+        onBack: () => _back(context),
+        onAdded: () => _sl<CartCubit>().refresh(),
       ),
     );
   }

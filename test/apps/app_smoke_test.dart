@@ -9,10 +9,6 @@ import 'package:easy_shop/features/admin/auth/domain/usecases/logout_admin.dart'
 import 'package:easy_shop/features/admin/auth/domain/usecases/restore_session.dart';
 import 'package:easy_shop/features/admin/auth/presentation/constants/auth_strings.dart';
 import 'package:easy_shop/features/admin/auth/presentation/cubit/login_cubit.dart';
-import 'package:easy_shop/features/client/cart/domain/usecases/add_to_cart.dart';
-import 'package:easy_shop/features/client/cart/domain/usecases/get_cart.dart';
-import 'package:easy_shop/features/client/cart/domain/usecases/remove_from_cart.dart';
-import 'package:easy_shop/features/client/cart/presentation/cubit/cart_cubit.dart';
 import 'package:easy_shop/features/client/auth/domain/usecases/login_client.dart';
 import 'package:easy_shop/features/client/auth/domain/usecases/logout_client.dart';
 import 'package:easy_shop/features/client/auth/domain/usecases/restore_session.dart'
@@ -20,6 +16,17 @@ import 'package:easy_shop/features/client/auth/domain/usecases/restore_session.d
 import 'package:easy_shop/features/client/auth/presentation/cubit/login_cubit.dart'
     as client_login;
 import 'package:easy_shop/features/client/auth/presentation/screens/login_screen.dart';
+import 'package:easy_shop/features/client/cart/domain/usecases/add_to_cart.dart';
+import 'package:easy_shop/features/client/cart/domain/usecases/get_cart.dart';
+import 'package:easy_shop/features/client/cart/domain/usecases/remove_from_cart.dart';
+import 'package:easy_shop/features/client/cart/presentation/cubit/cart_cubit.dart';
+import 'package:easy_shop/features/client/categories/domain/usecases/get_categories.dart';
+import 'package:easy_shop/features/client/home/presentation/constants/home_strings.dart';
+import 'package:easy_shop/features/client/home/presentation/cubit/home_cubit.dart';
+import 'package:easy_shop/features/client/home/presentation/screens/home_screen.dart';
+import 'package:easy_shop/features/client/products/domain/usecases/get_products.dart';
+import 'package:easy_shop/features/client/profile/domain/usecases/get_client_profile.dart';
+import 'package:easy_shop/features/client/profile/presentation/cubit/profile_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -27,6 +34,8 @@ import 'package:get_it/get_it.dart';
 import '../features/admin/auth/fake_auth_repository.dart';
 import '../features/client/auth/fake_client_auth_repository.dart';
 import '../features/client/cart/fake_cart_repository.dart';
+import '../features/client/home/fake_catalog_repositories.dart';
+import '../features/client/profile/fake_profile_repository.dart';
 
 void main() {
   final sl = GetIt.instance;
@@ -47,6 +56,17 @@ void main() {
         )
         ..registerFactory(
           () => client_login.LoginCubit(loginClient: LoginClient(repository)),
+        )
+        ..registerFactory(
+          () => HomeCubit(
+            getCategories: GetCategories(FakeCategoryRepository()),
+            getProducts: GetProducts(FakeProductRepository()),
+          ),
+        )
+        ..registerFactory(
+          () => ProfileCubit(
+            getClientProfile: GetClientProfile(FakeProfileRepository()),
+          ),
         )
         ..registerSingleton(
           CartCubit(
@@ -73,6 +93,18 @@ void main() {
 
       expect(find.byType(NavigationBar), findsOneWidget);
       expect(find.byType(NavigationDestination), findsNWidgets(5));
+    });
+
+    testWidgets('opens Home with the client name when a session exists', (
+      tester,
+    ) async {
+      await registerClient(hasSession: true);
+
+      await tester.pumpWidget(const ClientApp());
+      await tester.pumpAndSettle();
+
+      expect(find.byType(HomeScreen), findsOneWidget);
+      expect(find.text('Ahmed Hassan ${HomeStrings.wave}'), findsOneWidget);
     });
 
     testWidgets('opens the login screen when there is no session', (
