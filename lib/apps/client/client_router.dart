@@ -26,6 +26,7 @@ import 'package:easy_shop/features/client/cart/presentation/cubit/cart_cubit.dar
 import 'package:easy_shop/features/client/cart/presentation/screens/cart_screen.dart';
 import 'package:easy_shop/features/client/checkout/presentation/cubit/checkout_cubit.dart';
 import 'package:easy_shop/features/client/checkout/presentation/screens/checkout_screen.dart';
+import 'package:easy_shop/features/client/checkout/presentation/screens/payment_success_screen.dart';
 import 'package:easy_shop/features/client/orders/domain/entities/order_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -75,6 +76,17 @@ GoRouter createClientRouter(SessionCubit session) {
         path: ClientRoutePaths.verified,
         builder: (context, _) => VerifiedScreen(
           onContinue: () => context.goNamed(ClientRouteNames.home),
+        ),
+      ),
+      GoRoute(
+        name: ClientRouteNames.orderSuccess,
+        path: ClientRoutePaths.orderSuccess,
+        redirect: (_, state) =>
+            state.extra is String ? null : ClientRoutePaths.cart,
+        builder: (context, state) => PaymentSuccessScreen(
+          orderCode: state.extra! as String,
+          onViewOrders: () => context.goNamed(ClientRouteNames.orders),
+          onContinueShopping: () => context.goNamed(ClientRouteNames.home),
         ),
       ),
       StatefulShellRoute.indexedStack(
@@ -349,17 +361,11 @@ class _CheckoutPage extends StatelessWidget {
   }
 
   /// The server empties the whole cart after an order, so the shared cart is
-  /// reloaded (this also clears the tab badge).
-  /// Temporary: CL-C8 replaces the snackbar with the success screen.
+  /// reloaded (this also clears the tab badge). `goNamed` replaces the
+  /// checkout screen, so Back cannot return to a finished checkout.
   void _onOrderPlaced(BuildContext context, OrderEntity order) {
-    final messenger = ScaffoldMessenger.of(context);
     _sl<CartCubit>().load();
-    context.goNamed(ClientRouteNames.cart);
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(ClientStrings.orderPlaced(order.code))),
-      );
+    context.goNamed(ClientRouteNames.orderSuccess, extra: order.code);
   }
 
   @override
