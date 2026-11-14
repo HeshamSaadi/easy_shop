@@ -8,13 +8,22 @@ import 'package:easy_shop/features/client/products/domain/entities/product_entit
 import 'package:flutter/material.dart';
 
 class ProductCard extends StatelessWidget {
-  const ProductCard({super.key, required this.product, required this.onTap});
+  const ProductCard({
+    super.key,
+    required this.product,
+    required this.onTap,
+    this.corner,
+  });
 
   /// Width divided by height of the image area.
   static const double _imageRatio = 1.15;
 
   final ProductEntity product;
   final VoidCallback onTap;
+
+  /// Optional widget in the top-right corner of the image (the heart on the
+  /// Favorites screen).
+  final Widget? corner;
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +49,12 @@ class ProductCard extends StatelessWidget {
                 children: [
                   AppNetworkImage(url: product.imageUrl, radius: 0),
                   if (!product.inStock) const _OutOfStockOverlay(),
+                  if (corner != null)
+                    Positioned(
+                      top: AppSpacing.xs,
+                      right: AppSpacing.xs,
+                      child: corner!,
+                    ),
                 ],
               ),
             ),
