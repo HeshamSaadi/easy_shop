@@ -1,12 +1,25 @@
 import 'package:easy_shop/core/databases/api/session_events.dart';
 import 'package:easy_shop/core/databases/cache/token_storage.dart';
 import 'package:easy_shop/features/client/auth/data/datasources/auth_remote_data_source.dart';
-import 'package:easy_shop/features/client/auth/domain/params/register_params.dart';
 
 /// Hand-written fake: set [error] to make every call throw it,
 /// and read the recorded arguments to check what the repository sent.
 class FakeClientAuthRemoteDataSource implements AuthRemoteDataSource {
   FakeClientAuthRemoteDataSource([this.log]);
+  final List<
+    ({
+      String name,
+      String email,
+      String phone,
+      String password,
+      String passwordConfirmation,
+      String? address,
+      double? latitude,
+      double? longitude,
+      String? picturePath,
+    })
+  >
+  registerArgs = [];
 
   /// Shared with the other fakes, so a test can check the order of calls.
   final List<String>? log;
@@ -14,7 +27,6 @@ class FakeClientAuthRemoteDataSource implements AuthRemoteDataSource {
   Object? error;
   String token = 'jwt-token';
 
-  final List<RegisterParams> registerArgs = [];
   final List<({String email, String password})> loginArgs = [];
   final List<({String email, String otpCode})> verifyArgs = [];
   final List<String> resendArgs = [];
@@ -26,8 +38,28 @@ class FakeClientAuthRemoteDataSource implements AuthRemoteDataSource {
   }
 
   @override
-  Future<void> register(RegisterParams params) async {
-    registerArgs.add(params);
+  Future<void> register({
+    required String name,
+    required String email,
+    required String phone,
+    required String password,
+    required String passwordConfirmation,
+    String? address,
+    double? latitude,
+    double? longitude,
+    String? picturePath,
+  }) async {
+    registerArgs.add((
+      name: name,
+      email: email,
+      phone: phone,
+      password: password,
+      passwordConfirmation: passwordConfirmation,
+      address: address,
+      latitude: latitude,
+      longitude: longitude,
+      picturePath: picturePath,
+    ));
     _throwIfNeeded();
   }
 

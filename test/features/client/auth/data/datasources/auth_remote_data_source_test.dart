@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:easy_shop/core/databases/api/end_points.dart';
 import 'package:easy_shop/core/errors/exceptions.dart';
 import 'package:easy_shop/features/client/auth/data/datasources/auth_remote_data_source.dart';
-import 'package:easy_shop/features/client/auth/domain/params/register_params.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../admin/auth/fake_recording_api.dart';
@@ -118,19 +117,16 @@ void main() {
       String? picturePath,
     }) async {
       api.response = <String, dynamic>{'data': null, 'message': 'created'};
-
       await dataSource.register(
-        RegisterParams(
-          name: name,
-          email: email,
-          phone: phone,
-          password: password,
-          passwordConfirmation: passwordConfirmation,
-          address: address,
-          latitude: latitude,
-          longitude: longitude,
-          picturePath: picturePath,
-        ),
+        name: name,
+        email: email,
+        phone: phone,
+        password: password,
+        passwordConfirmation: passwordConfirmation,
+        address: address,
+        latitude: latitude,
+        longitude: longitude,
+        picturePath: picturePath,
       );
 
       expect(api.postCalls.single.path, EndPoints.clientRegister);
