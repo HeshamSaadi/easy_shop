@@ -6,13 +6,15 @@ import 'package:easy_shop/features/client/auth/domain/repositories/auth_reposito
 class RegisterClient {
   const RegisterClient(this._repository);
 
+  static final RegExp _whitespace = RegExp(r'\s+');
+
   final AuthRepository _repository;
 
   Future<Either<Failure, Unit>> call(RegisterParams params) {
     return _repository.register(
       name: params.name,
       email: params.email,
-      phone: params.phone,
+      phone: params.phone.replaceAll(_whitespace, ''),
       password: params.password,
       passwordConfirmation: params.passwordConfirmation,
       address: params.address,
