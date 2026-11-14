@@ -2,6 +2,7 @@ import 'package:easy_shop/apps/client/session/session_cubit.dart';
 import 'package:easy_shop/features/client/auth/client_auth_injection.dart';
 import 'package:easy_shop/features/client/cart/client_cart_injection.dart';
 import 'package:easy_shop/features/client/categories/client_categories_injection.dart';
+import 'package:easy_shop/features/client/checkout/client_checkout_injection.dart';
 import 'package:easy_shop/features/client/favorites/client_favorites_injection.dart';
 import 'package:easy_shop/features/client/home/client_home_injection.dart';
 import 'package:easy_shop/features/client/orders/client_orders_injection.dart';
@@ -20,6 +21,7 @@ void initClient(GetIt sl) {
   registerClientCart(sl);
   registerClientFavorites(sl);
   registerClientOrders(sl);
+  registerClientCheckout(sl);
 
   sl.registerLazySingleton(
     () => SessionCubit(restoreSession: sl(), logout: sl(), sessionEvents: sl()),

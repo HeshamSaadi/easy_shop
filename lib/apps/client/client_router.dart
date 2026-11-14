@@ -18,10 +18,14 @@ import 'package:easy_shop/features/client/auth/presentation/screens/splash_scree
 import 'package:easy_shop/features/client/auth/presentation/screens/verified_screen.dart';
 import 'package:easy_shop/features/client/cart/presentation/cubit/cart_cubit.dart';
 import 'package:easy_shop/features/client/cart/presentation/screens/cart_screen.dart';
+import 'package:easy_shop/features/client/checkout/presentation/cubit/checkout_cubit.dart';
+import 'package:easy_shop/features/client/checkout/presentation/screens/checkout_screen.dart';
+import 'package:easy_shop/features/client/checkout/presentation/screens/payment_success_screen.dart';
 import 'package:easy_shop/features/client/favorites/presentation/cubit/favorites_cubit.dart';
 import 'package:easy_shop/features/client/favorites/presentation/screens/favorites_screen.dart';
 import 'package:easy_shop/features/client/home/presentation/cubit/home_cubit.dart';
 import 'package:easy_shop/features/client/home/presentation/screens/home_screen.dart';
+import 'package:easy_shop/features/client/orders/domain/entities/order_entity.dart';
 import 'package:easy_shop/features/client/products/presentation/cubit/product_details_cubit.dart';
 import 'package:easy_shop/features/client/products/presentation/screens/product_details_screen.dart';
 import 'package:easy_shop/features/client/profile/domain/entities/client_entity.dart';
@@ -80,6 +84,17 @@ GoRouter createClientRouter(SessionCubit session) {
           onContinue: () => context.goNamed(ClientRouteNames.home),
         ),
       ),
+      GoRoute(
+        name: ClientRouteNames.orderSuccess,
+        path: ClientRoutePaths.orderSuccess,
+        redirect: (_, state) =>
+            state.extra is String ? null : ClientRoutePaths.cart,
+        builder: (context, state) => PaymentSuccessScreen(
+          orderCode: state.extra! as String,
+          onViewOrders: () => context.goNamed(ClientRouteNames.orders),
+          onContinueShopping: () => context.goNamed(ClientRouteNames.home),
+        ),
+      ),
       // Outside the shell on purpose: the details screen covers the tab bar.
       GoRoute(
         name: ClientRouteNames.productDetails,
@@ -98,10 +113,17 @@ GoRouter createClientRouter(SessionCubit session) {
                 name: ClientRouteNames.cart,
                 path: ClientRoutePaths.cart,
                 builder: (context, _) => CartScreen(
-                  // CL-C7 opens the checkout here.
-                  onCheckout: () {},
+                  onCheckout: () =>
+                      context.pushNamed(ClientRouteNames.checkout),
                   onStartShopping: () => context.goNamed(ClientRouteNames.home),
                 ),
+                routes: [
+                  GoRoute(
+                    name: ClientRouteNames.checkout,
+                    path: 'checkout',
+                    builder: (_, _) => const _CheckoutPage(),
+                  ),
+                ],
               ),
             ],
           ),
@@ -422,6 +444,40 @@ class _ClientShellPageState extends State<_ClientShellPage> {
         BlocProvider.value(value: _favorites),
       ],
       child: ClientShell(navigationShell: widget.navigationShell),
+    );
+  }
+}
+
+class _CheckoutPage extends StatelessWidget {
+  const _CheckoutPage();
+
+  /// Reopens the map at [current], so the user does not start from scratch.
+  Future<PickedLocation?> _pickLocation(
+    BuildContext context,
+    PickedLocation? current,
+  ) {
+    return LocationPickerScreen.open(
+      context,
+      createCubit: () => _sl<LocationPickerCubit>(param1: current),
+    );
+  }
+
+  /// The server empties the whole cart after an order, so the shared cart is
+  /// reloaded (this also clears the tab badge). `goNamed` replaces the
+  /// checkout screen, so Back cannot return to a finished checkout.
+  void _onOrderPlaced(BuildContext context, OrderEntity order) {
+    _sl<CartCubit>().load();
+    context.goNamed(ClientRouteNames.orderSuccess, extra: order.code);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => _sl<CheckoutCubit>()..load(),
+      child: CheckoutScreen(
+        onPickLocation: (current) => _pickLocation(context, current),
+        onOrderPlaced: (order) => _onOrderPlaced(context, order),
+      ),
     );
   }
 }

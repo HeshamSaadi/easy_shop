@@ -11,6 +11,8 @@ abstract final class ClientRouteNames {
   static const orders = 'orders';
   static const profile = 'profile';
   static const profileEdit = 'profileEdit';
+  static const checkout = 'checkout';
+  static const orderSuccess = 'orderSuccess';
 }
 
 abstract final class ClientRoutePaths {
@@ -25,6 +27,7 @@ abstract final class ClientRoutePaths {
   static const cart = '/cart';
   static const orders = '/orders';
   static const profile = '/profile';
+  static const orderSuccess = '/order-success';
 
   // Screens a signed-out user may open. `verified` is not here on purpose:
   // it is shown right after the session becomes authenticated.
