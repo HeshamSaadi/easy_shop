@@ -2,4 +2,5 @@
 abstract final class ClientStrings {
   static const String accountCreated =
       'Account created. Sign in to get your code.';
+  static String orderPlaced(String code) => 'Order #$code placed.';
 }
