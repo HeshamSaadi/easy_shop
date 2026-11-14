@@ -25,4 +25,10 @@ abstract final class CheckoutStrings {
   static String itemsLabel(int count) => 'Items ($count)';
 
   static String quantity(int count) => 'Qty: $count';
+
+  static const String successTitle = 'Payment Successful!';
+  static const String successMessage =
+      'Your order has been placed successfully.';
+  static const String viewOrders = 'View Orders';
+  static const String continueShopping = 'Continue Shopping';
 }
