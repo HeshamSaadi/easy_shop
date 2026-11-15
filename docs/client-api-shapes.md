@@ -8,7 +8,7 @@ No real emails, tokens, keys or base URLs are in this file. Hosts are shown as `
 
 | Section | Owner | Status |
 |---|---|---|
-| 1. Auth and profile | A (CL-A2) | Basics confirmed by C, A to complete |
+| 1. Auth and profile | A (CL-A2) | Mostly done, open items listed in section 1 |
 | 2. Catalog and favorites | B (CL-B3) | Done |
 | 3. Cart | C (CL-C1) | Done |
 | 4. Orders | C (CL-C1) | Done |
@@ -44,17 +44,42 @@ No real emails, tokens, keys or base URLs are in this file. Hosts are shown as `
 
 ## 1. Auth and profile (A, CL-A2)
 
-A completes this section from his Postman tests of register, login, OTP verify and resend, logout, profile and profile update. What is already confirmed:
+What is confirmed for the client auth and profile endpoints:
 
 - `POST /client/register` returns 201 and the new client. **No token and no OTP email** (confirmed on a phone: no email arrives after register).
 - `POST /client/login` returns 200, `data: null`, message `"OTP sent to your email and phone"`. **The OTP email arrives only after login.**
 - `POST /client/otp/verify` returns 200 and the client in `data`, plus a top-level `token`.
 - The app flow is therefore: register, then login, then OTP, then home.
-- In C's Postman test, register did **not** save `address`, `latitude`, `longitude` or `picture` (`GET /client/profile` showed `null` and the default picture).
-- **Profile update saves them** (checked on a phone, 2026-11-10): `address`, location and `picture` were still there after reopening the profile. To set them, use `PUT /client/profile/update`, sent as `POST` + `_method=PUT` with `FormData`.
-- Sending your **own email** again on profile update is accepted (no "already taken").
+- Register does **not** save `address`, `latitude`, `longitude` or `picture` (C's test, 2026-11-06).
+- **Profile update does not save `address`, `latitude` or `longitude` either** (tested 2026-11-15 with form-data using `POST` + `_method=PUT`, with raw JSON, and from the app). The response is 201 and `name` changes, but the three fields stay `null` in the response and in a following `GET /client/profile`. The note of 2026-11-10 that the profile saves them was wrong. The delivery address and location are saved **per order** (section 4).
+- Profile update saves `name` and `phone`. Sending your **own email** again is accepted.
 
-Still missing, for A (CL-A2): response fields, validation errors, login/OTP/logout errors, profile fields and token errors. A adds them in his own PR, section 1 only.
+Tested in Postman on 2026-11-11 (A) and 2026-11-15 (team).
+
+**Register** (`POST /client/register`), 201, `"Account created successfully"`. `data` has `id`, `name`, `email`, `phone`, `picture_url`, `created_at`, `updated_at`. `address`, `latitude` and `longitude` are not in the response.
+
+Register validation (422), `message` is a map of field to list of messages:
+- Required: `name`, `email`, `phone`, `password`.
+- Phone: `+20` followed by 10 digits is accepted. **Spaces inside the number are rejected**, so strip them (`PhoneUtils`).
+- Password: at least 6 characters. A different `password_confirmation` gives `"The password field confirmation does not match."`.
+
+**Login errors** (`POST /client/login`):
+
+| Case | Status | `message` |
+|---|---|---|
+| Wrong password | 401 | `"Invalid email or password"` |
+| Email not registered | 401 | `"Invalid email or password"` (same message) |
+| Empty fields | 422 | `{ "email": [...], "password": [...] }` |
+
+**OTP** (`POST /client/otp/verify`): a wrong code and a reused code both give 401, `"Invalid or expired OTP"`. The OTP is single-use, so after a failed verify offer resend. `POST /client/otp/resend` returns 200, `data: null`, `"OTP resent to your email"`.
+
+**Logout** (`POST /client/logout`): 200, `data: null`, `"Account logged out successfully"`.
+
+**Profile** (`GET /client/profile`): `id`, `name`, `email`, `phone`, `address`, `latitude`, `longitude` (the last three are always `null`, so their type is unknown), `created_at`, `updated_at`, `picture_url` (absolute URL, default image ends with `default.png`). No `products` key.
+
+**Profile update** (`POST` + `_method=PUT`): 201, `"Account updated successfully"`, `data` has the profile fields. Treat any 2xx as success.
+
+**Not tested yet:** what the same token returns after logout (and the control test), the messages for a missing, invalid and expired token on a client request, expired OTP, unique email and phone on register and update, profile update validation, and picture types other than `.jfif`.
 
 ---
 
@@ -292,7 +317,7 @@ Conclusion for the plan: card payment stays a **stretch** (CL-C11). The cash flo
 | `payments/process` has no `data` | Read the top-level `url` |
 | `orders/pay` returns wrong names and empty phone and email | Fill them from the profile |
 | `orders/pay` on a cash order is a 404 | Do not call it for cash |
-| Client register did not save address, location or picture (Postman) | Set them through profile update, which saves them |
+| Register and profile update do not save `address`, `latitude`, `longitude` | Do not rely on the profile for a saved address. Checkout always asks for the location and sends it with the order |
 | A wrong path or method returns an HTML page, not JSON | Do not assume a JSON body in error handling |
 | A GET with a body is a 403 | Never send a body on a GET |
 | Adding a favorite twice is a 400 | Show it as "already in favorites", then refetch |
