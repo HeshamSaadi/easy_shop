@@ -161,10 +161,7 @@ StatefulShellBranch _profileBranch(SessionCubit session) {
       GoRoute(
         name: ClientRouteNames.profile,
         path: ClientRoutePaths.profile,
-        builder: (_, _) => BlocProvider(
-          create: (_) => _sl<ProfileCubit>()..loadProfile(),
-          child: _ProfilePage(session: session),
-        ),
+        builder: (_, _) => _ProfilePage(session: session),
         routes: [
           GoRoute(
             name: ClientRouteNames.profileEdit,
@@ -267,18 +264,15 @@ class _RegisterPage extends StatelessWidget {
   }
 }
 
-/// Loads the catalog and the profile name for the greeting. The shell keeps
-/// this page alive while the user moves between tabs, so it loads once.
+/// Loads the catalog. The greeting name comes from the [ProfileCubit] that
+/// the shell provides, so Home and Profile share one profile request.
 class _HomePage extends StatelessWidget {
   const _HomePage();
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (_) => _sl<HomeCubit>()..load()),
-        BlocProvider(create: (_) => _sl<ProfileCubit>()..loadProfile()),
-      ],
+    return BlocProvider(
+      create: (_) => _sl<HomeCubit>()..load(),
       child: BlocBuilder<ProfileCubit, ProfileState>(
         builder: (context, state) {
           return HomeScreen(
@@ -354,6 +348,7 @@ class _EditProfilePage extends StatelessWidget {
 /// and the Cart screen show the same cart. `BlocProvider.value` does not close
 /// it, because it is a singleton. The shell is rebuilt after every login, so
 /// the cart of the previous account is replaced by `load()`.
+/// The profile is provided here too, so Home and Profile show the same data.
 class _ClientShellPage extends StatefulWidget {
   const _ClientShellPage({required this.navigationShell});
 
@@ -374,8 +369,11 @@ class _ClientShellPageState extends State<_ClientShellPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _cart,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: _cart),
+        BlocProvider(create: (_) => _sl<ProfileCubit>()..loadProfile()),
+      ],
       child: ClientShell(navigationShell: widget.navigationShell),
     );
   }
