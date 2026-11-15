@@ -35,7 +35,7 @@ import '../features/admin/auth/fake_auth_repository.dart';
 import '../features/client/auth/fake_client_auth_repository.dart';
 import '../features/client/cart/fake_cart_repository.dart';
 import '../features/client/home/fake_catalog_repositories.dart';
-import '../features/client/profile/fake_profile_repository.dart';
+import '../features/client/profile/fake_client_profile_repository.dart';
 
 void main() {
   final sl = GetIt.instance;
@@ -65,7 +65,7 @@ void main() {
         )
         ..registerFactory(
           () => ProfileCubit(
-            getClientProfile: GetClientProfile(FakeProfileRepository()),
+            getClientProfile: GetClientProfile(FakeClientProfileRepository()),
           ),
         )
         ..registerSingleton(
