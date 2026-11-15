@@ -41,4 +41,38 @@ void main() {
     expect(model.latitude, isNull);
     expect(model.longitude, isNull);
   });
+
+  test('reads every field of a full profile', () {
+    final model = ClientModel.fromJson({
+      ...base,
+      'address': '123 Tahrir Square',
+      'latitude': 30.05,
+      'longitude': 31.23,
+      'picture_url': 'https://host/uploads/clients/me.jpg',
+    });
+
+    expect(model.id, 1);
+    expect(model.name, 'Ahmed');
+    expect(model.email, 'ahmed@example.com');
+    expect(model.phone, '+201000000000');
+    expect(model.address, '123 Tahrir Square');
+    expect(model.pictureUrl, 'https://host/uploads/clients/me.jpg');
+  });
+
+  test('keeps the optional fields null when the keys are missing', () {
+    final model = ClientModel.fromJson(base);
+
+    expect(model.address, isNull);
+    expect(model.pictureUrl, isNull);
+    expect(model.latitude, isNull);
+    expect(model.longitude, isNull);
+  });
+
+  test('uses an empty text when a required text is missing or null', () {
+    final model = ClientModel.fromJson({'id': 1, 'name': null, 'email': null});
+
+    expect(model.name, '');
+    expect(model.email, '');
+    expect(model.phone, '');
+  });
 }
