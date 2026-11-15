@@ -16,18 +16,20 @@ import 'package:easy_shop/features/client/auth/presentation/screens/otp_screen.d
 import 'package:easy_shop/features/client/auth/presentation/screens/register_screen.dart';
 import 'package:easy_shop/features/client/auth/presentation/screens/splash_screen.dart';
 import 'package:easy_shop/features/client/auth/presentation/screens/verified_screen.dart';
+import 'package:easy_shop/features/client/cart/presentation/cubit/cart_cubit.dart';
+import 'package:easy_shop/features/client/cart/presentation/screens/cart_screen.dart';
+import 'package:easy_shop/features/client/checkout/presentation/cubit/checkout_cubit.dart';
+import 'package:easy_shop/features/client/checkout/presentation/screens/checkout_screen.dart';
+import 'package:easy_shop/features/client/checkout/presentation/screens/payment_success_screen.dart';
+import 'package:easy_shop/features/client/home/presentation/cubit/home_cubit.dart';
+import 'package:easy_shop/features/client/home/presentation/screens/home_screen.dart';
+import 'package:easy_shop/features/client/orders/domain/entities/order_entity.dart';
 import 'package:easy_shop/features/client/profile/domain/entities/client_entity.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/edit_profile_cubit.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/profile_cubit.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/profile_state.dart';
 import 'package:easy_shop/features/client/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:easy_shop/features/client/profile/presentation/screens/profile_screen.dart';
-import 'package:easy_shop/features/client/cart/presentation/cubit/cart_cubit.dart';
-import 'package:easy_shop/features/client/cart/presentation/screens/cart_screen.dart';
-import 'package:easy_shop/features/client/checkout/presentation/cubit/checkout_cubit.dart';
-import 'package:easy_shop/features/client/checkout/presentation/screens/checkout_screen.dart';
-import 'package:easy_shop/features/client/checkout/presentation/screens/payment_success_screen.dart';
-import 'package:easy_shop/features/client/orders/domain/entities/order_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -92,11 +94,7 @@ GoRouter createClientRouter(SessionCubit session) {
       StatefulShellRoute.indexedStack(
         builder: (_, _, shell) => _ClientShellPage(navigationShell: shell),
         branches: [
-          _placeholderBranch(
-            ClientRouteNames.home,
-            ClientRoutePaths.home,
-            ClientShellStrings.home,
-          ),
+          _homeBranch(),
           _placeholderBranch(
             ClientRouteNames.favorites,
             ClientRoutePaths.favorites,
@@ -145,16 +143,25 @@ String? _guard(SessionState state, String location) {
   };
 }
 
+StatefulShellBranch _homeBranch() {
+  return StatefulShellBranch(
+    routes: [
+      GoRoute(
+        name: ClientRouteNames.home,
+        path: ClientRoutePaths.home,
+        builder: (_, _) => const _HomePage(),
+      ),
+    ],
+  );
+}
+
 StatefulShellBranch _profileBranch(SessionCubit session) {
   return StatefulShellBranch(
     routes: [
       GoRoute(
         name: ClientRouteNames.profile,
         path: ClientRoutePaths.profile,
-        builder: (_, _) => BlocProvider(
-          create: (_) => _sl<ProfileCubit>()..loadProfile(),
-          child: _ProfilePage(session: session),
-        ),
+        builder: (_, _) => _ProfilePage(session: session),
         routes: [
           GoRoute(
             name: ClientRouteNames.profileEdit,
@@ -257,6 +264,28 @@ class _RegisterPage extends StatelessWidget {
   }
 }
 
+/// Loads the catalog. The greeting name comes from the [ProfileCubit] that
+/// the shell provides, so Home and Profile share one profile request.
+class _HomePage extends StatelessWidget {
+  const _HomePage();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => _sl<HomeCubit>()..load(),
+      child: BlocBuilder<ProfileCubit, ProfileState>(
+        builder: (context, state) {
+          return HomeScreen(
+            userName: state is ProfileLoaded ? state.client.name : null,
+            // CL-B6 opens the product details here.
+            onOpenProduct: (_) {},
+          );
+        },
+      ),
+    );
+  }
+}
+
 class _ProfilePage extends StatelessWidget {
   const _ProfilePage({required this.session});
 
@@ -319,6 +348,7 @@ class _EditProfilePage extends StatelessWidget {
 /// and the Cart screen show the same cart. `BlocProvider.value` does not close
 /// it, because it is a singleton. The shell is rebuilt after every login, so
 /// the cart of the previous account is replaced by `load()`.
+/// The profile is provided here too, so Home and Profile show the same data.
 class _ClientShellPage extends StatefulWidget {
   const _ClientShellPage({required this.navigationShell});
 
@@ -339,8 +369,11 @@ class _ClientShellPageState extends State<_ClientShellPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _cart,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: _cart),
+        BlocProvider(create: (_) => _sl<ProfileCubit>()..loadProfile()),
+      ],
       child: ClientShell(navigationShell: widget.navigationShell),
     );
   }
