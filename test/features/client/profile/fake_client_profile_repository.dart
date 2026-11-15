@@ -3,13 +3,31 @@ import 'package:easy_shop/core/errors/failure.dart';
 import 'package:easy_shop/features/client/profile/domain/entities/client_entity.dart';
 import 'package:easy_shop/features/client/profile/domain/repositories/profile_repository.dart';
 
-/// Hand-written fake. Only `getProfile` is used by checkout, so
-/// `updateProfile` is not needed and throws if something calls it.
+/// Hand-written fake. Every call succeeds unless a test sets a result, and
+/// every call is recorded so a test can check what was sent.
 class FakeClientProfileRepository implements ProfileRepository {
   Either<Failure, ClientEntity> profileResult = Right(buildClient());
+  Either<Failure, ClientEntity> updateResult = Right(buildClient());
+
+  int getCalls = 0;
+  final List<
+    ({
+      String name,
+      String email,
+      String phone,
+      String? address,
+      double? latitude,
+      double? longitude,
+      String? picturePath,
+    })
+  >
+  updateArgs = [];
 
   @override
-  Future<Either<Failure, ClientEntity>> getProfile() async => profileResult;
+  Future<Either<Failure, ClientEntity>> getProfile() async {
+    getCalls++;
+    return profileResult;
+  }
 
   @override
   Future<Either<Failure, ClientEntity>> updateProfile({
@@ -20,8 +38,17 @@ class FakeClientProfileRepository implements ProfileRepository {
     double? latitude,
     double? longitude,
     String? picturePath,
-  }) {
-    throw UnimplementedError();
+  }) async {
+    updateArgs.add((
+      name: name,
+      email: email,
+      phone: phone,
+      address: address,
+      latitude: latitude,
+      longitude: longitude,
+      picturePath: picturePath,
+    ));
+    return updateResult;
   }
 }
 
