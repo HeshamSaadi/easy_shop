@@ -3,9 +3,9 @@ import 'package:easy_shop/core/theme/app_spacing.dart';
 import 'package:easy_shop/core/theme/app_theme_colors.dart';
 import 'package:easy_shop/core/widgets/app_card.dart';
 import 'package:easy_shop/core/widgets/app_network_image.dart';
+import 'package:easy_shop/core/widgets/quantity_stepper.dart';
 import 'package:easy_shop/features/client/cart/domain/entities/cart_item_entity.dart';
 import 'package:easy_shop/features/client/cart/presentation/constants/cart_strings.dart';
-import 'package:easy_shop/features/client/cart/presentation/widgets/quantity_stepper.dart';
 import 'package:flutter/material.dart';
 
 class CartItemTile extends StatelessWidget {

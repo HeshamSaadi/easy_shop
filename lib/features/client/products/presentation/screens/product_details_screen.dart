@@ -4,7 +4,7 @@ import 'package:easy_shop/core/theme/app_theme_colors.dart';
 import 'package:easy_shop/core/widgets/app_error.dart';
 import 'package:easy_shop/core/widgets/app_loading.dart';
 import 'package:easy_shop/core/widgets/app_top_bar.dart';
-import 'package:easy_shop/features/client/cart/presentation/widgets/quantity_stepper.dart';
+import 'package:easy_shop/core/widgets/quantity_stepper.dart';
 import 'package:easy_shop/features/client/products/presentation/constants/product_details_strings.dart';
 import 'package:easy_shop/features/client/products/presentation/cubit/product_details_cubit.dart';
 import 'package:easy_shop/features/client/products/presentation/cubit/product_details_state.dart';
