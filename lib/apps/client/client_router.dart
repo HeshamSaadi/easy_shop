@@ -23,6 +23,9 @@ import 'package:easy_shop/features/client/checkout/presentation/screens/checkout
 import 'package:easy_shop/features/client/checkout/presentation/screens/payment_success_screen.dart';
 import 'package:easy_shop/features/client/favorites/presentation/cubit/favorites_cubit.dart';
 import 'package:easy_shop/features/client/favorites/presentation/screens/favorites_screen.dart';
+import 'package:easy_shop/features/client/favorites/presentation/widgets/favorites_error_listener.dart';
+import 'package:easy_shop/features/client/favorites/presentation/widgets/product_favorite_button.dart';
+import 'package:easy_shop/features/client/home/presentation/widgets/product_card.dart';
 import 'package:easy_shop/features/client/home/presentation/cubit/home_cubit.dart';
 import 'package:easy_shop/features/client/home/presentation/screens/home_screen.dart';
 import 'package:easy_shop/features/client/orders/domain/entities/order_entity.dart';
@@ -162,16 +165,26 @@ StatefulShellBranch _homeBranch() {
   );
 }
 
+void _openProduct(BuildContext context, String slug) {
+  context.pushNamed(
+    ClientRouteNames.productDetails,
+    pathParameters: {'slug': slug},
+  );
+}
+
 StatefulShellBranch _favoritesBranch() {
   return StatefulShellBranch(
     routes: [
       GoRoute(
         name: ClientRouteNames.favorites,
         path: ClientRoutePaths.favorites,
-        builder: (context, _) => FavoritesScreen(
-          onOpenProduct: (slug) => context.pushNamed(
-            ClientRouteNames.productDetails,
-            pathParameters: {'slug': slug},
+        builder: (context, _) => FavoritesErrorListener(
+          child: FavoritesScreen(
+            cardBuilder: (product, heart) => ProductCard(
+              product: product,
+              onTap: () => _openProduct(context, product.slug),
+              corner: heart,
+            ),
           ),
         ),
       ),
@@ -299,11 +312,12 @@ class _HomePage extends StatelessWidget {
       create: (_) => _sl<HomeCubit>()..load(),
       child: BlocBuilder<ProfileCubit, ProfileState>(
         builder: (context, state) {
-          return HomeScreen(
-            userName: state is ProfileLoaded ? state.client.name : null,
-            onOpenProduct: (slug) => context.pushNamed(
-              ClientRouteNames.productDetails,
-              pathParameters: {'slug': slug},
+          return FavoritesErrorListener(
+            child: HomeScreen(
+              userName: state is ProfileLoaded ? state.client.name : null,
+              onOpenProduct: (slug) => _openProduct(context, slug),
+              cornerBuilder: (product) =>
+                  ProductFavoriteButton(product: product, compact: true),
             ),
           );
         },
@@ -338,9 +352,12 @@ class _ProductDetailsPage extends StatelessWidget {
         // favorites cubit here. `.value` does not close the singleton.
         BlocProvider.value(value: _sl<FavoritesCubit>()),
       ],
-      child: ProductDetailsScreen(
-        onBack: () => _back(context),
-        onAdded: () => _sl<CartCubit>().refresh(),
+      child: FavoritesErrorListener(
+        child: ProductDetailsScreen(
+          onBack: () => _back(context),
+          onAdded: () => _sl<CartCubit>().refresh(),
+          favoriteBuilder: (product) => ProductFavoriteButton(product: product),
+        ),
       ),
     );
   }

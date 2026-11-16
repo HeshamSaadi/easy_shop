@@ -8,16 +8,18 @@ import 'package:easy_shop/features/client/favorites/presentation/cubit/favorites
 import 'package:easy_shop/features/client/favorites/presentation/cubit/favorites_state.dart';
 import 'package:easy_shop/features/client/favorites/presentation/widgets/favorite_heart_button.dart';
 import 'package:easy_shop/features/client/favorites/presentation/widgets/favorites_empty.dart';
-import 'package:easy_shop/features/client/home/presentation/widgets/product_card.dart';
+import 'package:easy_shop/features/client/products/domain/entities/product_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Needs a [FavoritesCubit] above it in the tree (the client shell provides
 /// it, because the heart on the product details screen uses the same list).
 class FavoritesScreen extends StatelessWidget {
-  const FavoritesScreen({super.key, required this.onOpenProduct});
+  const FavoritesScreen({super.key, required this.cardBuilder});
 
-  final ValueChanged<String> onOpenProduct;
+  /// Builds one card. The router supplies it, so this feature does not import
+  /// the Home screen's card. [heart] goes in the card's corner.
+  final Widget Function(ProductEntity product, Widget heart) cardBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -25,17 +27,7 @@ class FavoritesScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: const AppTopBar(title: FavoritesStrings.title, showBack: false),
-      body: BlocConsumer<FavoritesCubit, FavoritesState>(
-        listenWhen: (_, current) =>
-            current is FavoritesLoaded && current.actionError != null,
-        listener: (context, state) {
-          if (state is! FavoritesLoaded) return;
-          final message = state.actionError;
-          if (message == null) return;
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(content: Text(message)));
-        },
+      body: BlocBuilder<FavoritesCubit, FavoritesState>(
         builder: (context, state) {
           return switch (state) {
             FavoritesInitial() || FavoritesLoading() => const AppLoading(),
@@ -50,7 +42,7 @@ class FavoritesScreen extends StatelessWidget {
               ),
             final FavoritesLoaded loaded => _FavoritesGrid(
               state: loaded,
-              onOpenProduct: onOpenProduct,
+              cardBuilder: cardBuilder,
             ),
           };
         },
@@ -60,13 +52,13 @@ class FavoritesScreen extends StatelessWidget {
 }
 
 class _FavoritesGrid extends StatelessWidget {
-  const _FavoritesGrid({required this.state, required this.onOpenProduct});
+  const _FavoritesGrid({required this.state, required this.cardBuilder});
 
   static const double _maxCardWidth = 220;
   static const double _cardRatio = 0.68;
 
   final FavoritesLoaded state;
-  final ValueChanged<String> onOpenProduct;
+  final Widget Function(ProductEntity product, Widget heart) cardBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -87,10 +79,9 @@ class _FavoritesGrid extends StatelessWidget {
         itemCount: products.length,
         itemBuilder: (_, index) {
           final product = products[index];
-          return ProductCard(
-            product: product,
-            onTap: () => onOpenProduct(product.slug),
-            corner: FavoriteHeartButton(
+          return cardBuilder(
+            product,
+            FavoriteHeartButton(
               compact: true,
               isFavorite: true,
               isBusy: state.isBusy(product.id),

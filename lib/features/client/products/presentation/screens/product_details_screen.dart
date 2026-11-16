@@ -5,9 +5,7 @@ import 'package:easy_shop/core/widgets/app_error.dart';
 import 'package:easy_shop/core/widgets/app_loading.dart';
 import 'package:easy_shop/core/widgets/app_top_bar.dart';
 import 'package:easy_shop/core/widgets/quantity_stepper.dart';
-import 'package:easy_shop/features/client/favorites/presentation/cubit/favorites_cubit.dart';
-import 'package:easy_shop/features/client/favorites/presentation/cubit/favorites_state.dart';
-import 'package:easy_shop/features/client/favorites/presentation/widgets/product_favorite_button.dart';
+import 'package:easy_shop/features/client/products/domain/entities/product_entity.dart';
 import 'package:easy_shop/features/client/products/presentation/constants/product_details_strings.dart';
 import 'package:easy_shop/features/client/products/presentation/cubit/product_details_cubit.dart';
 import 'package:easy_shop/features/client/products/presentation/cubit/product_details_state.dart';
@@ -17,37 +15,24 @@ import 'package:easy_shop/features/client/products/presentation/widgets/stock_bo
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Needs a [ProductDetailsCubit] and the shared [FavoritesCubit] above it in
-/// the tree (the router provides both).
+/// Needs a [ProductDetailsCubit] above it in the tree. [favoriteBuilder]
+/// returns the heart on the image; the router supplies it.
 class ProductDetailsScreen extends StatelessWidget {
   const ProductDetailsScreen({
     super.key,
     required this.onBack,
     required this.onAdded,
+    required this.favoriteBuilder,
   });
 
   final VoidCallback onBack;
 
   final VoidCallback onAdded;
 
+  final Widget Function(ProductEntity product) favoriteBuilder;
+
   @override
   Widget build(BuildContext context) {
-    return BlocListener<FavoritesCubit, FavoritesState>(
-      listenWhen: (_, current) =>
-          current is FavoritesLoaded && current.actionError != null,
-      listener: (context, state) {
-        if (state is! FavoritesLoaded) return;
-        final message = state.actionError;
-        if (message == null) return;
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(message)));
-      },
-      child: _details(),
-    );
-  }
-
-  Widget _details() {
     return BlocConsumer<ProductDetailsCubit, ProductDetailsState>(
       listenWhen: (previous, current) {
         if (current is! ProductDetailsLoaded) return false;
@@ -80,7 +65,11 @@ class ProductDetailsScreen extends StatelessWidget {
             child: AppError(message: message, onRetry: cubit.load),
           ),
           final ProductDetailsLoaded loaded => Scaffold(
-            body: _Content(state: loaded, onBack: onBack),
+            body: _Content(
+              state: loaded,
+              onBack: onBack,
+              favoriteBuilder: favoriteBuilder,
+            ),
             bottomNavigationBar: AddToCartBar(
               inStock: loaded.product.inStock,
               status: loaded.status,
@@ -109,10 +98,15 @@ class _Frame extends StatelessWidget {
 }
 
 class _Content extends StatelessWidget {
-  const _Content({required this.state, required this.onBack});
+  const _Content({
+    required this.state,
+    required this.onBack,
+    required this.favoriteBuilder,
+  });
 
   final ProductDetailsLoaded state;
   final VoidCallback onBack;
+  final Widget Function(ProductEntity product) favoriteBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +122,7 @@ class _Content extends StatelessWidget {
         DetailsImage(
           imageUrl: product.imageUrl,
           onBack: onBack,
-          action: ProductFavoriteButton(product: product),
+          action: favoriteBuilder(product),
         ),
         Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
