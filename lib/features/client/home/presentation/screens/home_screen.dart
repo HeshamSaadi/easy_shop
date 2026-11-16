@@ -11,13 +11,22 @@ import 'package:easy_shop/features/client/home/presentation/widgets/category_she
 import 'package:easy_shop/features/client/home/presentation/widgets/home_header.dart';
 import 'package:easy_shop/features/client/home/presentation/widgets/home_search_field.dart';
 import 'package:easy_shop/features/client/home/presentation/widgets/product_card.dart';
+import 'package:easy_shop/features/client/products/domain/entities/product_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+/// Needs a [HomeCubit] above it in the tree. [cornerBuilder] returns the
+/// widget shown on top of each card (the heart); the router supplies it.
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key, required this.onOpenProduct, this.userName});
+  const HomeScreen({
+    super.key,
+    required this.onOpenProduct,
+    required this.cornerBuilder,
+    this.userName,
+  });
 
   final ValueChanged<String> onOpenProduct;
+  final Widget Function(ProductEntity product) cornerBuilder;
 
   final String? userName;
 
@@ -72,6 +81,7 @@ class HomeScreen extends StatelessWidget {
                   final HomeLoaded loaded => _HomeContent(
                     state: loaded,
                     onOpenProduct: onOpenProduct,
+                    cornerBuilder: cornerBuilder,
                   ),
                 };
               },
@@ -84,13 +94,18 @@ class HomeScreen extends StatelessWidget {
 }
 
 class _HomeContent extends StatelessWidget {
-  const _HomeContent({required this.state, required this.onOpenProduct});
+  const _HomeContent({
+    required this.state,
+    required this.onOpenProduct,
+    required this.cornerBuilder,
+  });
 
   static const double _maxCardWidth = 220;
   static const double _cardRatio = 0.68;
 
   final HomeLoaded state;
   final ValueChanged<String> onOpenProduct;
+  final Widget Function(ProductEntity product) cornerBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -196,6 +211,7 @@ class _HomeContent extends StatelessWidget {
                   return ProductCard(
                     product: product,
                     onTap: () => onOpenProduct(product.slug),
+                    corner: cornerBuilder(product),
                   );
                 },
               ),

@@ -45,6 +45,9 @@ abstract final class EndPoints {
   static const String clientProducts = '/client/products';
   static String clientProductDetails(String slug) =>
       '/client/products/show/${Uri.encodeComponent(slug)}';
+  static const String clientFavorites = '/client/favorites';
+  static const String clientFavoriteStore = '/client/favorites/store';
+  static const String clientFavoriteDestroy = '/client/favorites/destroy';
   static const String clientCart = '/client/carts';
   static const String clientCartStore = '/client/carts/store';
   static const String clientCartDestroy = '/client/carts/destroy';

@@ -5,13 +5,21 @@ import 'package:flutter/material.dart';
 
 /// The product image with a back button on top of it.
 class DetailsImage extends StatelessWidget {
-  const DetailsImage({super.key, required this.imageUrl, required this.onBack});
+  const DetailsImage({
+    super.key,
+    required this.imageUrl,
+    required this.onBack,
+    this.action,
+  });
 
   /// Width divided by height of the image area.
   static const double _ratio = 1.1;
 
   final String imageUrl;
   final VoidCallback onBack;
+
+  /// Optional button on the opposite side of the back button (the heart).
+  final Widget? action;
 
   @override
   Widget build(BuildContext context) {
@@ -26,13 +34,22 @@ class DetailsImage extends StatelessWidget {
         SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
-            child: IconButton.filled(
-              onPressed: onBack,
-              style: IconButton.styleFrom(
-                backgroundColor: colors.surface,
-                foregroundColor: colors.onSurface,
-              ),
-              icon: const Icon(Icons.arrow_back_ios_new, size: AppSizes.iconMd),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton.filled(
+                  onPressed: onBack,
+                  style: IconButton.styleFrom(
+                    backgroundColor: colors.surface,
+                    foregroundColor: colors.onSurface,
+                  ),
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new,
+                    size: AppSizes.iconMd,
+                  ),
+                ),
+                ?action,
+              ],
             ),
           ),
         ),
