@@ -5,6 +5,7 @@ abstract final class ClientRouteNames {
   static const otp = 'otp';
   static const verified = 'verified';
   static const home = 'home';
+  static const productDetails = 'productDetails';
   static const favorites = 'favorites';
   static const cart = 'cart';
   static const orders = 'orders';
@@ -21,6 +22,7 @@ abstract final class ClientRoutePaths {
   static const otp = '/otp';
   static const verified = '/verified';
   static const home = '/home';
+  static const productDetails = '/product/:slug';
   static const favorites = '/favorites';
   static const cart = '/cart';
   static const orders = '/orders';
