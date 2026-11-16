@@ -5,6 +5,9 @@ import 'package:easy_shop/core/widgets/app_error.dart';
 import 'package:easy_shop/core/widgets/app_loading.dart';
 import 'package:easy_shop/core/widgets/app_top_bar.dart';
 import 'package:easy_shop/core/widgets/quantity_stepper.dart';
+import 'package:easy_shop/features/client/favorites/presentation/cubit/favorites_cubit.dart';
+import 'package:easy_shop/features/client/favorites/presentation/cubit/favorites_state.dart';
+import 'package:easy_shop/features/client/favorites/presentation/widgets/favorite_heart_button.dart';
 import 'package:easy_shop/features/client/products/presentation/constants/product_details_strings.dart';
 import 'package:easy_shop/features/client/products/presentation/cubit/product_details_cubit.dart';
 import 'package:easy_shop/features/client/products/presentation/cubit/product_details_state.dart';
@@ -14,7 +17,8 @@ import 'package:easy_shop/features/client/products/presentation/widgets/stock_bo
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-/// Needs a [ProductDetailsCubit] above it in the tree (the router provides it).
+/// Needs a [ProductDetailsCubit] and the shared [FavoritesCubit] above it in
+/// the tree (the router provides both).
 class ProductDetailsScreen extends StatelessWidget {
   const ProductDetailsScreen({
     super.key,
@@ -28,6 +32,22 @@ class ProductDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return BlocListener<FavoritesCubit, FavoritesState>(
+      listenWhen: (_, current) =>
+          current is FavoritesLoaded && current.actionError != null,
+      listener: (context, state) {
+        if (state is! FavoritesLoaded) return;
+        final message = state.actionError;
+        if (message == null) return;
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(message)));
+      },
+      child: _details(),
+    );
+  }
+
+  Widget _details() {
     return BlocConsumer<ProductDetailsCubit, ProductDetailsState>(
       listenWhen: (previous, current) {
         if (current is! ProductDetailsLoaded) return false;
@@ -105,7 +125,20 @@ class _Content extends StatelessWidget {
     return ListView(
       padding: EdgeInsets.zero,
       children: [
-        DetailsImage(imageUrl: product.imageUrl, onBack: onBack),
+        DetailsImage(
+          imageUrl: product.imageUrl,
+          onBack: onBack,
+          action: BlocBuilder<FavoritesCubit, FavoritesState>(
+            builder: (context, favorites) {
+              final loaded = favorites is FavoritesLoaded ? favorites : null;
+              return FavoriteHeartButton(
+                isFavorite: loaded?.isFavorite(product.id) ?? false,
+                isBusy: loaded?.isBusy(product.id) ?? false,
+                onPressed: () => context.read<FavoritesCubit>().toggle(product),
+              );
+            },
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(

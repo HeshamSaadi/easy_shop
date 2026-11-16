@@ -21,6 +21,10 @@ import 'package:easy_shop/features/client/cart/domain/usecases/get_cart.dart';
 import 'package:easy_shop/features/client/cart/domain/usecases/remove_from_cart.dart';
 import 'package:easy_shop/features/client/cart/presentation/cubit/cart_cubit.dart';
 import 'package:easy_shop/features/client/categories/domain/usecases/get_categories.dart';
+import 'package:easy_shop/features/client/favorites/domain/usecases/add_favorite.dart';
+import 'package:easy_shop/features/client/favorites/domain/usecases/get_favorites.dart';
+import 'package:easy_shop/features/client/favorites/domain/usecases/remove_favorite.dart';
+import 'package:easy_shop/features/client/favorites/presentation/cubit/favorites_cubit.dart';
 import 'package:easy_shop/features/client/home/presentation/constants/home_strings.dart';
 import 'package:easy_shop/features/client/home/presentation/cubit/home_cubit.dart';
 import 'package:easy_shop/features/client/home/presentation/screens/home_screen.dart';
@@ -34,6 +38,7 @@ import 'package:get_it/get_it.dart';
 import '../features/admin/auth/fake_auth_repository.dart';
 import '../features/client/auth/fake_client_auth_repository.dart';
 import '../features/client/cart/fake_cart_repository.dart';
+import '../features/client/favorites/fake_favorite_repository.dart';
 import '../features/client/home/fake_catalog_repositories.dart';
 import '../features/client/profile/fake_client_profile_repository.dart';
 
@@ -45,6 +50,7 @@ void main() {
       await sl.reset();
       final repository = FakeClientAuthRepository(hasSession: hasSession);
       final cartRepository = FakeCartRepository();
+      final favoriteRepository = FakeFavoriteRepository();
       sl
         ..registerSingleton(SessionEvents())
         ..registerSingleton(
@@ -74,11 +80,19 @@ void main() {
             addToCart: AddToCart(cartRepository),
             removeFromCart: RemoveFromCart(cartRepository),
           ),
+        )
+        ..registerSingleton(
+          FavoritesCubit(
+            getFavorites: GetFavorites(favoriteRepository),
+            addFavorite: AddFavorite(favoriteRepository),
+            removeFavorite: RemoveFavorite(favoriteRepository),
+          ),
         );
     }
 
     tearDown(() async {
       await sl<CartCubit>().close();
+      await sl<FavoritesCubit>().close();
       await sl<client_session.SessionCubit>().close();
       await sl.reset();
     });

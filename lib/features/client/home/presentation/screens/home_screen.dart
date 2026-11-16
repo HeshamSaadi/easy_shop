@@ -3,6 +3,9 @@ import 'package:easy_shop/core/theme/app_theme_colors.dart';
 import 'package:easy_shop/core/widgets/app_empty.dart';
 import 'package:easy_shop/core/widgets/app_error.dart';
 import 'package:easy_shop/core/widgets/app_loading.dart';
+import 'package:easy_shop/features/client/favorites/presentation/cubit/favorites_cubit.dart';
+import 'package:easy_shop/features/client/favorites/presentation/cubit/favorites_state.dart';
+import 'package:easy_shop/features/client/favorites/presentation/widgets/product_favorite_button.dart';
 import 'package:easy_shop/features/client/home/presentation/constants/home_strings.dart';
 import 'package:easy_shop/features/client/home/presentation/cubit/home_cubit.dart';
 import 'package:easy_shop/features/client/home/presentation/cubit/home_state.dart';
@@ -14,6 +17,8 @@ import 'package:easy_shop/features/client/home/presentation/widgets/product_card
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+/// Needs a [HomeCubit] and the shared [FavoritesCubit] above it in the tree
+/// (the router and the client shell provide them).
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, required this.onOpenProduct, this.userName});
 
@@ -25,59 +30,71 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<HomeCubit>();
 
-    return Scaffold(
-      body: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            color: Theme.of(context).colorScheme.surface,
-            child: SafeArea(
-              bottom: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.lg,
-                  AppSpacing.lg,
-                  AppSpacing.lg,
-                  AppSpacing.md,
-                ),
-                child: Column(
-                  children: [
-                    HomeHeader(userName: userName),
-                    const SizedBox(height: AppSpacing.md),
-                    HomeSearchField(onChanged: cubit.search),
-                  ],
+    return BlocListener<FavoritesCubit, FavoritesState>(
+      listenWhen: (_, current) =>
+          current is FavoritesLoaded && current.actionError != null,
+      listener: (context, state) {
+        if (state is! FavoritesLoaded) return;
+        final message = state.actionError;
+        if (message == null) return;
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(message)));
+      },
+      child: Scaffold(
+        body: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              color: Theme.of(context).colorScheme.surface,
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                    AppSpacing.md,
+                  ),
+                  child: Column(
+                    children: [
+                      HomeHeader(userName: userName),
+                      const SizedBox(height: AppSpacing.md),
+                      HomeSearchField(onChanged: cubit.search),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            child: BlocConsumer<HomeCubit, HomeState>(
-              listenWhen: (_, current) =>
-                  current is HomeLoaded && current.refreshError != null,
-              listener: (context, state) {
-                if (state is! HomeLoaded) return;
-                final message = state.refreshError;
-                if (message == null) return;
-                ScaffoldMessenger.of(context)
-                  ..hideCurrentSnackBar()
-                  ..showSnackBar(SnackBar(content: Text(message)));
-              },
-              builder: (context, state) {
-                return switch (state) {
-                  HomeInitial() || HomeLoading() => const AppLoading(),
-                  HomeError(:final message) => AppError(
-                    message: message,
-                    onRetry: cubit.load,
-                  ),
-                  final HomeLoaded loaded => _HomeContent(
-                    state: loaded,
-                    onOpenProduct: onOpenProduct,
-                  ),
-                };
-              },
+            Expanded(
+              child: BlocConsumer<HomeCubit, HomeState>(
+                listenWhen: (_, current) =>
+                    current is HomeLoaded && current.refreshError != null,
+                listener: (context, state) {
+                  if (state is! HomeLoaded) return;
+                  final message = state.refreshError;
+                  if (message == null) return;
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(SnackBar(content: Text(message)));
+                },
+                builder: (context, state) {
+                  return switch (state) {
+                    HomeInitial() || HomeLoading() => const AppLoading(),
+                    HomeError(:final message) => AppError(
+                      message: message,
+                      onRetry: cubit.load,
+                    ),
+                    final HomeLoaded loaded => _HomeContent(
+                      state: loaded,
+                      onOpenProduct: onOpenProduct,
+                    ),
+                  };
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -196,6 +213,10 @@ class _HomeContent extends StatelessWidget {
                   return ProductCard(
                     product: product,
                     onTap: () => onOpenProduct(product.slug),
+                    corner: ProductFavoriteButton(
+                      product: product,
+                      compact: true,
+                    ),
                   );
                 },
               ),

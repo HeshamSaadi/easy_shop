@@ -21,6 +21,8 @@ import 'package:easy_shop/features/client/cart/presentation/screens/cart_screen.
 import 'package:easy_shop/features/client/checkout/presentation/cubit/checkout_cubit.dart';
 import 'package:easy_shop/features/client/checkout/presentation/screens/checkout_screen.dart';
 import 'package:easy_shop/features/client/checkout/presentation/screens/payment_success_screen.dart';
+import 'package:easy_shop/features/client/favorites/presentation/cubit/favorites_cubit.dart';
+import 'package:easy_shop/features/client/favorites/presentation/screens/favorites_screen.dart';
 import 'package:easy_shop/features/client/home/presentation/cubit/home_cubit.dart';
 import 'package:easy_shop/features/client/home/presentation/screens/home_screen.dart';
 import 'package:easy_shop/features/client/orders/domain/entities/order_entity.dart';
@@ -104,11 +106,7 @@ GoRouter createClientRouter(SessionCubit session) {
         builder: (_, _, shell) => _ClientShellPage(navigationShell: shell),
         branches: [
           _homeBranch(),
-          _placeholderBranch(
-            ClientRouteNames.favorites,
-            ClientRoutePaths.favorites,
-            ClientShellStrings.favorites,
-          ),
+          _favoritesBranch(),
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -159,6 +157,23 @@ StatefulShellBranch _homeBranch() {
         name: ClientRouteNames.home,
         path: ClientRoutePaths.home,
         builder: (_, _) => const _HomePage(),
+      ),
+    ],
+  );
+}
+
+StatefulShellBranch _favoritesBranch() {
+  return StatefulShellBranch(
+    routes: [
+      GoRoute(
+        name: ClientRouteNames.favorites,
+        path: ClientRoutePaths.favorites,
+        builder: (context, _) => FavoritesScreen(
+          onOpenProduct: (slug) => context.pushNamed(
+            ClientRouteNames.productDetails,
+            pathParameters: {'slug': slug},
+          ),
+        ),
       ),
     ],
   );
@@ -314,8 +329,15 @@ class _ProductDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => _sl<ProductDetailsCubit>(param1: slug)..load(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => _sl<ProductDetailsCubit>(param1: slug)..load(),
+        ),
+        // The details route is outside the shell, so it gets the shared
+        // favorites cubit here. `.value` does not close the singleton.
+        BlocProvider.value(value: _sl<FavoritesCubit>()),
+      ],
       child: ProductDetailsScreen(
         onBack: () => _back(context),
         onAdded: () => _sl<CartCubit>().refresh(),
@@ -382,11 +404,12 @@ class _EditProfilePage extends StatelessWidget {
   }
 }
 
-/// Provides the shared [CartCubit] to the whole shell, so the Cart tab badge
-/// and the Cart screen show the same cart. `BlocProvider.value` does not close
-/// it, because it is a singleton. The shell is rebuilt after every login, so
-/// the cart of the previous account is replaced by `load()`.
-/// The profile is provided here too, so Home and Profile show the same data.
+/// Provides the shared [CartCubit], [FavoritesCubit] and [ProfileCubit] to the
+/// whole shell, so the Cart tab badge and the Cart screen show the same cart,
+/// the Favorites tab shows the same list as the heart on the details screen,
+/// and Home and Profile show the same profile. `BlocProvider.value` does not
+/// close the singletons. The shell is rebuilt after every login, so the data
+/// of the previous account is replaced by `load()`.
 class _ClientShellPage extends StatefulWidget {
   const _ClientShellPage({required this.navigationShell});
 
@@ -398,11 +421,13 @@ class _ClientShellPage extends StatefulWidget {
 
 class _ClientShellPageState extends State<_ClientShellPage> {
   late final CartCubit _cart = _sl<CartCubit>();
+  late final FavoritesCubit _favorites = _sl<FavoritesCubit>();
 
   @override
   void initState() {
     super.initState();
     _cart.load();
+    _favorites.load();
   }
 
   @override
@@ -411,6 +436,7 @@ class _ClientShellPageState extends State<_ClientShellPage> {
       providers: [
         BlocProvider.value(value: _cart),
         BlocProvider(create: (_) => _sl<ProfileCubit>()..loadProfile()),
+        BlocProvider.value(value: _favorites),
       ],
       child: ClientShell(navigationShell: widget.navigationShell),
     );
