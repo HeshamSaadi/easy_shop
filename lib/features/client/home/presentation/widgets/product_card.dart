@@ -29,6 +29,7 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primary = theme.colorScheme.primary;
+    final corner = this.corner;
 
     return Material(
       color: theme.colorScheme.surface,
@@ -53,7 +54,7 @@ class ProductCard extends StatelessWidget {
                     Positioned(
                       top: AppSpacing.xs,
                       right: AppSpacing.xs,
-                      child: corner!,
+                      child: corner,
                     ),
                 ],
               ),

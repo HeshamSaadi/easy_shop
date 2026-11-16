@@ -7,7 +7,7 @@ import 'package:easy_shop/core/widgets/app_top_bar.dart';
 import 'package:easy_shop/core/widgets/quantity_stepper.dart';
 import 'package:easy_shop/features/client/favorites/presentation/cubit/favorites_cubit.dart';
 import 'package:easy_shop/features/client/favorites/presentation/cubit/favorites_state.dart';
-import 'package:easy_shop/features/client/favorites/presentation/widgets/favorite_heart_button.dart';
+import 'package:easy_shop/features/client/favorites/presentation/widgets/product_favorite_button.dart';
 import 'package:easy_shop/features/client/products/presentation/constants/product_details_strings.dart';
 import 'package:easy_shop/features/client/products/presentation/cubit/product_details_cubit.dart';
 import 'package:easy_shop/features/client/products/presentation/cubit/product_details_state.dart';
@@ -128,16 +128,7 @@ class _Content extends StatelessWidget {
         DetailsImage(
           imageUrl: product.imageUrl,
           onBack: onBack,
-          action: BlocBuilder<FavoritesCubit, FavoritesState>(
-            builder: (context, favorites) {
-              final loaded = favorites is FavoritesLoaded ? favorites : null;
-              return FavoriteHeartButton(
-                isFavorite: loaded?.isFavorite(product.id) ?? false,
-                isBusy: loaded?.isBusy(product.id) ?? false,
-                onPressed: () => context.read<FavoritesCubit>().toggle(product),
-              );
-            },
-          ),
+          action: ProductFavoriteButton(product: product),
         ),
         Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
