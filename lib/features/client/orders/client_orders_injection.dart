@@ -5,9 +5,13 @@ import 'package:easy_shop/features/client/orders/domain/repositories/orders_repo
 import 'package:easy_shop/features/client/orders/domain/usecases/get_order_details.dart';
 import 'package:easy_shop/features/client/orders/domain/usecases/get_orders.dart';
 import 'package:easy_shop/features/client/orders/domain/usecases/place_order.dart';
+import 'package:easy_shop/features/client/orders/presentation/cubit/order_details_cubit.dart';
+import 'package:easy_shop/features/client/orders/presentation/cubit/orders_cubit.dart';
 import 'package:get_it/get_it.dart';
 
 /// Registers the Client orders feature. Call from `initClient`.
+/// [OrdersCubit] is a singleton: the shell loads it, and the checkout
+/// refreshes it after an order is placed.
 void registerClientOrders(GetIt sl) {
   sl
     ..registerLazySingleton<OrdersRemoteDataSource>(
@@ -18,5 +22,10 @@ void registerClientOrders(GetIt sl) {
     )
     ..registerLazySingleton(() => GetOrders(sl<OrdersRepository>()))
     ..registerLazySingleton(() => GetOrderDetails(sl<OrdersRepository>()))
-    ..registerLazySingleton(() => PlaceOrder(sl<OrdersRepository>()));
+    ..registerLazySingleton(() => PlaceOrder(sl<OrdersRepository>()))
+    ..registerLazySingleton(() => OrdersCubit(getOrders: sl<GetOrders>()))
+    ..registerFactoryParam<OrderDetailsCubit, String, void>(
+      (code, _) =>
+          OrderDetailsCubit(code: code, getOrderDetails: sl<GetOrderDetails>()),
+    );
 }

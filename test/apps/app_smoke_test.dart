@@ -28,6 +28,8 @@ import 'package:easy_shop/features/client/favorites/presentation/cubit/favorites
 import 'package:easy_shop/features/client/home/presentation/constants/home_strings.dart';
 import 'package:easy_shop/features/client/home/presentation/cubit/home_cubit.dart';
 import 'package:easy_shop/features/client/home/presentation/screens/home_screen.dart';
+import 'package:easy_shop/features/client/orders/domain/usecases/get_orders.dart';
+import 'package:easy_shop/features/client/orders/presentation/cubit/orders_cubit.dart';
 import 'package:easy_shop/features/client/products/domain/usecases/get_products.dart';
 import 'package:easy_shop/features/client/profile/domain/usecases/get_client_profile.dart';
 import 'package:easy_shop/features/client/profile/presentation/cubit/profile_cubit.dart';
@@ -40,6 +42,7 @@ import '../features/client/auth/fake_client_auth_repository.dart';
 import '../features/client/cart/fake_cart_repository.dart';
 import '../features/client/favorites/fake_favorite_repository.dart';
 import '../features/client/home/fake_catalog_repositories.dart';
+import '../features/client/orders/client_orders_test_helpers.dart';
 import '../features/client/profile/fake_client_profile_repository.dart';
 
 void main() {
@@ -87,12 +90,16 @@ void main() {
             addFavorite: AddFavorite(favoriteRepository),
             removeFavorite: RemoveFavorite(favoriteRepository),
           ),
+        )
+        ..registerSingleton(
+          OrdersCubit(getOrders: GetOrders(FakeClientOrdersRepository())),
         );
     }
 
     tearDown(() async {
       await sl<CartCubit>().close();
       await sl<FavoritesCubit>().close();
+      await sl<OrdersCubit>().close();
       await sl<client_session.SessionCubit>().close();
       await sl.reset();
     });
