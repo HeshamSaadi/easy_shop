@@ -29,6 +29,10 @@ import 'package:easy_shop/features/client/home/presentation/widgets/product_card
 import 'package:easy_shop/features/client/home/presentation/cubit/home_cubit.dart';
 import 'package:easy_shop/features/client/home/presentation/screens/home_screen.dart';
 import 'package:easy_shop/features/client/orders/domain/entities/order_entity.dart';
+import 'package:easy_shop/features/client/orders/presentation/cubit/order_details_cubit.dart';
+import 'package:easy_shop/features/client/orders/presentation/cubit/orders_cubit.dart';
+import 'package:easy_shop/features/client/orders/presentation/screens/order_details_screen.dart';
+import 'package:easy_shop/features/client/orders/presentation/screens/orders_screen.dart';
 import 'package:easy_shop/features/client/products/presentation/cubit/product_details_cubit.dart';
 import 'package:easy_shop/features/client/products/presentation/screens/product_details_screen.dart';
 import 'package:easy_shop/features/client/profile/domain/entities/client_entity.dart';
@@ -105,6 +109,13 @@ GoRouter createClientRouter(SessionCubit session) {
         builder: (_, state) =>
             _ProductDetailsPage(slug: state.pathParameters['slug']!),
       ),
+      // Outside the shell on purpose: the details screen covers the tab bar.
+      GoRoute(
+        name: ClientRouteNames.orderDetails,
+        path: ClientRoutePaths.orderDetails,
+        builder: (_, state) =>
+            _OrderDetailsPage(code: state.pathParameters['code']!),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (_, _, shell) => _ClientShellPage(navigationShell: shell),
         branches: [
@@ -130,11 +141,7 @@ GoRouter createClientRouter(SessionCubit session) {
               ),
             ],
           ),
-          _placeholderBranch(
-            ClientRouteNames.orders,
-            ClientRoutePaths.orders,
-            ClientShellStrings.orders,
-          ),
+          _ordersBranch(),
           _profileBranch(session),
         ],
       ),
@@ -192,6 +199,24 @@ StatefulShellBranch _favoritesBranch() {
   );
 }
 
+StatefulShellBranch _ordersBranch() {
+  return StatefulShellBranch(
+    routes: [
+      GoRoute(
+        name: ClientRouteNames.orders,
+        path: ClientRoutePaths.orders,
+        builder: (context, _) => OrdersScreen(
+          onOpenOrder: (code) => context.pushNamed(
+            ClientRouteNames.orderDetails,
+            pathParameters: {'code': code},
+          ),
+          onStartShopping: () => context.goNamed(ClientRouteNames.home),
+        ),
+      ),
+    ],
+  );
+}
+
 StatefulShellBranch _profileBranch(SessionCubit session) {
   return StatefulShellBranch(
     routes: [
@@ -212,32 +237,6 @@ StatefulShellBranch _profileBranch(SessionCubit session) {
       ),
     ],
   );
-}
-
-/// Temporary tab. The owner of each feature replaces it with the real screen.
-StatefulShellBranch _placeholderBranch(String name, String path, String label) {
-  return StatefulShellBranch(
-    routes: [
-      GoRoute(
-        name: name,
-        path: path,
-        builder: (_, _) => _TabPlaceholder(label: label),
-      ),
-    ],
-  );
-}
-
-class _TabPlaceholder extends StatelessWidget {
-  const _TabPlaceholder({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(label, style: Theme.of(context).textTheme.titleLarge),
-    );
-  }
 }
 
 class _OtpPage extends StatelessWidget {
@@ -363,6 +362,29 @@ class _ProductDetailsPage extends StatelessWidget {
   }
 }
 
+/// Loads one order by its code.
+class _OrderDetailsPage extends StatelessWidget {
+  const _OrderDetailsPage({required this.code});
+
+  final String code;
+
+  void _back(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.goNamed(ClientRouteNames.orders);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => _sl<OrderDetailsCubit>(param1: code)..load(),
+      child: OrderDetailsScreen(onBack: () => _back(context)),
+    );
+  }
+}
+
 class _ProfilePage extends StatelessWidget {
   const _ProfilePage({required this.session});
 
@@ -421,12 +443,13 @@ class _EditProfilePage extends StatelessWidget {
   }
 }
 
-/// Provides the shared [CartCubit], [FavoritesCubit] and [ProfileCubit] to the
-/// whole shell, so the Cart tab badge and the Cart screen show the same cart,
-/// the Favorites tab shows the same list as the heart on the details screen,
-/// and Home and Profile show the same profile. `BlocProvider.value` does not
-/// close the singletons. The shell is rebuilt after every login, so the data
-/// of the previous account is replaced by `load()`.
+/// Provides the shared [CartCubit], [FavoritesCubit], [OrdersCubit] and
+/// [ProfileCubit] to the whole shell, so the Cart tab badge and the Cart screen
+/// show the same cart, the Favorites tab shows the same list as the heart on
+/// the details screen, the Orders tab can be refreshed after checkout, and Home
+/// and Profile show the same profile. `BlocProvider.value` does not close the
+/// singletons. The shell is rebuilt after every login, so the data of the
+/// previous account is replaced by `load()`.
 class _ClientShellPage extends StatefulWidget {
   const _ClientShellPage({required this.navigationShell});
 
@@ -439,12 +462,14 @@ class _ClientShellPage extends StatefulWidget {
 class _ClientShellPageState extends State<_ClientShellPage> {
   late final CartCubit _cart = _sl<CartCubit>();
   late final FavoritesCubit _favorites = _sl<FavoritesCubit>();
+  late final OrdersCubit _orders = _sl<OrdersCubit>();
 
   @override
   void initState() {
     super.initState();
     _cart.load();
     _favorites.load();
+    _orders.load();
   }
 
   @override
@@ -454,6 +479,7 @@ class _ClientShellPageState extends State<_ClientShellPage> {
         BlocProvider.value(value: _cart),
         BlocProvider(create: (_) => _sl<ProfileCubit>()..loadProfile()),
         BlocProvider.value(value: _favorites),
+        BlocProvider.value(value: _orders),
       ],
       child: ClientShell(navigationShell: widget.navigationShell),
     );
@@ -479,6 +505,7 @@ class _CheckoutPage extends StatelessWidget {
   /// checkout screen, so Back cannot return to a finished checkout.
   void _onOrderPlaced(BuildContext context, OrderEntity order) {
     _sl<CartCubit>().load();
+    _sl<OrdersCubit>().refresh();
     context.goNamed(ClientRouteNames.orderSuccess, extra: order.code);
   }
 

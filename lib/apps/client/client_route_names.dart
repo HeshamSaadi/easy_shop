@@ -9,6 +9,7 @@ abstract final class ClientRouteNames {
   static const favorites = 'favorites';
   static const cart = 'cart';
   static const orders = 'orders';
+  static const orderDetails = 'orderDetails';
   static const profile = 'profile';
   static const profileEdit = 'profileEdit';
   static const checkout = 'checkout';
@@ -26,6 +27,7 @@ abstract final class ClientRoutePaths {
   static const favorites = '/favorites';
   static const cart = '/cart';
   static const orders = '/orders';
+  static const orderDetails = '/order/:code';
   static const profile = '/profile';
   static const orderSuccess = '/order-success';
 
